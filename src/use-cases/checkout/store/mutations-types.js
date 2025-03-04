@@ -1,0 +1,2 @@
+export const SET_ORDER = "CHECKOUT/SET_ORDER" 
+export const SET_CART = "CHECKOUT/SET_CART" 
