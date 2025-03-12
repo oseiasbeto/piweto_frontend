@@ -74,14 +74,23 @@ export function useEvents() {
             loading.value = false;
         }
     }
+    const getEventById = async (id) => {
+        try {
+            const response = await api.get("/events/preview/" + id)
+            const event = response.data.event
+            return event
+        } catch (err) {
+            error.value = true
+            console.log(err.message)
+            throw err
+        } finally {
+            loading.value = false;
+        }
+    }
 
     const deleteEvent = async (eventId) => {
         try {
-            console.log(eventId)
-            const response = await api.delete("/events", eventId)
-            const newEvent = response.data.event
-
-            store.dispatch("setEvent", newEvent)
+            await api.delete(`/events/${eventId}`)
         } catch (err) {
             error.value = true
             console.log(err.message)
@@ -93,13 +102,33 @@ export function useEvents() {
 
     const newEvent = async (data) => {
         try {
-            console.log(data)
+            loading.value = true
             const response = await api.post("/events", data, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 }
             });
-            
+
+            const newEvent = response.data.event
+
+            store.dispatch("setEvent", newEvent)
+        } catch (err) {
+            error.value = true
+            console.log(err.message)
+            throw err
+        } finally {
+            loading.value = false;
+        }
+    }
+    const editEvent = async (data) => {
+        try {
+            loading.value = true
+            const response = await api.put('/events', data, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                }
+            });
+
             const newEvent = response.data.event
 
             store.dispatch("setEvent", newEvent)
@@ -120,7 +149,10 @@ export function useEvents() {
         error,
         getEvents,
         getEvent,
+        getEventById,
         loadMore,
-        newEvent
+        newEvent,
+        editEvent,
+        deleteEvent
     }
 }

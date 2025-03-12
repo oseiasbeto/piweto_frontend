@@ -1,18 +1,33 @@
 <script setup>
+import { computed } from "vue";
 import { useRoute } from "vue-router";
+import { useStore } from "vuex";
 
 const route = useRoute()
+const store = useStore()
+
+
+const isViewMobile = computed(() => {
+    return store.getters.isViewMobile
+})
+
+const closeViewMobile = () => {
+    store.dispatch("closeIsViewMobile")
+}
 
 </script>
 
 <template>
-    <div class="w-[120px] fixed h-screen top-[70px] bg-[#494b57] text-white shrink-0">
+    <div class="w-[120px] z-[111] transition-all lg:block lg:left-0 fixed h-screen lg:top-[70px] bg-[#494b57] text-white shrink-0"
+        :class="isViewMobile ? 'left-0' : 'left-[-121px]'">
         <ul>
             <li>
-                <router-link class="text-xs text-center px-[10px] hover:bg-[#42434f] py-4 flex items-center flex-col" :class="{'bg-[#40414d] border-l-[4px] border-l-[#ffcd36] text-[#ffcd36] border-b border-b-[#6a6c77] border-t border-t-[#494b57]' : route.name == 'Dashboard'}"
+                <router-link @click="closeViewMobile()"
+                    class="text-xs text-center px-[10px] hover:bg-[#42434f] py-4 flex items-center flex-col"
+                    :class="{ 'bg-[#40414d] border-l-[4px] border-l-[#ffcd36] text-[#ffcd36] border-b border-b-[#6a6c77] border-t border-t-[#494b57]': route.name == 'Dashboard' }"
                     :to="`/gerenciador-de-eventos/pagina-inicial/${route.params.id}?tab=status`">
-                    <svg class="mx-auto mt-2 mb-2" xmlns="http://www.w3.org/2000/svg" width="30px" height="30px" viewBox="0 -0.5 25 25"
-                        fill="none">
+                    <svg class="mx-auto mt-2 mb-2" xmlns="http://www.w3.org/2000/svg" width="30px" height="30px"
+                        viewBox="0 -0.5 25 25" fill="none">
                         <path fill-rule="evenodd" clip-rule="evenodd"
                             d="M9.918 10.0005H7.082C6.66587 9.99708 6.26541 10.1591 5.96873 10.4509C5.67204 10.7427 5.50343 11.1404 5.5 11.5565V17.4455C5.5077 18.3117 6.21584 19.0078 7.082 19.0005H9.918C10.3341 19.004 10.7346 18.842 11.0313 18.5502C11.328 18.2584 11.4966 17.8607 11.5 17.4445V11.5565C11.4966 11.1404 11.328 10.7427 11.0313 10.4509C10.7346 10.1591 10.3341 9.99708 9.918 10.0005Z"
                             stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
@@ -30,7 +45,9 @@ const route = useRoute()
                 </router-link>
             </li>
             <li>
-                <router-link class="text-xs text-center px-[10px] hover:bg-[#42434f] py-4 flex items-center flex-col" :class="{'bg-[#40414d] border-l-[4px] border-l-[#ffcd36] text-[#ffcd36] border-b border-b-[#6a6c77] border-t border-t-[#494b57]' : route.name == 'Partakers'}"
+                <router-link @click="closeViewMobile()"
+                    class="text-xs text-center px-[10px] hover:bg-[#42434f] py-4 flex items-center flex-col"
+                    :class="{ 'bg-[#40414d] border-l-[4px] border-l-[#ffcd36] text-[#ffcd36] border-b border-b-[#6a6c77] border-t border-t-[#494b57]': route.name == 'Partakers' }"
                     :to="`/gerenciador-de-eventos/participantes/${route.params.id}`">
                     <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mt-2 mb-2" width="30px" height="30px"
                         viewBox="0 0 24 24" fill="none">
@@ -45,7 +62,10 @@ const route = useRoute()
                 </router-link>
             </li>
             <li>
-                <router-link class="text-xs text-center px-[10px] hover:bg-[#42434f] py-4 flex items-center flex-col" :class="{'bg-[#40414d] border-l-[4px] border-l-[#ffcd36] text-[#ffcd36] border-b border-b-[#6a6c77] border-t border-t-[#494b57]' : route.name == 'Finance'}" :to="`/gerenciador-de-eventos/financeiro/${route.params.id}`">
+                <router-link @click="closeViewMobile()"
+                    class="text-xs text-center px-[10px] hover:bg-[#42434f] py-4 flex items-center flex-col"
+                    :class="{ 'bg-[#40414d] border-l-[4px] border-l-[#ffcd36] text-[#ffcd36] border-b border-b-[#6a6c77] border-t border-t-[#494b57]': route.name == 'Finance' }"
+                    :to="`/gerenciador-de-eventos/financeiro/${route.params.id}`">
                     <svg class="mx-auto mt-2 mb-2" xmlns="http://www.w3.org/2000/svg" width="30px" height="30px"
                         viewBox="0 0 24 24" fill="none">
                         <path
@@ -65,7 +85,9 @@ const route = useRoute()
                 </router-link>
             </li>
             <li>
-                <a class="text-xs text-center px-[10px] hover:bg-[#42434f] py-4 flex items-center flex-col" :class="{'bg-[#40414d] border-l-[4px] border-l-[#ffcd36] text-[#ffcd36] border-b border-b-[#6a6c77] border-t border-t-[#494b57]' : route.name == ''}" href="https://wa.me/948360831" target="_blank">
+                <a class="text-xs text-center px-[10px] hover:bg-[#42434f] py-4 flex items-center flex-col"
+                    :class="{ 'bg-[#40414d] border-l-[4px] border-l-[#ffcd36] text-[#ffcd36] border-b border-b-[#6a6c77] border-t border-t-[#494b57]': route.name == '' }"
+                    href="https://wa.me/948360831" target="_blank">
                     <svg class="mx-auto mt-2 mb-2" xmlns="http://www.w3.org/2000/svg" width="30px" height="30px"
                         viewBox="0 0 24 24" fill="none">
                         <path

@@ -119,6 +119,18 @@ export function useUsers() {
         }
     }
 
+    const updateUser = async (data) => {
+        try {
+            loading.value = true
+            await api.put("/users", data)
+        } catch (err) {
+            console.log(err.message)
+            throw err
+        } finally {
+            loading.value = false;
+        }
+    }
+
     const resetPassword = async (data) => {
         try {
             loading.value = true
@@ -190,6 +202,7 @@ export function useUsers() {
         loading,
         error,
         register,
+        updateUser,
         auth,
         logout,
         refreshToken,

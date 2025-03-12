@@ -4,10 +4,10 @@ export default {
     [types.SET_STAFF](state, payload) {
         state.staff = payload
     },
-    [types.SET_TICKETS](state, payload) {
-        state.tickets.data = payload.data
-        state.tickets.metadata = payload.metadata
-        state.tickets.hasViewed = payload.hasViewed
+    [types.SET_PARTAKERS](state, payload) {
+        state.partakers.data = payload.data
+        state.partakers.metadata = payload.metadata
+        state.partakers.hasViewed = payload.hasViewed
     },
     [types.SET_STAFFS](state, payload) {
         state.staffs.data = payload.data
@@ -31,6 +31,12 @@ export default {
     },
     [types.REMOVE_STAFF_FROM_STAFFS](state, index) {
         state.staffs.data.splice(index, 1)
+    },
+    [types.TOGGLE_ISVIEWMOBILE](state) {
+        state.isViewMobile = !state.isViewMobile
+    },
+    [types.CLOSE_ISVIEWMOBILE](state) {
+        state.isViewMobile = false
     },
     [types.ADD_STAFF_FROM_STAFFS](state, staff) {
         state.staffs.data = [

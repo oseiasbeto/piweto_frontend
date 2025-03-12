@@ -16,6 +16,9 @@ export const currentLocation = (state) => {
 export const sidebar = (state) => {
     return state.sidebar
 }
+export const tickets = (state) => {
+    return state.tickets
+}
 export const hasLogged = (state) => {
     if (!state.accessToken) return false
     else return true

@@ -9,6 +9,9 @@ export const resetEventForm = ({ commit }, payload) => {
 export const addBatchFromBatches = ({ commit }, payload) => {
     commit(types.ADD_BATCHFROMBATCHES, payload)
 }
+export const setBatchFromBatches = ({ commit }, payload) => {
+    commit(types.SET_BATCHFROMBATCHES, payload)
+}
 export const removeBatchFromBatches = ({ commit }, payload) => {
     commit(types.REMOVE_BATCH_FROM_BATCHES, payload)
 }

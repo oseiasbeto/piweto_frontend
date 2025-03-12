@@ -28,6 +28,8 @@ export function useBatches() {
                 metadata
             })
 
+            return response
+
         } catch (err) {
             error.value = true
             console.log(err.message)
@@ -41,8 +43,30 @@ export function useBatches() {
         try {
             const response = await api.post(`/batches/${data.eventId}`, data.form)
             const newBatch = response.data.newBatch;
-
-            store.dispatch("addBatchFromBatches", newBatch)
+            return newBatch
+        } catch (err) {
+            error.value = true
+            console.log(err.message)
+            throw err
+        } finally {
+            loading.value = false;
+        }
+    }
+    const editBatch = async (data) => {
+        try {
+            const response = await api.put(`/batches/${data.batchId}`, data.form)
+            return response
+        } catch (err) {
+            error.value = true
+            console.log(err.message)
+            throw err
+        } finally {
+            loading.value = false;
+        }
+    }
+    const deleteBatch = async (batchId) => {
+        try {
+            await api.delete(`/batches/${batchId}`)
         } catch (err) {
             error.value = true
             console.log(err.message)
@@ -56,6 +80,8 @@ export function useBatches() {
         loading,
         error,
         getBatches,
+        deleteBatch,
+        editBatch,
         newBatch
     }
 }

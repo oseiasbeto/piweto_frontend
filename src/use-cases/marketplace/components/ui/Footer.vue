@@ -5,7 +5,7 @@ import Container from '@/use-cases/marketplace/components/ui/Container.vue';
 </script>
 
 <template>
-    <div class="w-full border-t-2 border-brand-primary">
+    <div class="w-full bg-white relative border-t-2 border-brand-primary">
         <Container>
             <div class="flex px-4 justify-center pt-10 pb-16">
                 <div>

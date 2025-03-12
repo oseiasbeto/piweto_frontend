@@ -43,6 +43,9 @@ onMounted(() => {
             <section class="w-full mt-7">
                 <Splide ref="splideRef" :options="{
                     perPage: 2, arrows: true, pagination: true, gap: '1.5rem',
+                    autoplay: true, // Ativa o autoplay
+    interval: 3000, // Intervalo de 3 segundos entre os slides
+    pauseOnHover: true, // Pausa o autoplay ao passar o mouse
                     breakpoints: {
                         1024: {
                             perPage: 2,

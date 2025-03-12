@@ -12,6 +12,7 @@ import Tickets from "./views/Tickets.vue";
 import Partakers from "./views/Partakers.vue";
 import CheckIn from "./views/CheckIn.vue";
 import Finance from "./views/Finance.vue";
+import Spinner from "../checkout/components/ui/Spinner.vue";
 
 const { getStaffById, loading: loadingStaff } = useStaffs()
 loadingStaff.value = true
@@ -31,10 +32,7 @@ onMounted(async () => {
     const id = route.params.id
     if (!id) return
     else {
-        if (staff.value._id !== undefined) {
-            loadingStaff.value = false
-        } else {
-            await getStaffById(id).then(res => {
+        await getStaffById(id).then(res => {
                 const event = res.data.event;
                 const staff = res.data.staff;
 
@@ -50,8 +48,6 @@ onMounted(async () => {
                     })
                 } else return
             })
-        }
-
     }
 
 })
@@ -59,22 +55,24 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div v-if="loadingStaff">
-        <p>Carregando...</p>
-    </div>
+        <div v-if="loadingStaff" class="flex justify-center items-center h-[500px]">
+                <Spinner />
+            </div>
     <div v-else class="relative">
+
+
         <!--start navbar-->
         <navbar />
         <!--end navbar-->
 
-        <div class="flex flex-row">
+        <div class="flex relative z-[10] flex-row">
             <!--start sidebar dashboard-->
             <sidebar />
             <!--end sidebar dashboard-->
 
             <!--start views dashboard-->
-            <div class="ml-[120px] w-[calc(100%-120px)]">
-                <div class="mt-0 w-full">
+            <div class="lg:ml-[120px] relative w-full lg:w-[calc(100%-120px)]">
+                <div class="mt-0 w-full p-6">
                     <Dashboard v-if="route.name == 'Dashboard'" />
                     <Tickets v-if="route.name == 'Tickets'" />
                     <Partakers v-if="route.name == 'Partakers'" />
@@ -96,6 +94,10 @@ onMounted(async () => {
                 </svg>
             </a>
         </div>
+
+        <!--start bg-->
+        <div class="fixed top-0 h-screen w-screen bg-gray-50"></div>
+        <!--end bg-->
 
         <!--start modal dashboard-->
         <modal />

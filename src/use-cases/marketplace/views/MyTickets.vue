@@ -8,14 +8,17 @@ import ListEvents from "../components/ui/ListEvents.vue";
 import Search from '../components/ui/Search.vue';
 import Spinner from "@/use-cases/checkout/components/ui/Spinner.vue";
 
-const { getTickets, loadMore: getTicketsLoadMore, loadingLoadMore, tickets, metadata, loading, error } = useTickets();
+const { getTickets, loadMore: getTicketsLoadMore, loadingLoadMore, loading, error } = useTickets();
+loading.value = true
 
 const store = useStore()
-const route = useRoute()
-const router = useRouter()
 
 const user = computed(() => {
     return store.getters.currentUser
+})
+
+const tickets = computed(() => {
+    return store.getters.tickets
 })
 
 const searchKeywords = ref('')
@@ -27,9 +30,18 @@ const goToSearch = async (keywords) => {
     await getTickets({
         page: 1,
         limit: 10,
-        costumer: user.value._id,
+        costumer: user?.value?._id,
         populate: 'event,batch',
         tags: keywords
+    }).then(res => {
+        const tickets = res.data.tickets;
+        const metadata = res.data.metadata;
+
+        store.dispatch("setTickets", {
+            data: tickets,
+            metadata: metadata,
+            hasViewed: true
+        })
     });
 }
 
@@ -43,15 +55,23 @@ const resetSearch = async () => {
     await getTickets({
         page: 1,
         limit: 10,
-        costumer: user.value._id,
+        costumer: user?.value?._id,
         populate: 'event,batch'
+    }).then(res => {
+        const tickets = res.data.tickets;
+        const metadata = res.data.metadata;
+
+        store.dispatch("setTickets", {
+            data: tickets,
+            metadata: metadata,
+            hasViewed: true
+        })
     });
 }
 
 const ticketsLoadMore = async () => {
     // Buscar eventos mais vistos nas últimas 24 horas
     await getTicketsLoadMore({
-        status: "a",
         sort: "-views",
         limit: 10
     });
@@ -61,8 +81,18 @@ onMounted(async () => {
     await getTickets({
         page: 1,
         limit: 10,
-        costumer: user.value._id,
+        costumer: user?.value?._id,
         populate: 'event,batch'
+    }).then(res => {
+        console.log(res)
+        const tickets = res.data.tickets;
+        const metadata = res.data.metadata;
+
+        store.dispatch("setTickets", {
+            data: tickets,
+            metadata: metadata,
+            hasViewed: true
+        })
     });
 })
 </script>
@@ -86,25 +116,19 @@ onMounted(async () => {
     </div>
     <Container>
         <div>
-            <div v-if="tickets.length" class="px-4 xl:px-0">
-                <div class="mx-auto py-4 w-full lg:w-[540px]">
-                    <Search v-model="searchKeywords" @onsearch="goToSearch" />
-                </div>
-                <div class="mt-5 lg:mt-4 mb-2">
-                    <hr>
-                </div>
-            </div>
             <div v-if="!loading">
-
-                <div class="w-full px-4 mt-8" v-if="tickets.length">
-                    <ListEvents
-                        title="Ingressos encontrado(s)"
-                        @onloadmore="ticketsLoadMore()" 
-                        :error="error" :loading="loading"
-                        :show-btn-load-more="!startSearch"
-                        :btn-loading-more="loadingLoadMore" 
-                        :metadata="metadata" :events="tickets"
-                        :is-ticket-list="true" />
+                <div v-if="tickets?.data?.length" class="px-4 xl:px-0">
+                    <div class="mx-auto py-4 w-full lg:w-[540px]">
+                        <Search v-model="searchKeywords" @onsearch="goToSearch" />
+                    </div>
+                    <div class="mt-5 lg:mt-4 mb-2">
+                        <hr>
+                    </div>
+                </div>
+                <div class="w-full px-4 mt-8" v-if="tickets?.data?.length">
+                    <ListEvents title="Ingressos encontrado(s)" @onloadmore="ticketsLoadMore()" :error="error"
+                        :loading="loading" :show-btn-load-more="!startSearch" :btn-loading-more="loadingLoadMore"
+                        :metadata="tickets?.metadata" :events="tickets?.data" :is-ticket-list="true" />
                 </div>
                 <div v-else class="mt-5 px-4 xl:px-0" style="margin-bottom: 210px;">
                     <h1 v-if="startSearch" class="text-xl font-bold">

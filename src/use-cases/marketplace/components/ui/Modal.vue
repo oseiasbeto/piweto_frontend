@@ -10,6 +10,7 @@ import {
     TransitionRoot,
     TransitionChild
 } from '@headlessui/vue'
+import MyAccount from "../forms/auth/MyAccount.vue";
 
 // Importe as referências necessários para o bom funcionamento deste componente.
 const store = useStore()
@@ -50,6 +51,7 @@ const close = (name) => {
                             class="w-full overflow-hidden text-left align-middle transition-all transform">
                             <div class="w-full">
                                 <ForgotPassword @onclose="close(modal.name)" v-if="modal.name == 'forgot-password'" />
+                                <MyAccount @onclose="close(modal.name)" v-if="modal.name == 'my-account'"/>
                             </div>
                         </DialogPanel>
                         <!--end body content-->

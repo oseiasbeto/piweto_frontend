@@ -32,6 +32,14 @@ const props = defineProps({
 const hasLogged = computed(() => {
     return store.getters.hasLogged
 })
+const openModal = (name) => {
+    store.dispatch("setModal", {
+        name,
+        show: true,
+        data: {
+        }
+    })
+}
 
 const user = computed(() => {
     return store.getters.currentUser
@@ -65,10 +73,11 @@ async function handlelogout() {
     <Menu v-if="hasLogged" as="div" class="relative border-none z-[1000] inline-block text-left">
         <div>
             <MenuButton class="flex items-center gap-3.5">
-                <Avatar :showBorder="showBorder" size="w-[38px] h-[38px]" :url="user.avatar.url" :name="user.full_name" />
+                <Avatar :showBorder="showBorder" size="w-[38px] h-[38px]" :url="user.avatar.url"
+                    :name="user.full_name" />
                 <p v-if="showName" class="w-[130px] text-gray-900 font-normal text-base uppercase truncate">{{
                     user.full_name
-                    }}</p>
+                }}</p>
             </MenuButton>
         </div>
 
@@ -98,7 +107,7 @@ async function handlelogout() {
                 </router-link>
                 <div class="relative border-none">
                     <MenuItem v-slot="{ active }">
-                    <button :class="[
+                    <button @click="openModal('my-account')" :class="[
                         active ? 'bg-brand-primary/5' : 'text-gray-500',
                         'group flex w-full items-center text-brand-primary px-4 py-2.5 gap-2.5 text-sm',
                     ]">

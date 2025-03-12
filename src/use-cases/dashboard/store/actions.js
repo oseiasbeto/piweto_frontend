@@ -3,8 +3,8 @@ import * as types from "./mutations-types"
 export const setStaff = ({ commit }, payload) => {
     commit(types.SET_STAFF, payload)
 }
-export const setTickets = ({ commit }, payload) => {
-    commit(types.SET_TICKETS, payload)
+export const setPartakers = ({ commit }, payload) => {
+    commit(types.SET_PARTAKERS, payload)
 }
 export const setStaffs = ({ commit }, payload) => {
     commit(types.SET_STAFFS, payload)
@@ -23,6 +23,12 @@ export const removeStaffFromStaffs = ({ commit }, payload) => {
 }
 export const addStaffFromStaffs = ({ commit }, payload) => {
     commit(types.ADD_STAFF_FROM_STAFFS, payload)
+}
+export const toggleIsViewMobile = ({ commit }) => {
+    commit(types.TOGGLE_ISVIEWMOBILE)
+}
+export const closeIsViewMobile = ({ commit }) => {
+    commit(types.CLOSE_ISVIEWMOBILE)
 }
 export const addCouponFromCoupons = ({ commit }, payload) => {
     commit(types.ADD_COUPON_FROM_COUPONS, payload)

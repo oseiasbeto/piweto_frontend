@@ -47,7 +47,7 @@ const statusBgColor = (status) => {
             return "bg-[#fff3cd] text-[#856404] border-[#ffeeba]"
         case "a":
             return "bg-[#d4edda] text-[#155724] border-[#c3e6cb]"
-        case "c":
+        case "d":
             return "bg-[#fceeef] text-[#b6202a] border-[#fae1e2]"
     }
 }
@@ -58,7 +58,7 @@ const generateStatusLegend = (status) => {
             return "Pendente"
         case "a":
             return "Activo"
-        case "c":
+        case "d":
             return "Cancelado"
     }
 }
@@ -139,7 +139,7 @@ function onImageLoad(event) {
             <div class="h-[150px]  overflow-hidden rounded-b-[15px]"
             :class="isBigCover ? 'lg:h-[285px]': 'lg:h-[150px]'"
             >
-                <img class="w-full h-full object-cover lazy-image" @load="onImageLoad" v-lazy="event.cover.url"
+                <img class="w-full h-full object-cover lazy-image" @load="onImageLoad" v-lazy="event.cover.low"
                     :alt="props.event.name">
             </div>
         </router-link>

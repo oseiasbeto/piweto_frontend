@@ -2,11 +2,14 @@ export const staff = (state) => {
     return state.staff
 }
 
-export const tickets = (state) => {
-    return state.tickets
+export const partakers = (state) => {
+    return state.partakers
 }
 export const staffs = (state) => {
     return state.staffs
+}
+export const isViewMobile = (state) => {
+    return state.isViewMobile
 }
 export const coupons = (state) => {
     return state.coupons

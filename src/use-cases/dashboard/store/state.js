@@ -1,6 +1,7 @@
 export default {
     staff: {},
-    tickets: {
+    isViewMobile: false,
+    partakers: {
         data: [],
         metadata: {},
         hasViewed: false

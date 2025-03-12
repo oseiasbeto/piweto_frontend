@@ -52,6 +52,9 @@ export default {
     [types.ADD_BATCHFROMBATCHES](state, payload) {
         state.eventForm.batches.push(payload)
     },
+    [types.SET_BATCHFROMBATCHES](state, payload) {
+        state.eventForm.batches = payload
+    },
     [types.REMOVE_BATCH_FROM_BATCHES](state, index) {
         state.eventForm.batches.splice(index, 1)
     },

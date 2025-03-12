@@ -5,9 +5,10 @@ import { useStore } from "vuex";
 import { toast } from "vue3-toastify"
 import Modal from "./components/ui/Modal.vue";
 import Navbar from "./components/ui/Navbar.vue";
-import Footer from "./components/ui/Footer.vue";
 import Events from "./views/Events.vue";
 import NewEvent from "./views/NewEvent.vue";
+import EditEvent from "./views/EditEvent.vue";
+import Footer from "../marketplace/components/ui/Footer.vue";
 
 const route = useRoute()
 
@@ -43,6 +44,8 @@ onMounted(() => {
         <div class="mt-0">
             <Events v-if="route.name == 'My events'" />
             <NewEvent v-if="route.name == 'New event'" />
+            <EditEvent v-if="route.name == 'Edit event'" />
+            <Footer/>
         </div>
         <!--end views dashboard-->
 

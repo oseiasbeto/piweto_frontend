@@ -144,7 +144,7 @@ function setHeadDocument(ev) {
     let image = document.querySelector('meta[property="og:image"]')
 
     if (ev.cover.url != null) {
-        image.setAttribute("content", ev.cover.url)
+        image.setAttribute("content", ev.cover.medium)
     }
 }
 // Esta função tem como finalidade fazer uma requesição REST a api para criar um carrinho de compras com os ingressos selecionados pelo corrente usuário. 
@@ -266,13 +266,14 @@ function removeCoupon() {
     })
 }
 
-onMounted(() => {
-    getEvent(route.params.slug).then(() => {
+onMounted(async () => {
+    await getEvent(route.params.slug).then(async () => {
         setHeadDocument(event.value)
 
-        getBatches({
+        await getBatches({
             event: event.value._id,
             page: 1,
+            visibility: 'public',
             limit: 10
         });
     })
@@ -289,7 +290,7 @@ onMounted(() => {
                     <div class="hidden lg:flex h-[92vh] overflow-hidden max-h-[480px] min-h-[480px]">
                         <div class="relative h-full flex-1 text-center z-10">
                             <div class="max-h-[480px] h-full block">
-                                <div :style="`background-image: linear-gradient(180deg,rgba(0,0,0,.2),rgba(0,0,0,.2)) , url(${event.cover.url})`"
+                                <div :style="`background-image: linear-gradient(180deg,rgba(0,0,0,.2),rgba(0,0,0,.2)) , url(${event.cover.medium})`"
                                     class="img-blur-event"></div>
                             </div>
                         </div>
@@ -299,7 +300,7 @@ onMounted(() => {
                     <!--start cover-->
                     <div class="flex justify-center items-center mx-auto">
                         <div class="mx-auto w-full flex items-center justify-center">
-                            <img v-lazy="event.cover.url"
+                            <img v-lazy="event.cover.medium"
                                 class="relative rounded-none lg:absolute lg:mt-[-460px] img-event lg:rounded-[30px] w-full h-[190px] lg:w-[1000px] lg:h-[500px]">
                         </div>
                     </div>

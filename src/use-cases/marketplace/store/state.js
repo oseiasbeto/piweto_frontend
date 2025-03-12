@@ -6,6 +6,11 @@ export default {
         name: "",
         data: {}
     },
+    tickets: {
+        data: [],
+        metadata: {},
+        hasViewed: false
+    },
     sidebar: {
         show: false
     },

@@ -4,8 +4,8 @@ import PreviewImage from "../components/ui/PreviewImage.vue"
 import { useStore } from "vuex"
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import Quill from 'quill';
-import { toast } from "vue3-toastify"
 import Swal from "sweetalert2"
+import formatAmount from "@/utils/formatAmount";
 import DatePicker from '@jobinsjp/vue3-datepicker';
 import { useRouter, useRoute } from "vue-router";
 import 'vue-multiselect/dist/vue-multiselect.css';
@@ -48,6 +48,14 @@ const langConfig = computed(() => {
         monthFormat: 'MM'
     }
 })
+
+function calcularValorComTaxa(valor) {
+    const taxa = 0.04; // 4% de taxa
+    const valorComTaxa = valor * (1 - taxa);
+    return valorComTaxa;
+}
+
+
 
 // define as nomeclaturas dos ingressos.
 const nameclatures = ref([
@@ -296,7 +304,6 @@ function handleEndsTimeDateChange(e) {
 function deleteTicket(index) {
     Swal.fire({
         title: "Você tem certeza?",
-        text: "you won't able revert this!",
         icon: "warning",
         showCancelButton: true,
         confirmButtonText: "Sim, eu tenho",
@@ -359,7 +366,7 @@ function validateCover(file) {
 
 // Esta função tem como finalidade remover a imagem selecionada.
 function replaceCover() {
-    store.state.dashboard.eventForm.file = null
+    form.value.file = null
 }
 
 function openBatchModal(type) {
@@ -423,10 +430,6 @@ const createEvent = async (status) => {
                 formData.append(`address[${key}]`, eventForm.address[key] || "");
             });
 
-            // ✅ Corrigindo meeting
-            formData.append("meeting[url]", eventForm.meeting.url || "");
-            formData.append("meeting[plataform]", eventForm.meeting.plataform || "zoom");
-
             // ✅ Corrigindo batches (se houver)
             if (Array.isArray(eventForm.batches) && eventForm.batches.length > 0) {
                 eventForm.batches.forEach((batch, index) => {
@@ -471,6 +474,7 @@ onMounted(() => {
     if (!type.value || !['presencial', 'online'].includes(type.value)) {
         router.push({ path: "/eventos/meus-eventos" })
     } else {
+        store.dispatch("resetEventForm")
         quillInstance = new Quill(editorContainer.value, {
             theme: 'snow', // Tema: snow ou bubble
             placeholder: 'Digite algo aqui...',
@@ -549,14 +553,18 @@ onBeforeUnmount(() => {
                                     </div>
                                     <div class="w-full md:w-auto">
                                         <div class="flex gap-3 mb-3 items-center" v-if="form.file">
-                                            <label for="changeCover">
+                                            <label
+                                                class="border cursor-pointer border-[#0097ff] text-[#0097ff] text-[10px] font-medium  uppercase rounded-full py-[6px] px-3 hover:bg-[#0097ff] hover:border-[#0097ff] hover:text-white"
+                                                for="changeCover">
                                                 Trocar de imagem
                                                 <input
                                                     class="p-[10px] border !rounded-sm border-gray-300 h-[40px] text-[13px] focus:outline-none !text-gray-600  placeholder:text-gray-400"
                                                     @change="selectCover" id="changeCover" type="file" accept="images/*"
                                                     style="display: none">
                                             </label>
-                                            <button @click="replaceCover">Remover</button>
+                                            <button
+                                                class="border cursor-pointer border-[#0097ff] text-[#0097ff] text-[10px] font-medium  uppercase rounded-full py-[6px] px-3 hover:bg-[#0097ff] hover:border-[#0097ff] hover:text-white"
+                                                @click="replaceCover">Remover</button>
                                         </div>
                                         <p class="text-sm text-gray-500">A dimensão recomendada é de <strong>1600 x
                                                 838</strong><br>(mesma proporção do formato utilizado nas páginas de
@@ -783,66 +791,67 @@ onBeforeUnmount(() => {
                                         criar?
                                     </p>
                                 </div>
-                                <div id="ticketsField" class="flex flex-col lg:flex-row w-full justify-center gap-4">
+                                <div id="ticketsField"
+                                    class="flex mb-5 flex-col lg:flex-row w-full justify-center gap-4">
                                     <button
                                         class="border border-[#0097ff] text-[#0097ff] text-sm font-medium  uppercase rounded-full py-[10px] px-10 hover:bg-[#0097ff] hover:border-[#0097ff] hover:text-white"
                                         @click="openBatchModal('premium')">
                                         + INGRESSO PAGO
                                     </button>
                                 </div>
-                                <table v-if="form.batches.length">
-                                    <thead>
-                                        <tr>
-                                            <th class="width-100 order-column">
-                                                Tipo
-                                            </th>
-                                            <th class="width-120">
-                                                Vendidos/Total
-                                            </th>
-                                            <th class="width-120">
-                                                Valor
-                                            </th>
-                                            <th class="width-50 order-column">
-                                                Taixa
-                                            </th>
-                                            <th class="width-90 order-column">
-                                                Preço total
-                                            </th>
-                                            <th class="width-50 order-column">
-                                                Visibilidade do ingresso
-                                            </th>
-                                            <th class="width-100">
+                                <div class="overflow-x-auto">
+                                    <table v-if="form.batches.length"
+                                        class="w-full border-collapse rounded-lg shadow-md overflow-hidden">
+                                        <thead class="bg-gray-50 text-gray-700">
+                                            <tr>
+                                                <th class="px-4 py-3 text-left whitespace-nowrap">Tipo</th>
+                                                <th
+                                                    class="px-4 py-3 text-center text-sm whitespace-nowrap hidden sm:table-cell">
+                                                    Quantidade</th>
+                                                <th class="px-4 py-3 text-center text-sm whitespace-nowrap">Valor
+                                                </th>
+                                                <th
+                                                    class="px-4 py-3 text-center text-sm whitespace-nowrap hidden md:table-cell">
+                                                    Taxa</th>
+                                                <th
+                                                    class="px-4 py-3 text-center text-sm whitespace-nowrap hidden md:table-cell">
+                                                    Repasse</th>
+                                                <th
+                                                    class="px-4 py-3 text-center text-sm whitespace-nowrap hidden lg:table-cell">
+                                                    Visibilidade</th>
+                                                <th class="px-4 py-3 text-center text-sm whitespace-nowrap">Ações
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(batch, index) in form.batches" :key="batch.id"
+                                                class="border-b hover:bg-gray-100 transition">
+                                                <td class="px-4 text-sm py-3">{{ batch.name }}</td>
+                                                <td class="px-4 py-3 text-center text-sm hidden sm:table-cell">
+                                                    {{ batch.quantity }}</td>
+                                                <td class="px-4 py-3 text-center text-sm">{{ formatAmount(batch.price)
+                                                    }}</td>
+                                                <td class="px-4 py-3 text-center text-sm hidden md:table-cell">
+                                                    4%</td>
+                                                <td class="px-4 py-3 text-center text-sm hidden md:table-cell">
+                                                    {{ formatAmount(calcularValorComTaxa(batch.price)) }}</td>
+                                                <td class="px-4 py-3 text-center text-sm hidden lg:table-cell">{{
+                                                    batch.visibility == 'public' ? 'Público' : 'Privado' }}</td>
+                                                <td class="px-4 py-3 flex justify-center gap-2">
+                                                    <button @click="openModalEditTicket(batch, index)"
+                                                        class="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">
+                                                        Editar
+                                                    </button>
+                                                    <button @click="deleteTicket(index, batch._id)"
+                                                        class="px-3 py-1 text-sm bg-red-500 text-white rounded-md hover:bg-red-600 transition">
+                                                        Excluir
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
 
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(batch, index) in form.batches" :key="batch.id">
-                                            <td>
-                                                {{ batch.name }}
-                                            </td>
-                                            <td>
-                                                0/{{ batch.quantity }}
-                                            </td>
-                                            <td>
-                                                {{ batch.price }}
-                                            </td>
-                                            <td>
-                                                {{ batch.price }}
-                                            </td>
-                                            <td>
-                                                {{ batch.price }}
-                                            </td>
-                                            <td>
-                                                {{ batch.visibility }}
-                                            </td>
-                                            <td>
-                                                <button @click="openModalEditTicket(batch, index)">Editar</button>
-                                                <button @click="deleteTicket(index)">Excluir</button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
                                 <small v-if="!form.batches.length" class="text-xs text-red-500"
                                     :class="{ danger: errors.batches.show }">
                                     <span v-if="errors.batches.show">
@@ -882,11 +891,11 @@ onBeforeUnmount(() => {
                                 <div class="flex items-center gap-3">
                                     <button :disabled="loadingEvent" @click="createEvent('p')"
                                         class="btn disabled:bg-gray-300 disabled:text-gray-500 bg-brand-primary text-sm font-bold hover:opacity-80 py-2 px-4 text-white rounded-full">
-                                        Publicar evento</button>
-                                    <button :disabled="loadingEvent" @click="createEvent('d')"
-                                        class="bg-brand-info disabled:bg-gray-300 disabled:text-gray-500 text-sm font-bold hover:opacity-80 text-white py-2 px-4 rounded-full">Salvar
-                                        como
-                                        rascunho</button>
+                                        {{ loadingEvent ? 'Publicando...' : 'Publicar evento' }}
+                                    </button>
+                                    <button @click="router.back()"
+                                        class="bg-brand-info disabled:bg-gray-300 disabled:text-gray-500 text-sm font-bold hover:opacity-80 text-white py-2 px-4 rounded-full">
+                                        Voltar</button>
                                 </div>
                             </div>
                         </div>

@@ -7,6 +7,11 @@ export default {
     [types.SET_ACCESS_TOKEN](state, payload) {
         state.accessToken = payload
     },
+    [types.SET_TICKETS](state, payload) {
+        state.tickets.data = payload.data
+        state.tickets.metadata = payload.metadata
+        state.tickets.hasViewed = payload.hasViewed
+    },
     [types.SET_MODAL](state, payload) {
         state.modal = payload
     },

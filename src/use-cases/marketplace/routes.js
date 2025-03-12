@@ -93,7 +93,7 @@ export default [
         name: 'Reset password',
         path: '/conta/redefinir-senha',
         meta: {
-            routeAuth: true,
+            requiresAuth: false,
             rootPage: 'marketplace',
             title: 'Piweto | Redefinir a palavra-passe'
         },

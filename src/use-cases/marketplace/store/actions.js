@@ -12,6 +12,9 @@ export const setEvent = ({ commit }, payload) => {
 export const setSidebar = ({ commit }, payload) => {
     commit(types.SET_SIDEBAR, payload)
 }
+export const setTickets = ({ commit }, payload) => {
+    commit(types.SET_TICKETS, payload)
+}
 export const setModal = ({ commit }, payload) => {
     commit(types.SET_MODAL, payload)
 }

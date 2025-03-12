@@ -2,6 +2,7 @@
 import Logo from '@/components/Logo.vue';
 import UserMenu from '@/components/UserMenu'
 import { computed } from "vue"
+import { useRouter } from 'vue-router';
 
 // Define as props deste componente.
 const props = defineProps({
@@ -10,6 +11,8 @@ const props = defineProps({
         default: true
     }
 })
+
+const router = useRouter()
 
 // Esta função computada tem como finalidade atribuir uma classe dinâmica a este componente.
 const positionClass = computed(() => {
@@ -26,7 +29,12 @@ const positionClass = computed(() => {
     <div class="bg-white border-b z-[100] lg:border-none border-gray-200 px-[20px] lg:px-8 shadow-nav flex justify-between items-center w-[100%] h-[47px] lg:h-[70px]"
         :class="positionClass">
         <!--start left area-->
-        <div class="block lg:hidden"></div>
+        <button @click="router.back()" class="text-brand-primary block lg:hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="32px" height="32px"
+                viewBox="0 0 1024 1024">
+                <path d="M604.7 759.2l61.8-61.8L481.1 512l185.4-185.4-61.8-61.8L357.5 512z" />
+            </svg>
+        </button>
         <div class="flex items-center">
             <Logo size="w-[80px] lg:w-[110px]" />
             <router-link to="/eventos/meus-eventos"
