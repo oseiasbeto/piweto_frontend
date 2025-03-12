@@ -10,6 +10,8 @@ import {
     TransitionRoot,
     TransitionChild
 } from '@headlessui/vue'
+import MyAccount from "@/use-cases/marketplace/components/forms/auth/MyAccount.vue"
+import ForgotPassword from "@/use-cases/marketplace/components/forms/auth/ForgotPassword.vue"
 // importe as referências necessários para o bom funcionamento deste componente.
 const store = useStore()
 
@@ -46,9 +48,11 @@ const close = (name) => {
                         leave-to="opacity-0 scale-95">
                         <!--start body content-->
                         <DialogPanel
-                            class="w-full max-w-5xl p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-sm">
+                            class="w-full max-w-5xl overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-sm">
                             <div>
                                <BatchForm @onclose="close(modal.name)" v-if="modal.name == 'form-batch'" />
+                               <MyAccount @onclose="close(modal.name)" v-if="modal.name == 'my-account'"/>
+                               <ForgotPassword @onclose="close(modal.name)" v-if="modal.name == 'forgot-password'"/>
                             </div>
                         </DialogPanel>
                         <!--end body content-->

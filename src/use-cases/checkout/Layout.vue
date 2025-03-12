@@ -7,6 +7,7 @@ import DetailsEvent from "./views/DetailsEvent.vue";
 import Navbar from "./components/ui/Navbar.vue";
 import Footer from "./components/ui/Footer.vue";
 import { useStore } from "vuex";
+import Modal from "./components/ui/Modal.vue";
 
 const route = useRoute()
 const router = useRouter()
@@ -30,5 +31,9 @@ const store = useStore()
             <Footer/>
             <!--end footer-->
         </div>
+
+        <!--start modal-->
+        <Modal/>
+        <!--end modal-->
     </div>
 </template>

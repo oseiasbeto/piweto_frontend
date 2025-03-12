@@ -259,6 +259,7 @@ function removeCoupon() {
 
 onMounted(async () => {
     await getEvent(route.params.slug).then(async () => {
+        document.title = event.value.name
         await getBatches({
             event: event.value._id,
             page: 1,
