@@ -143,7 +143,7 @@ function setHeadDocument(ev) {
     document.title = ev.name
     let image = document.querySelector('meta[property="og:image"]')
 
-    if (ev.cover.url != null) {
+    if (ev.cover.medium != null) {
         image.setAttribute("content", ev.cover.medium)
     }
 }
