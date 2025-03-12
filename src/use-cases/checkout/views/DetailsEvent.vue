@@ -139,14 +139,36 @@ function setModalSignIn() {
 }
 
 // esta funcao tem como finalizade setar algumas informacoes no head do documento html (titulo, og:image)
-function setHeadDocument(ev) {
-    document.title = ev.name
-    let image = document.querySelector('meta[property="og:image"]')
+const setHeadDocument = (ev) => {
+    if (!ev) return;
 
-    if (ev.cover.medium != null) {
-        image.setAttribute("content", ev.cover.medium)
+    document.title = ev.name;
+
+    const metaTags = {
+        "og:title": ev.name,
+        "og:description": ev.description || "Confira este evento incrível!",
+        "og:image": ev.cover?.medium || "https://i.ibb.co/RpzZJGzc/5f282a0c6a2d9.png",
+        "og:url": window.location.href,
+        "twitter:title": ev.name,
+        "twitter:description": ev.description || "Confira este evento incrível!",
+        "twitter:image": ev.cover?.medium || "https://i.ibb.co/RpzZJGzc/5f282a0c6a2d9.png",
+        "twitter:card": "summary_large_image"
+    };
+
+    for (const [property, content] of Object.entries(metaTags)) {
+        let metaTag = document.querySelector(`meta[property="${property}"]`) ||
+            document.querySelector(`meta[name="${property}"]`);
+
+        if (!metaTag) {
+            metaTag = document.createElement("meta");
+            metaTag.setAttribute("property", property);
+            document.head.appendChild(metaTag);
+        }
+
+        metaTag.setAttribute("content", content);
     }
-}
+    
+};
 // Esta função tem como finalidade fazer uma requesição REST a api para criar um carrinho de compras com os ingressos selecionados pelo corrente usuário. 
 async function sendToCart() {
     if (batchesSelected.value.length) {
@@ -290,7 +312,7 @@ onMounted(async () => {
                     <div class="hidden lg:flex h-[92vh] overflow-hidden max-h-[480px] min-h-[480px]">
                         <div class="relative h-full flex-1 text-center z-10">
                             <div class="max-h-[480px] h-full block">
-                                <div :style="`background-image: linear-gradient(180deg,rgba(0,0,0,.2),rgba(0,0,0,.2)) , url(${event.cover.medium})`"
+                                <div :style="`background-image: linear-gradient(180deg,rgba(0,0,0,.2),rgba(0,0,0,.2)) , url(${event.cover.medium || 'https://i.ibb.co/RpzZJGzc/5f282a0c6a2d9.png'})`"
                                     class="img-blur-event"></div>
                             </div>
                         </div>
@@ -300,7 +322,7 @@ onMounted(async () => {
                     <!--start cover-->
                     <div class="flex justify-center items-center mx-auto">
                         <div class="mx-auto w-full flex items-center justify-center">
-                            <img v-lazy="event.cover.medium"
+                            <img v-lazy="event.cover.medium || 'https://i.ibb.co/RpzZJGzc/5f282a0c6a2d9.png'"
                                 class="relative rounded-none lg:absolute lg:mt-[-460px] img-event lg:rounded-[30px] w-full h-[190px] lg:w-[1000px] lg:h-[500px]">
                         </div>
                     </div>
@@ -337,7 +359,7 @@ onMounted(async () => {
                                         </svg>
 
                                         <p>{{ formatDate(event.starts_at.date) }} às {{ formatTime(event.starts_at.hm)
-                                            }}
+                                        }}
                                             > {{
                                                 formatDate(event.ends_at.date) }} às {{ formatTime(event.ends_at.hm) }}</p>
                                     </span>

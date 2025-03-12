@@ -139,7 +139,7 @@ function onImageLoad(event) {
             <div class="h-[150px]  overflow-hidden rounded-b-[15px]"
             :class="isBigCover ? 'lg:h-[285px]': 'lg:h-[150px]'"
             >
-                <img class="w-full h-full object-cover lazy-image" @load="onImageLoad" v-lazy="event.cover.low"
+                <img class="w-full h-full object-cover lazy-image" @load="onImageLoad" v-lazy="event.cover.low || 'https://i.ibb.co/RpzZJGzc/5f282a0c6a2d9.png'"
                     :alt="props.event.name">
             </div>
         </router-link>
