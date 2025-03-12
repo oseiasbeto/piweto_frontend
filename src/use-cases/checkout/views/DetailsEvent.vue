@@ -138,37 +138,6 @@ function setModalSignIn() {
     })
 }
 
-// esta funcao tem como finalizade setar algumas informacoes no head do documento html (titulo, og:image)
-const setHeadDocument = (ev) => {
-    if (!ev) return;
-
-    document.title = ev.name;
-
-    const metaTags = {
-        "og:title": ev.name,
-        "og:description": ev.description || "Confira este evento incrível!",
-        "og:image": ev.cover?.medium || "https://i.ibb.co/RpzZJGzc/5f282a0c6a2d9.png",
-        "og:url": window.location.href,
-        "twitter:title": ev.name,
-        "twitter:description": ev.description || "Confira este evento incrível!",
-        "twitter:image": ev.cover?.medium || "https://i.ibb.co/RpzZJGzc/5f282a0c6a2d9.png",
-        "twitter:card": "summary_large_image"
-    };
-
-    for (const [property, content] of Object.entries(metaTags)) {
-        let metaTag = document.querySelector(`meta[property="${property}"]`) ||
-            document.querySelector(`meta[name="${property}"]`);
-
-        if (!metaTag) {
-            metaTag = document.createElement("meta");
-            metaTag.setAttribute("property", property);
-            document.head.appendChild(metaTag);
-        }
-
-        metaTag.setAttribute("content", content);
-    }
-    
-};
 // Esta função tem como finalidade fazer uma requesição REST a api para criar um carrinho de compras com os ingressos selecionados pelo corrente usuário. 
 async function sendToCart() {
     if (batchesSelected.value.length) {
