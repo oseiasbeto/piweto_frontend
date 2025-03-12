@@ -36,7 +36,7 @@ onMounted(async () => {
             <div class="hidden lg:flex h-[92vh] overflow-hidden max-h-[480px] min-h-[480px]">
                 <div class="relative h-full flex-1 text-center z-10">
                     <div class="max-h-[480px] h-full block">
-                        <div :style="`background-image: linear-gradient(180deg,rgba(0,0,0,.2),rgba(0,0,0,.2)) , url(${order.event.cover.url})`"
+                        <div :style="`background-image: linear-gradient(180deg,rgba(0,0,0,.2),rgba(0,0,0,.2)) , url(${order.event.cover.medium || 'https://i.ibb.co/RpzZJGzc/5f282a0c6a2d9.png'})`"
                             class="img-blur-event"></div>
                     </div>
                 </div>
