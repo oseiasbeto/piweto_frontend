@@ -259,8 +259,6 @@ function removeCoupon() {
 
 onMounted(async () => {
     await getEvent(route.params.slug).then(async () => {
-        setHeadDocument(event.value)
-
         await getBatches({
             event: event.value._id,
             page: 1,
