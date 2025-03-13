@@ -90,22 +90,36 @@ export function useUsers() {
 
     const logout = async (session_id) => {
         try {
-            loading.value = true
-            await api.post("/users/destroy-session", {
-                session_id
-            })
+            // Validação básica do session_id
+            if (!session_id || typeof session_id !== "string" || session_id.trim() === "") {
+                throw new Error("ID de sessão inválido.");
+            }
 
-            store.dispatch("setUser", null)
-            store.dispatch("setAccessToken", null)
-            clearRefreshToken()
+            loading.value = true;
+
+            // Chamar a API com timeout (exemplo com Axios)
+            const response = await api.post(
+                "/users/destroy-session",
+                { session_id },
+                { timeout: 10000 } // 10 segundos de timeout
+            );
+
+            // Verificar se o logout foi bem-sucedido no backend
+            if (response.status === 200) {
+                store.dispatch("setAccessToken", null);
+                clearRefreshToken(); // Assumindo que limpa localmente
+            } else {
+                throw new Error("Falha ao encerrar a sessão no servidor.");
+            }
         } catch (err) {
-            console.log(err.message)
-            throw err
+            console.error("Erro ao fazer logout:", err.message);
+            // Opcional: exibir notificação ao usuário
+            alert("Erro ao encerrar a sessão. Tente novamente.");
+            // Não relançar o erro, a menos que necessário
         } finally {
             loading.value = false;
         }
-
-    }
+    };
 
     const forgotPassword = async (data) => {
         try {

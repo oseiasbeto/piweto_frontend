@@ -46,7 +46,7 @@ onMounted(async () => {
             <!--start cover-->
             <div class="flex justify-center items-center mx-auto">
                 <div class="mx-auto w-full flex items-center justify-center">
-                    <img v-lazy="order.event.cover.url"
+                    <img v-lazy="order.event.cover.medium"
                         class="relative rounded-none lg:absolute lg:mt-[-460px] img-event lg:rounded-[30px] w-full h-[190px] lg:w-[1000px] lg:h-[500px]">
                 </div>
             </div>

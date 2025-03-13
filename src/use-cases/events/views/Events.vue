@@ -24,6 +24,14 @@ const user = computed(() => {
 const getCurrentUser = computed(() => {
     return store.getters.currentUser
 })
+
+const truncateText = (text, maxLength) => {
+    if (text.length > maxLength) {
+        return text.substring(0, maxLength) + '...';
+    }
+    return text;
+}
+
 const calculateProgress = (purchased, available) => {
     if (available === 0) return 0; // Evita divisão por zero
     return ((purchased / available) * 100).toFixed(2);
@@ -103,7 +111,7 @@ onMounted(async () => {
         await getStaffs({
             page: 1,
             limit: 10,
-            member: user?.value?._id
+            member: user.value._id
         }).then((res) => {
             const data = res?.data?.staffs;
             const metadata = res?.data?.metadata;
@@ -192,15 +200,18 @@ onMounted(async () => {
                                             :class="statusColor(event.event.status)"> {{
                                                 statusLegends(event.event.status) }}</p>
                                     </div>
-
                                 </td>
+
                                 <td class="px-4 py-3 text-nowrap text-gray-500">
-                                    <router-link class="hover:underline" :to="'/gerenciador-de-eventos/pagina-inicial/' + event.event.id">{{
-                                        event.event.name
+                                    <router-link class="hover:underline"
+                                        :to="'/gerenciador-de-eventos/pagina-inicial/' + event.event.id">{{
+                                            truncateText(event.event.name, 30)
+                                            
                                         }}</router-link>
                                 </td>
+
                                 <td class="px-4 py-3 text-gray-500">
-                                    {{ moment(event.event.starts_at.date).format("DD/MM/YYYY")  }}
+                                    {{ moment(event.event.starts_at.date).format("DD/MM/YYYY") }}
                                 </td>
 
                                 <td class="px-4 py-3 text-gray-500 text-nowrap">
@@ -213,12 +224,12 @@ onMounted(async () => {
                                             <span>{{ event.event.tickets_purchased_count }}</span>
                                             <span>{{ event.event.tickets_available_count }}</span>
                                         </div>
-                                        <span class="absolute top-0 left-0 h-full bg-green-300" :style="`width: ${calculateProgress(event.event.tickets_purchased_count, event.event.tickets_available_count)}%`"></span>
+                                        <span class="absolute top-0 left-0 h-full bg-green-300"
+                                            :style="`width: ${calculateProgress(event.event.tickets_purchased_count, event.event.tickets_available_count)}%`"></span>
                                     </div>
                                 </td>
                                 <td class="px-4 py-3 flex items-center justify-end gap-2 text-gray-500">
-                                    <router-link
-                                        :to="'/gerenciador-de-eventos/pagina-inicial/' + event.event.id">
+                                    <router-link :to="'/gerenciador-de-eventos/pagina-inicial/' + event.event.id">
                                         <button
                                             class="border p-[4px] px-[14px] rounded-full text-[12px] border-gray-400 font-medium text-gray-400 uppercase hover:bg-blue-400 hover:border-blue-400 hover:text-white">Gerenciar</button>
                                     </router-link>
