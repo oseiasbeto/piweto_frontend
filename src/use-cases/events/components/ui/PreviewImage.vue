@@ -23,7 +23,7 @@ export default {
 
 <template>
     <div class="relative border border-gray-400 float-left text-left">
-        <div class="w-[280px] h-[144px]">
+        <div class="w-full lg:w-[280px] h-[144px]">
             <img class="w-full h-full object-cover" :src="createUrl ? createURLMedia(image) : image" :alt="title" :title="title">
         </div>
     </div>

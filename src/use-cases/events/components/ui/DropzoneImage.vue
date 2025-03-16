@@ -41,7 +41,7 @@ export default {
                 Clique ou arraste a imagem aqui
             </span>
 
-            <input type="file" id="dropInput" accept="images/*">
+            <input type="file" id="dropInput" accept="image/*">
         </div>
     </label>
 </template>
