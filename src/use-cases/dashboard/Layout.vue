@@ -13,6 +13,7 @@ import Partakers from "./views/Partakers.vue";
 import CheckIn from "./views/CheckIn.vue";
 import Finance from "./views/Finance.vue";
 import Spinner from "../checkout/components/ui/Spinner.vue";
+import AlertConfirmEmail from "@/components/AlertConfirmEmail.vue";
 
 const { getStaffById, loading: loadingStaff } = useStaffs()
 loadingStaff.value = true
@@ -20,8 +21,8 @@ loadingStaff.value = true
 const route = useRoute()
 const store = useStore()
 
-const staff = computed(() => {
-    return store.getters.staff
+const currentUser = computed(() => {
+    return store.getters.currentUser
 })
 
 const _toast = computed(() => {
@@ -33,21 +34,21 @@ onMounted(async () => {
     if (!id) return
     else {
         await getStaffById(id).then(res => {
-                const event = res.data.event;
-                const staff = res.data.staff;
+            const event = res.data.event;
+            const staff = res.data.staff;
+            
+            store.dispatch("setStaff", staff)
+            store.dispatch("setEvent", event)
 
-                store.dispatch("setStaff", staff)
-                store.dispatch("setEvent", event)
-
-                if (_toast.value.show) {
-                    toast(_toast.value.message, {
-                        theme: "colored",
-                        position: "top-right",
-                        autoClose: _toast.value.timeout,
-                        type: _toast.value.type
-                    })
-                } else return
-            })
+            if (_toast.value.show) {
+                toast(_toast.value.message, {
+                    theme: "colored",
+                    position: "top-right",
+                    autoClose: _toast.value.timeout,
+                    type: _toast.value.type
+                })
+            } else return
+        })
     }
 
 })
@@ -55,9 +56,9 @@ onMounted(async () => {
 </script>
 
 <template>
-        <div v-if="loadingStaff" class="flex justify-center items-center h-[500px]">
-                <Spinner />
-            </div>
+    <div v-if="loadingStaff" class="flex justify-center items-center h-[500px]">
+        <Spinner />
+    </div>
     <div v-else class="relative">
 
 
@@ -73,6 +74,10 @@ onMounted(async () => {
             <!--start views dashboard-->
             <div class="lg:ml-[120px] relative w-full lg:w-[calc(100%-120px)]">
                 <div class="mt-0 w-full p-6">
+                    <div v-if="!currentUser.email" class="mb-5">
+                        <AlertConfirmEmail/>
+                    </div>
+                    
                     <Dashboard v-if="route.name == 'Dashboard'" />
                     <Tickets v-if="route.name == 'Tickets'" />
                     <Partakers v-if="route.name == 'Partakers'" />

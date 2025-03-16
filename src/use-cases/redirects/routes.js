@@ -1,7 +1,7 @@
 export default [
     {
-        name: 'Check account',
-        path: '/conta/confirmar-email',
+        name: 'Active email',
+        path: '/conta/activar-email',
         meta: {
             requiresAuth: false,
             rootPage: 'redirects',

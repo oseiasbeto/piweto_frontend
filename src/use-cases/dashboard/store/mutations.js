@@ -14,6 +14,16 @@ export default {
         state.staffs.metadata = payload.metadata
         state.staffs.hasViewed = payload.hasViewed
     },
+    [types.SET_PAYOUTS](state, payload) {
+        state.payouts.data = payload.payouts
+        state.payouts.metadata = payload.metadata
+    },
+    [types.ADD_PAYOUT_FROM_PAYOUTS](state, payout) {
+        state.payouts.data = [
+            payout,
+            ...state.payouts.data
+        ]
+    },
     [types.SET_COUPONS](state, payload) {
         state.coupons.data = payload.data
         state.coupons.metadata = payload.metadata

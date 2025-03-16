@@ -18,31 +18,16 @@ import Footer from "./components/ui/Footer.vue";
 import MyTickets from "./views/MyTickets.vue";
 import TermsOfUse from "./views/TermsOfUse.vue";
 import PrivacyPolicy from "./views/PrivacyPolicy.vue";
+import ForgotPassword from "./views/auth/ForgotPassword.vue";
+import CheckEmail from "./views/auth/CheckEmail.vue";
 
 const route = useRoute()
 const store = useStore()
-
-const _toast = computed(() => {
-    return store.getters.toast
-})
 
 const sidebar = computed(() => {
     return store.getters.sidebar
 })
 
-onMounted(() => {
-    if (_toast.value.show) {
-        toast(_toast.value.message, {
-            theme: "colored",
-            position: "top-right",
-            autoClose: _toast.value.timeout,
-            type: _toast.value.type
-        })
-        setTimeout(() => {
-            store.dispatch("resetToast")
-        }, _toast.value.timeout)
-    } else return
-})
 </script>
 
 <template>
@@ -54,11 +39,12 @@ onMounted(() => {
         <!--start views marketplace-->
         <div class="mt-0">
             <Home v-if="route.name == 'Marketplace'" />
-
             <!--start pages-->
             <AuthUser v-if="route.name == 'Auth user'" />
             <RegisterUser v-if="route.name == 'Register user'" />
             <ResetPassword v-if="route.name == 'Reset password'" />
+            <ForgotPassword v-if="route.name == 'Forgot password'" />
+            <CheckEmail v-if="route.name == 'Check email'" />
             <Search v-if="route.name == 'Search'" />
             <MyTickets v-if="route.name == 'My tickets'" />
             <TermsOfUse v-if="route.name == 'Terms of use'" />

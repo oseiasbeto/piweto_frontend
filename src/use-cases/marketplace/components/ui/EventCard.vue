@@ -183,8 +183,8 @@ function onImageLoad(event) {
                 </div>
                 <div class="text-center text-xs leading-4 mb-5">
                     <p class="mb-2">{{ ticket.code }}</p>
-                    <b>{{ user.full_name }}</b>
-                    <p>{{ user.email }}</p>
+                    <b>{{ user?.full_name }}</b>
+                    <p>{{ user?.email }}</p>
                 </div>
                 <!--end qr code area-->
                 <button :disabled="ticket.status !== 'a'"

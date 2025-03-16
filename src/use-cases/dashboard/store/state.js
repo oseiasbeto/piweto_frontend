@@ -11,6 +11,10 @@ export default {
         metadata: {},
         hasViewed: false
     },
+    payouts: {
+        data: [],
+        metadata: {}
+    },
     coupons: {
         data: [],
         metadata: {},

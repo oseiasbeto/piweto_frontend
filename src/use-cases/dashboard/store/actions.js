@@ -9,6 +9,12 @@ export const setPartakers = ({ commit }, payload) => {
 export const setStaffs = ({ commit }, payload) => {
     commit(types.SET_STAFFS, payload)
 }
+export const setPayouts = ({ commit }, payload) => {
+    commit(types.SET_PAYOUTS, payload)
+}
+export const addPayoutFromPayouts = ({ commit }, payload) => {
+    commit(types.ADD_PAYOUT_FROM_PAYOUTS, payload)
+}
 export const setCoupons = ({ commit }, payload) => {
     commit(types.SET_COUPONS, payload)
 }

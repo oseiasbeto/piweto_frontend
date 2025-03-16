@@ -11,6 +11,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import moment from "moment";
 import intlTelInput from 'intl-tel-input';
+import AlertConfirmEmail from "@/components/AlertConfirmEmail.vue";
 
 const { newOrder, loading: loadingOrder, error: errorOrder } = useOrders()
 
@@ -94,7 +95,7 @@ function finishPurchase() {
         eventId: cart?.value.event?._id,
         paymentMethod: form.value.paymentMethod,
         data: {
-            fullName: user.value.full_name, 
+            fullName: user.value.full_name,
             email: form.value.email ?? user.value.email,
             phone: form.value.phone ?? user.value.phone
         }
@@ -129,12 +130,16 @@ onMounted(async () => {
     <div v-if="cart">
         <!--data start-->
         <Container>
+            <div v-if="!user?.email" class="mt-4 px-3">
+                <AlertConfirmEmail />
+            </div>
             <div class="mt-7 mb-10 lg:mt-20">
+
                 <div class="flex flex-col lg:flex-row justify-between">
                     <div class="px-4 flex-shrink-0 w-full lg:w-2/3">
                         <h3 style="letter-spacing: 0.2px;" class="text-[#191f28] mb-4 font-bold text-xl lg:text-3xl">{{
                             cart?.event?.name
-                            }}</h3>
+                        }}</h3>
                         <div class="text-[#495057] mb-4 text-[13px] lg:text-[15px]">
                             <span class="flex items-center gap-1">
                                 <svg width="15" height="15" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -152,9 +157,11 @@ onMounted(async () => {
                                     </path>
                                 </svg>
 
-                                <p>{{ formatDate(cart?.event?.starts_at.date) }} às {{ formatTime(cart?.event?.starts_at.hm)
+                                <p>{{ formatDate(cart?.event?.starts_at.date) }} às {{
+                                    formatTime(cart?.event?.starts_at.hm)
                                     }} > {{
-                                        formatDate(cart?.event?.ends_at.date) }} às {{ formatTime(cart?.event?.ends_at.hm) }}
+                                        formatDate(cart?.event?.ends_at.date) }} às {{ formatTime(cart?.event?.ends_at.hm)
+                                    }}
                                 </p>
                             </span>
                         </div>
@@ -246,8 +253,9 @@ onMounted(async () => {
                                     class="text-brand-danger">*</span></label>
                             <input
                                 class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
-                                @input="validatePhone" type="tel" ref="inputPhone" autocomplete="off" oncontextmenu="false"
-                                v-model="form.phone" :class="{ '!border-brand-danger': errors.phone.show }">
+                                @input="validatePhone" type="tel" ref="inputPhone" autocomplete="off"
+                                oncontextmenu="false" v-model="form.phone"
+                                :class="{ '!border-brand-danger': errors.phone.show }">
                             <span class="text-brand-danger text-xs font-medium my-1" v-show="errors.phone.show">
                                 {{ errors.phone.message }}
                             </span>

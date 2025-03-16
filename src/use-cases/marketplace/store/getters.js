@@ -23,9 +23,6 @@ export const hasLogged = (state) => {
     if (!state.accessToken) return false
     else return true
 }
-export const event = (state) => {
-    return state.event
-}
 export const batches = (state) => {
     return state.batches
 }

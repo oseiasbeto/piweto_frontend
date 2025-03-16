@@ -32,6 +32,7 @@ export default {
         visibility: 'public',
         nameclature: "ticket"
     },
+    event: {},
     myEvents: {
         data: [],
         metadata: {},

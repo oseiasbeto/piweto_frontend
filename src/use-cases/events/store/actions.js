@@ -15,6 +15,12 @@ export const setBatchFromBatches = ({ commit }, payload) => {
 export const removeBatchFromBatches = ({ commit }, payload) => {
     commit(types.REMOVE_BATCH_FROM_BATCHES, payload)
 }
+export const setEvent = ({ commit }, payload) => {
+    commit(types.SET_EVENT, payload)
+}
+export const updateEvent = ({ commit }, payload) => {
+    commit(types.UPDATE_EVENT, payload)
+}
 export const editBatchFromBatches = ({ commit }, payload) => {
     commit(types.EDIT_BATCH_FROM_BATCHES, payload)
 }

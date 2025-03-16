@@ -8,7 +8,7 @@ const instance = axios.create({
     headers: {
         'Content-Type': 'application/json'
     },
-    timeout: 60000
+    timeout: 5000
 })
 
 instance.interceptors.request.use((config) => {
@@ -22,7 +22,18 @@ instance.interceptors.request.use((config) => {
     return Promise.reject(error)
 })
 
-// Interceptor de resposta
+instance.interceptors.response.use(
+    response => response,
+    error => {
+        if (!error.response) {
+            // Erro de rede (ex: API offline, sem internet, CORS bloqueado, etc.)
+            window.location.href = '/500';
+        }
+        return Promise.reject(error);
+    }
+);
+
+// Interceptor de resposta 
 instance.interceptors.response.use(
     response => response,
     async error => {
@@ -42,7 +53,7 @@ instance.interceptors.response.use(
         return Promise.reject(error);
     }
 );
- 
+
 instance.interceptors.response.use(
     response => response,
     error => {
@@ -53,7 +64,6 @@ instance.interceptors.response.use(
     }
 );
 
-
 instance.interceptors.response.use(
     response => response,
     error => {
@@ -63,5 +73,4 @@ instance.interceptors.response.use(
         return Promise.reject(error);
     }
 )
-
 export default instance

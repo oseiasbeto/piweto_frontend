@@ -21,7 +21,6 @@ export default {
         message: ""
     },
     location: "Qualquer lugar",
-    event: {},
     batches: {
         data: [],
         metadata: {}

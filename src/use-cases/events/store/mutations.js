@@ -44,6 +44,15 @@ export default {
         state.myEvents.metadata = payload.metadata
         state.myEvents.hasViewed = payload.hasViewed
     },
+    [types.SET_EVENT](state, payload) {
+        state.event = payload
+    },
+    [types.UPDATE_EVENT](state, payload) {
+        state.event = {
+            ...(state.event || {}), // Garante que state.event nunca seja undefined
+            ...payload       // Substitui apenas as propriedades presentes no payload
+        };
+    },
     [types.RESET_MYEVENTS](state) {
         state.myEvents.data = []
         state.myEvents.metadata = {}

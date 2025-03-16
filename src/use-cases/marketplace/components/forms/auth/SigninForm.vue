@@ -1,26 +1,30 @@
 <script setup>
-import { ref } from "vue"
+import { computed, onMounted, ref } from "vue"
 import { toast } from "vue3-toastify"
 import { useStore } from "vuex"
 import { useRoute, useRouter } from "vue-router"
+import intlTelInput from 'intl-tel-input';
 import BtnSpinner from "../../spinners/BtnSpinner.vue";
 import { useUsers } from "../../../../../repositories/users-repository.js";
+import { fa } from "intl-tel-input/i18n";
 
 const { auth, loading, error } = useUsers()
 
 const emit = defineEmits(["onclose"])
+const intl = ref({})
 
 const store = useStore()
 const route = useRoute()
 const router = useRouter()
 
 const form = ref({
-    email: "",
-    password: ""
+    phone: "",
+    password: "",
+    viewPassword: false
 })
 
 const errors = ref({
-    email: {
+    phone: {
         show: false,
         message: "",
         data: ""
@@ -32,24 +36,39 @@ const errors = ref({
     }
 })
 
+const formInvalid = computed(() => {
+    if (!form.value.phone || !form.value.password || errors.value.phone.show || errors.value.password.show) return true
+    else return false
+})
+
 const resetForm = () => {
     form.value = {
-        email: "",
+        phone: "",
         password: "",
         viewPassword: false
     }
 }
-function validateEmail() {
-    if (form.value.email == "") {
-        errors.value.email = {
+function validatePhone() {
+    if (!form.value.phone) {
+        errors.value.phone.show = true
+        errors.value.phone.message = "Este campo é obrigatório."
+    }
+    else if (!intl.value.isValidNumber()) {
+        errors.value.phone = {
             show: true,
-            message: "Este campo é obrigatório."
+            message: "Por favor, digite um número de telefone válido."
         }
+    } else if (/[^\d\s]/.test(form.value.phone)) {
+        errors.value.phone = {
+            show: true,
+            message: "O número de telefone só pode conter dígitos."
+        }
+    } else if (form.value.phone == errors.value.phone.data) {
+        errors.value.phone.show = true
+        errors.value.phone.message = "Por favor, insira um número de telefone válido!"
     } else {
-        errors.value.email = {
-            show: false,
-            message: ""
-        }
+        errors.value.phone.show = false
+        errors.value.phone.message = ""
     }
 }
 
@@ -77,18 +96,15 @@ function openModal(name) {
 }
 
 async function submit() {
-    const email = form.value.email.length
-    const password = form.value.password.length
 
-    validateEmail()
+    validatePhone()
     validatePassword()
 
-    if (email && password) {
+    if (!formInvalid.value) {
         await auth(form.value)
             .then(() => {
                 store.dispatch("resetStaffs")
                 store.dispatch("resetMyEvents")
-
                 const redirect = route.query.r
                 if (redirect) {
                     router.push(redirect);
@@ -108,6 +124,15 @@ async function submit() {
             })
     } else return
 }
+
+onMounted(() => {
+    const input = document.querySelector("#phone");
+    intl.value = intlTelInput(input, {
+        loadUtilsOnInit: () => import("intl-tel-input/utils"),
+        initialCountry: "ao",
+        onlyCountries: ["ao"]
+    });
+})
 </script>
 
 <template>
@@ -117,20 +142,24 @@ async function submit() {
         </div>
 
         <div class="flex flex-col">
-            <label class="text-xs text-gray-500 mb-2 font-bold" for="email">E-mail <span
-                    class="text-brand-danger">*</span></label>
-            <input :readonly="loading" @input="validateEmail" autocomplete="off"
-                class="outline-none h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4" type="text"
-                id="email" v-model="form.email" :class="{ '!border-brand-danger': errors.email.show }">
-            <span class="text-brand-danger text-xs mt-1" v-show="errors.email.show">
-                {{ errors.email.message }}
+            <div class="flex flex-col">
+                <label class="text-xs text-gray-500 mb-2 font-bold" for="phone">Número de telefone <span
+                        class="text-brand-danger">*</span></label>
+                <input :readonly="loading"
+                    class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
+                    @input="validatePhone" type="tel" id="phone" autocomplete="off" oncontextmenu="false"
+                    v-model="form.phone" :class="{ '!border-brand-danger': errors.phone.show }">
+               
+            </div>
+            <span class="text-brand-danger text-xs mt-1" v-show="errors.phone.show">
+                {{ errors.phone.message }}
             </span>
         </div>
         <div class="flex my-1 items-center justify-between">
             <div></div>
             <div>
-                <button @click="openModal('forgot-password')" class="text-brand-info text-xs font-semibold">Esqueci a
-                    senha</button>
+                <router-link to="/conta/esqueci-a-senha" class="text-brand-info text-xs font-semibold">Esqueci a
+                    senha</router-link>
             </div>
         </div>
         <div class="flex flex-col mb-4">

@@ -8,7 +8,6 @@ import VueCleave from 'vue-cleave-component';
 import moment from "moment";
 import formatAmount from "@/utils/formatAmount";
 import { useBatches } from "../../../../../repositories/batches-repository";
-import Multiselect from 'vue-multiselect'
 import { useRoute } from "vue-router";
 
 // Crie as referências globais deste componente.

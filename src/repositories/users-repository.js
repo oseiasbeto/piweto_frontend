@@ -14,10 +14,9 @@ export function useUsers() {
     const register = async (data) => {
         try {
             loading.value = true
-            const response = await api.post("/users/register", data)
-            const user = response.data.newUser;
+            await api.post("/users/register", data)
 
-            store.dispatch("setUser", user)
+            store.dispatch("setUser", data)
         } catch (err) {
             console.log(err.message)
             throw err
@@ -25,6 +24,8 @@ export function useUsers() {
             loading.value = false;
         }
     }
+
+
 
     // tem como finalidade refrescar o token de acesso
     const refreshToken = async (session_id) => {
@@ -74,11 +75,13 @@ export function useUsers() {
         }
     }
     // tem como finalidade autenticar o usuario no sistema.
-    const checkEmail = async (token) => {
+    const checkEmail = async (email) => {
         try {
             loading.value = true
 
-            const response = await api.put("/users/check-email/" + token)
+            const response = await api.put("/users/check-email", {
+                email
+            })
             return response
         } catch (err) {
             console.log(err.message)
@@ -87,7 +90,47 @@ export function useUsers() {
             loading.value = false;
         }
     }
+    const activeEmail = async (token) => {
+        try {
+            loading.value = true
 
+            const response = await api.put("/users/active-email", {
+                token
+            })
+            return response
+        } catch (err) {
+            console.log(err.message)
+            throw err
+        } finally {
+            loading.value = false;
+        }
+    }
+    const checkOTPPhone = async (otp) => {
+        try {
+            loading.value = true
+            const response = await api.put(`/users/check-otp-phone/${otp}`)
+
+            return response
+        } catch (err) {
+            console.log(err.message)
+            throw err
+        } finally {
+            loading.value = false;
+        }
+    }
+    const checkOTPPassword = async (otp) => {
+        try {
+            loading.value = true
+            const response = await api.get(`/users/check-otp-reset-password/${otp}`)
+
+            return response.data.otp
+        } catch (err) {
+            console.log(err.message)
+            throw err
+        } finally {
+            loading.value = false;
+        }
+    }
     const logout = async (session_id) => {
         try {
             // Validação básica do session_id
@@ -124,7 +167,9 @@ export function useUsers() {
     const forgotPassword = async (data) => {
         try {
             loading.value = true
-            await api.post("/users/forgot-password", data)
+            const response = await api.post("/users/forgot-password", data)
+            const user = response.data.user
+            return user
         } catch (err) {
             console.log(err.message)
             throw err
@@ -148,9 +193,8 @@ export function useUsers() {
     const resetPassword = async (data) => {
         try {
             loading.value = true
-            return await api.put("/users/reset-password", {
-                new_password: data.new_password,
-                token: data.token
+            return await api.put(`/users/reset-password/${data.otp}`, {
+                new_password: data.new_password
             })
         } catch (err) {
             console.log(err.message)
@@ -204,7 +248,7 @@ export function useUsers() {
     function setRefreshTokenFromCookies(token) {
         const refreshToken = String(token)
         const expirationDate = new Date();
-        expirationDate.setMonth(expirationDate.getDay() + 30);
+        expirationDate.setMonth(expirationDate.getFullYear() + 1);
         Cookies.set("session_id", refreshToken, {
             secure: true,
             sameSite: "Strict",
@@ -221,6 +265,9 @@ export function useUsers() {
         logout,
         refreshToken,
         checkEmail,
+        activeEmail,
+        checkOTPPhone,
+        checkOTPPassword,
         forgotPassword,
         resetPassword
     }

@@ -13,6 +13,8 @@ import {
 } from '@headlessui/vue'
 import MyAccount from "@/use-cases/marketplace/components/forms/auth/MyAccount.vue"
 import ForgotPassword from "@/use-cases/marketplace/components/forms/auth/ForgotPassword.vue"
+import AddBankAccount from "../forms/finance/AddBankAccount.vue"
+import CreatePayout from "../forms/finance/CreatePayout.vue"
 
 // importe as referências necessários para o bom funcionamento deste componente.
 const store = useStore()
@@ -49,8 +51,8 @@ const close = (name) => {
                         <!--start body content-->
                         <DialogPanel class="w-full overflow-hidden text-left align-middle transition-all transform">
                             <div>
-                                <StaffForm @onclose="close(modal.name)" v-if="modal.name == 'staff-form'" />
-                                <CouponForm @onclose="close(modal.name)" v-if="modal.name == 'coupon-form'" />
+                                <AddBankAccount @onclose="close(modal.name)" v-if="modal.name == 'add-bank-account'" />
+                                <CreatePayout @onclose="close(modal.name)" v-if="modal.name == 'create-payout'" />
                                 <MyAccount @onclose="close(modal.name)" v-if="modal.name == 'my-account'" />
                                 <ForgotPassword @onclose="close(modal.name)" v-if="modal.name == 'forgot-password'"/>
                             </div>

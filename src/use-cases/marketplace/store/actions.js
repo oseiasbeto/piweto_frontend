@@ -3,11 +3,11 @@ import * as types from "./mutations-types"
 export const setUser = ({ commit }, payload) => {
     commit(types.SET_USER, payload)
 }
+export const updateUser = ({ commit }, payload) => {
+    commit(types.UPDATE_USER, payload)
+}
 export const setAccessToken = ({ commit }, payload) => {
     commit(types.SET_ACCESS_TOKEN, payload)
-}
-export const setEvent = ({ commit }, payload) => {
-    commit(types.SET_EVENT, payload)
 }
 export const setSidebar = ({ commit }, payload) => {
     commit(types.SET_SIDEBAR, payload)

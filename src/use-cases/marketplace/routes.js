@@ -81,9 +81,9 @@ export default [
     },
     {
         name: 'Forgot password',
-        path: '/conta/esqueci-a-palavra-passe',
+        path: '/conta/esqueci-a-senha',
         meta: {
-            routeAuth: true,
+            requiresAuth: false,
             rootPage: 'marketplace',
             title: 'Piweto | Esqueci a palavra-passe'
         },
@@ -96,6 +96,16 @@ export default [
             requiresAuth: false,
             rootPage: 'marketplace',
             title: 'Piweto | Redefinir a palavra-passe'
+        },
+        component: () => import('./Layout.vue')
+    },
+    {
+        name: 'Check email',
+        path: '/conta/verificar-email',
+        meta: {
+            requiresAuth: true,
+            rootPage: 'marketplace',
+            title: 'Piweto | Verificar email'
         },
         component: () => import('./Layout.vue')
     },

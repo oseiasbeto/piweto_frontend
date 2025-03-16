@@ -136,7 +136,7 @@ onMounted(async () => {
                             Nenhum ingresso encontrado! Tente outra busca ou clique em 'Ver meus ingressos' para voltar.
                             😉
                         </h1>
-                        <h1 class="text-lg" v-else="!startSearch">
+                        <h1 class="text-base" v-else="!startSearch">
                             Você ainda não tem ingressos ou reservas ativas. Explore nossos eventos e garanta o seu
                             lugar ;)
                         </h1>

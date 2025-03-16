@@ -59,7 +59,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="bg-white rounded-sm shadow-md w-full lg:w-80">
+    <div class="bg-white rounded-sm shadow-md">
         <div class="border-b flex justify-between items-center border-[#dee2e6] p-4">
             <h1 class="font-bold">Minha Conta</h1>
             <button @click="closeModal"
@@ -143,8 +143,8 @@ onMounted(() => {
                 <label class="text-xs text-gray-500 mb-2 font-bold" for="email">
                     Palavra-passe:
                 </label>
-                <button @click="goToForgotPassword()" class="w-min flex-nowrap whitespace-nowrap font-bold text-sm text-[#007bff]">Alterar
-                    passe</button>
+                <router-link @click="closeModal()" to="/conta/esqueci-a-senha" class="w-min flex-nowrap whitespace-nowrap font-bold text-sm text-[#007bff]">Alterar
+                    passe</router-link>
             </div>
             <!--end email field area-->
 

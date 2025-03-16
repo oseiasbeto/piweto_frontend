@@ -7,6 +7,7 @@ import Swal from "sweetalert2"
 import { toast } from "vue3-toastify"
 import moment from "moment";
 import Spinner from "@/use-cases/checkout/components/ui/Spinner.vue";
+import AlertConfirmEmail from "@/components/AlertConfirmEmail.vue";
 
 const { getStaffs, loading: loadingEvents } = useStaffs()
 const { deleteEvent, loading: loadingDeleteEvent } = useEvents()
@@ -140,6 +141,9 @@ onMounted(async () => {
             <!--start content result -->
             <div v-else class="data">
                 <!--start header content result empty -->
+                <div v-if="!user.email" class="mb-4">
+                    <AlertConfirmEmail/>
+                </div>
                 <div class="w-full mt-2 mb-8 px-8 bg-white rounded-md shadow-md py-4">
                     <div>
                         <div class="mb-4">
@@ -164,7 +168,7 @@ onMounted(async () => {
                 </div>
                 <!--end header content result empty -->
 
-                <div v-if="events.data.length" class="flex flex-wrap overflow-x-scroll lg:overflow-x-hidden">
+                <div v-if="events.data.length" class="flex bg-white rounded-md shadow-md p-4 flex-wrap overflow-x-scroll lg:overflow-x-hidden">
                     <table class="w-full text-sm text-left border border-gray-100">
                         <thead class="text-xs border-b border-gray-100 text-gray-500 uppercase bg-gray-50">
                             <tr>

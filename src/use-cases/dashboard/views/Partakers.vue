@@ -1,16 +1,20 @@
 <script setup>
 import { useTickets } from "@/repositories/tickets-repository";
 import moment from "moment";
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, watch } from "vue";
 import { useStore } from "vuex";
 import formatAmount from "@/utils/formatAmount";
+import { useRoute } from "vue-router";
+import BtnSpinner from "../components/spinners/BtnSpinner.vue";
 const { getTickets, loading: loadingPartakers } = useTickets()
 
 const store = useStore()
+const route = useRoute()
 
 const event = computed(() => {
     return store.getters.event
 })
+
 const partakers = computed(() => {
     return store.getters.partakers
 })
@@ -51,26 +55,34 @@ const generateStatusLegend = (status) => {
     }
 }
 
-onMounted(async () => {
-    if (partakers.value.hasViewed) {
-        loadingPartakers.value = false
-    } else {
-        
-        await getTickets({
-            event: event.value._id,
-            populate: 'costumer'
-        }).then(res => {
-            const partakers = res.data.tickets;
-            const metadata = res.data.metadata;
+const fetchPartakers = async () => {
+    await getTickets({
+        event: event.value._id,
+        populate: 'costumer'
+    }).then(res => {
+        const partakers = res.data.tickets;
+        const metadata = res.data.metadata;
 
-            store.dispatch("setPartakers", {
-                data: partakers,
-                metadata: metadata,
-                hasViewed: true
-            })
+        store.dispatch("setPartakers", {
+            data: partakers,
+            metadata: metadata,
+            hasViewed: true
         })
+    })
+}
+
+onMounted(() => {
+    if (event?.value?._id) {
+        fetchPartakers()
     }
 })
+
+// Observa quando `event` muda e chama a função
+watch(event, (newEvent) => {
+    if (newEvent) {
+        fetchPartakers();
+    }
+});
 
 </script>
 
@@ -108,7 +120,8 @@ onMounted(async () => {
                         class=" bg-white border-b border-gray-100">
                         <td class="px-4 py-3" :class="statusTxtColor(partaker.status)">
                             <div class="flex items-center gap-2">
-                                <div class="w-[12px] h-[12px] rounded-full" :class="statusBgColor(partaker.status)"></div>
+                                <div class="w-[12px] h-[12px] rounded-full" :class="statusBgColor(partaker.status)">
+                                </div>
                                 <p>{{ generateStatusLegend(partaker.status) }}</p>
                             </div>
 
@@ -137,8 +150,10 @@ onMounted(async () => {
                     </tr>
                 </tbody>
                 <tbody v-else>
-                    <tr>
-                        Carregando...
+                    <tr class="w-full">
+                        <td class="p-4 mx-auto">
+                            <BtnSpinner />
+                        </td>
                     </tr>
                 </tbody>
             </table>

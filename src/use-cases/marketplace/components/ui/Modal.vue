@@ -2,7 +2,6 @@
 // Importe os pacotes necessários para o bom funcionamento deste componente.
 import { useStore } from "vuex"
 import { computed } from "vue"
-import ForgotPassword from "../forms/auth/ForgotPassword.vue";
 
 import {
     Dialog,
@@ -50,7 +49,6 @@ const close = (name) => {
                         <DialogPanel
                             class="w-full overflow-hidden text-left align-middle transition-all transform">
                             <div class="w-full">
-                                <ForgotPassword @onclose="close(modal.name)" v-if="modal.name == 'forgot-password'" />
                                 <MyAccount @onclose="close(modal.name)" v-if="modal.name == 'my-account'"/>
                             </div>
                         </DialogPanel>

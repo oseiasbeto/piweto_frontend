@@ -8,6 +8,9 @@ export const partakers = (state) => {
 export const staffs = (state) => {
     return state.staffs
 }
+export const payouts = (state) => {
+    return state.payouts
+}
 export const isViewMobile = (state) => {
     return state.isViewMobile
 }

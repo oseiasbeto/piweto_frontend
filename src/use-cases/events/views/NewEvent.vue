@@ -559,7 +559,7 @@ onBeforeUnmount(() => {
                                                 Trocar de imagem
                                                 <input
                                                     class="p-[10px] border !rounded-sm border-gray-300 h-[40px] text-[13px] focus:outline-none !text-gray-600  placeholder:text-gray-400"
-                                                    @change="selectCover" id="changeCover" type="file" accept="images/*"
+                                                    @change="selectCover" id="changeCover" type="file" accept="image/*"
                                                     style="display: none">
                                             </label>
                                             <button
@@ -571,7 +571,7 @@ onBeforeUnmount(() => {
                                             evento
                                             no
                                             <b>Facebook</b>).<br>Formato <strong>JPEG, GIF ou PNG de no máximo
-                                                2MB.</strong><br>Imagens
+                                                5MB.</strong><br>Imagens
                                             com dimensões diferentes serão redimensionadas.
                                         </p>
                                     </div>

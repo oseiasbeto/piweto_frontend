@@ -128,10 +128,6 @@ export function useEvents() {
                     "Content-Type": "multipart/form-data",
                 }
             });
-
-            const newEvent = response.data.event
-
-            store.dispatch("setEvent", newEvent)
         } catch (err) {
             error.value = true
             console.log(err.message)

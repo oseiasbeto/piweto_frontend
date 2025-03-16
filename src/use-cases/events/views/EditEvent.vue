@@ -7,12 +7,14 @@ import Quill from 'quill';
 import Swal from "sweetalert2"
 import DatePicker from '@jobinsjp/vue3-datepicker';
 import formatAmount from "@/utils/formatAmount";
+import { toast } from "vue3-toastify"
 import { useRouter, useRoute } from "vue-router";
 import 'vue-multiselect/dist/vue-multiselect.css';
 import { useEvents } from "@/repositories/events-repository";
 import { useBatches } from "@/repositories/batches-repository";
 import Multiselect from 'vue-multiselect'
 import Spinner from "@/use-cases/checkout/components/ui/Spinner.vue";
+import { useStaffs } from "@/repositories/staffs-repository";
 
 const store = useStore()
 const loadingGlobal = ref(true)
@@ -34,10 +36,12 @@ const categories = ref([
     'Tecnologia & Startups'
 ]);
 const hasError = ref(true)
-const { editEvent, loading: loadingEditEvent } = useEvents()
+const { editEvent } = useEvents()
 const { getEventById } = useEvents()
 const { getBatches, deleteBatch } = useBatches()
+const { getStaffs } = useStaffs()
 
+const loadingEditEvent = ref(false)
 loadingEditEvent.value = false
 const router = useRouter()
 const route = useRoute()
@@ -57,8 +61,8 @@ const langConfig = computed(() => {
 
 
 // Esta função computada tem como finalidade retornar os dados do corrente evento.
-const currentEvent = computed(() => {
-    return store.getters.event
+const user = computed(() => {
+    return store.getters.currentUser
 })
 
 // Crie os eventos de emissão deste componente.
@@ -407,6 +411,7 @@ const createEvent = async (status) => {
     validateForm()
     if (hasError.value || loadingEditEvent.value) return
     else {
+        loadingEditEvent.value = true
         const formatToISO = (dateString) => {
             return new Date(dateString).toISOString();
         };
@@ -466,17 +471,40 @@ const createEvent = async (status) => {
         form.value.status = status
         const formData = createEventFormData(form.value)
 
-        await editEvent(formData).then(() => {
-            router.replace(`/eventos/meus-eventos`)
-            store.dispatch("setToast", {
-                show: true,
-                message: "Evento editado com sucesso.",
-                type: "success",
-                timeout: 3000
+        await editEvent(formData).then(async () => {
+            toast('Evento editado com sucesso!', {
+                theme: "colored",
+                position: "top-right",
+                autoClose: 2500,
+                type: 'success'
             })
-        }).then(() => {
-            store.dispatch("resetEventForm")
+
+            await getStaffs({
+                page: 1,
+                limit: 10,
+                member: user?.value?._id
+            }).then((res) => {
+                const data = res?.data?.staffs;
+                const metadata = res?.data?.metadata;
+                store.dispatch("setMyEvents", {
+                    data,
+                    metadata,
+                    hasViewed: true
+                })
+                toast('Evento eliminado com sucesso!', {
+                    theme: "colored",
+                    position: "top-right",
+                    autoClose: 2500,
+                    type: 'success'
+                })
+
+                loadingEditEvent.value = false
+                router.replace(`/eventos/meus-eventos`)
+            })
         })
+            .catch(() => {
+                loadingEditEvent.value = false
+            })
     }
 }
 
@@ -648,7 +676,7 @@ onBeforeUnmount(() => {
                                                     <input
                                                         class="p-[10px] border !rounded-sm border-gray-300 h-[40px] text-[13px] focus:outline-none !text-gray-600  placeholder:text-gray-400"
                                                         @change="selectCover" id="changeCover" type="file"
-                                                        accept="images/*" style="display: none">
+                                                        accept="image/*" style="display: none">
                                                 </label>
                                                 <button
                                                     class="border cursor-pointer border-[#0097ff] text-[#0097ff] text-[10px] font-medium  uppercase rounded-full py-[6px] px-3 hover:bg-[#0097ff] hover:border-[#0097ff] hover:text-white"
@@ -911,8 +939,9 @@ onBeforeUnmount(() => {
                                                     class="border-b hover:bg-gray-100 transition">
                                                     <td class="px-4 text-sm py-3">{{ batch.name }}</td>
                                                     <td class="px-4 py-3 text-center text-sm hidden sm:table-cell">
-                                                        {{batch.quantity }}</td>
-                                                    <td class="px-4 py-3 text-center text-sm">{{ formatAmount(batch.price) }}</td>
+                                                        {{ batch.quantity }}</td>
+                                                    <td class="px-4 py-3 text-center text-sm">{{
+                                                        formatAmount(batch.price) }}</td>
                                                     <td class="px-4 py-3 text-center text-sm hidden md:table-cell">
                                                         4%</td>
                                                     <td class="px-4 py-3 text-center text-sm hidden md:table-cell">

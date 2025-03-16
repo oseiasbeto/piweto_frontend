@@ -4,6 +4,12 @@ export default {
     [types.SET_USER](state, payload) {
         state.user = payload
     },
+    [types.UPDATE_USER](state, payload) {
+        state.user = {
+            ...(state.user || {}), // Garante que state.event nunca seja undefined
+            ...payload       // Substitui apenas as propriedades presentes no payload
+        };
+    },
     [types.SET_ACCESS_TOKEN](state, payload) {
         state.accessToken = payload
     },
@@ -28,9 +34,6 @@ export default {
             timeout: null,
             message: ""
         }
-    },
-    [types.SET_EVENT](state, payload) {
-        state.event = payload
     },
     [types.SET_BATCHES](state, payload) {
         state.batches = {
