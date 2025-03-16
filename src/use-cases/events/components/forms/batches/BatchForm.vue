@@ -81,8 +81,9 @@ const cleaveConfigPurchaseMinMax = {
 function calcularValorComTaxa(valor) {
     const taxa = 0.04; // 4% de taxa
     const valorComTaxa = valor * (1 - taxa);
-    return valorComTaxa;
+    return parseFloat(valorComTaxa.toFixed(2));
 }
+
 
 const validatePrice = (e) => {
     if (!e.target.value || e.target.value == '') {

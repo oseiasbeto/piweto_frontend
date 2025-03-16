@@ -149,7 +149,7 @@ const disabledStartsDate = computed(() => {
 function calcularValorComTaxa(valor) {
     const taxa = 0.04; // 4% de taxa
     const valorComTaxa = valor * (1 - taxa);
-    return valorComTaxa;
+    return parseFloat(valorComTaxa.toFixed(2));
 }
 
 const disabledEndsDate = computed(() => {

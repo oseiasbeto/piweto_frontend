@@ -13,25 +13,6 @@ import Footer from "../marketplace/components/ui/Footer.vue";
 const route = useRoute()
 
 const store = useStore()
-
-const _toast = computed(() => {
-    return store.getters.toast
-})
-
-onMounted(() => {
-    if (_toast.value.show) {
-        toast(_toast.value.message, {
-            theme: "colored",
-            position: "top-right",
-            autoClose: _toast.value.timeout,
-            type: _toast.value.type
-        })
-        setTimeout(() => {
-            store.dispatch("resetToast")
-        }, _toast.value.timeout)
-    } else return
-})
-
 </script>
 
 <template>

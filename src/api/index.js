@@ -11,16 +11,7 @@ const instance = axios.create({
     timeout: 5000
 })
 
-instance.interceptors.request.use((config) => {
-    const hasLogged = store.getters.hasLogged
-    if (hasLogged) {
-        const token = store.getters.accessToken
-        config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-}, (error) => {
-    return Promise.reject(error)
-})
+
 
 instance.interceptors.response.use(
     response => response,
@@ -73,4 +64,15 @@ instance.interceptors.response.use(
         return Promise.reject(error);
     }
 )
+
+instance.interceptors.request.use((config) => {
+    const hasLogged = store.getters.hasLogged
+    if (hasLogged) {
+        const token = store.getters.accessToken
+        config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+}, (error) => {
+    return Promise.reject(error)
+})
 export default instance

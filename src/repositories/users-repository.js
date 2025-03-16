@@ -248,7 +248,7 @@ export function useUsers() {
     function setRefreshTokenFromCookies(token) {
         const refreshToken = String(token)
         const expirationDate = new Date();
-        expirationDate.setMonth(expirationDate.getFullYear() + 1);
+        expirationDate.setMonth(expirationDate.getDate() + 7);
         Cookies.set("session_id", refreshToken, {
             secure: true,
             sameSite: "Strict",
