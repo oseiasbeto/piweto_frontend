@@ -101,7 +101,7 @@ const closeModal = () => {
 </script>
 
 <template>
-    <div class="bg-white p-6 rounded-sm shadow-lg w-96 lg:w-96">
+    <div class="bg-white p-6 rounded-sm shadow-lg w-full lg:w-96">
         <h2 class="text-xl font-semibold mb-4">Solicitar levantamento</h2>
         <div>
             <!-- IBAN -->

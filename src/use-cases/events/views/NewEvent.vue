@@ -558,9 +558,11 @@ onBeforeUnmount(() => {
                                                 for="changeCover">
                                                 Trocar de imagem
                                                 <input
-                                                    class="p-[10px] border !rounded-sm border-gray-300 h-[40px] text-[13px] focus:outline-none !text-gray-600  placeholder:text-gray-400"
-                                                    @change="selectCover" id="changeCover" type="file" accept="image/*"
-                                                    style="display: none">
+                                                    class="p-[10px] border !rounded-sm border-gray-300 h-[40px] text-[13px] focus:outline-none !text-gray-600 hidden placeholder:text-gray-400"
+                                                    @change="selectCover" id="changeCover" 
+                                                    type="file"
+                                                    accept="image/*"
+                                                    >
                                             </label>
                                             <button
                                                 class="border cursor-pointer border-[#0097ff] text-[#0097ff] text-[10px] font-medium  uppercase rounded-full py-[6px] px-3 hover:bg-[#0097ff] hover:border-[#0097ff] hover:text-white"
