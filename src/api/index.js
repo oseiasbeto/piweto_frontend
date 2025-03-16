@@ -7,11 +7,8 @@ const instance = axios.create({
     baseURL: 'https://api.piweto.it.ao/v1',
     headers: {
         'Content-Type': 'application/json'
-    },
-    timeout: 5000
+    }
 })
-
-
 
 instance.interceptors.response.use(
     response => response,
