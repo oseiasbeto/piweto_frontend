@@ -67,9 +67,10 @@ const downloadQRCode = async () => {
     await nextTick(); // Aguarda a renderização do QR Code
 
     const qrValue = ref(props.ticket.code); // Código do ingresso
+    const reservationNumber = ref(props.ticket.booking_number); // Número da reserva
     const eventName = ref(props.event.name); // Nome do evento
     const ticketType = ref(props.ticket.batch.name); // Tipo do ingresso
-    const eventDate = ref('10/03/2025'); // Data do evento
+    const eventDate = ref(moment(props.event.starts_at.date).format("DD/MM/YYYY")); // Data do evento
     const price = ref(props.ticket.price); // Preço do ingresso
     const footerText = "Este ingresso foi emitido pelo Piweto"; // Mensagem no rodapé
 
@@ -89,7 +90,7 @@ const downloadQRCode = async () => {
         // Definir tamanho do canvas (QR Code + espaço para texto)
         const qrSize = qrCanvas.width; // Tamanho do QR Code original
         const padding = 20;
-        const textHeight = 120; // Ajustei a altura do texto
+        const textHeight = 140; // Ajustei a altura do texto para acomodar a reserva
         const totalHeight = qrSize + textHeight + padding;
 
         canvas.width = qrSize + padding * 2;
@@ -112,6 +113,7 @@ const downloadQRCode = async () => {
         ctx.fillText(`Data: ${moment(eventDate.value).format("YYYY/MM/DD")}`, canvas.width / 2, 60); // Data do evento
         ctx.fillText(`Preço: ${formatAmount(price.value)}`, canvas.width / 2, 80); // Preço do ingresso
         ctx.fillText(`Código: ${qrValue.value}`, canvas.width / 2, 100); // Código do ingresso
+        ctx.fillText(`Reserva: ${reservationNumber.value}`, canvas.width / 2, 120); // Número da reserva
 
         // Adicionar a mensagem no rodapé
         ctx.font = '12px Arial';
@@ -127,6 +129,7 @@ const downloadQRCode = async () => {
 };
 
 
+
 function onImageLoad(event) {
     // Adiciona a classe de transição no carregamento da imagem
     event.target.classList.add("fade-in");
@@ -139,8 +142,11 @@ function onImageLoad(event) {
             <div class="h-[150px]  overflow-hidden rounded-b-[15px]"
             :class="isBigCover ? 'lg:h-[285px]': 'lg:h-[150px]'"
             >
-                <img class="w-full h-full object-cover lazy-image" @load="onImageLoad" v-lazy="event.cover.low || 'https://i.ibb.co/RpzZJGzc/5f282a0c6a2d9.png'"
-                    :alt="props.event.name">
+                <img class="w-full h-full object-cover lazy-image" 
+                @load="onImageLoad" 
+                v-lazy="event.cover.low || 'https://i.ibb.co/RpzZJGzc/5f282a0c6a2d9.png'"
+                :alt="props.event.name"
+                >
             </div>
         </router-link>
         <router-link :to="'/evento/' + props.event.slug">
