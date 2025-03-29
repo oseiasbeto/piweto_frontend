@@ -205,7 +205,7 @@ onMounted(async () => {
                                                     <div>
                                                     </div>
 
-                                                    <p>{{ formatAmount(batch?.price) }} Kz</p>
+                                                    <p>{{ formatAmount(batch?.price) }}</p>
                                                 </div>
                                                 <div>
                                                     <div v-if="batch?.quantity > 0" class="flex items-center gap-2">
@@ -278,7 +278,7 @@ onMounted(async () => {
                                     <div class="w-[20px] h-[20px] mt-[2px] overflow-hidden">
                                         <img width="30px" class="object-cover" src="@/assets/imgs/ref.webp">
                                     </div>
-                                    Referencia
+                                    Referência
                                 </label>
 
                                 <label
