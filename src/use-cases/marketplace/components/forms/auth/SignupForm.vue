@@ -4,10 +4,11 @@ import { toast } from "vue3-toastify"
 import { useStore } from "vuex";
 import BtnSpinner from "../../spinners/BtnSpinner.vue";
 import { useUsers } from "../../../../../repositories/users-repository";
-
 import intlTelInput from 'intl-tel-input';
-const { register, loading, error } = useUsers()
+import { useRouter } from "vue-router";
 
+const { register, loading, error } = useUsers()
+const { googleAuth, loading: loadingAuthGoogle } = useUsers()
 const emits = defineEmits(['onregistred'])
 
 const form = ref({
@@ -19,9 +20,11 @@ const form = ref({
     viewPassword: false,
     strength: "Fraca"
 })
-
+const googleButtonRef = ref(null);
 const intl = ref({})
+
 const store = useStore()
+const router = useRouter()
 
 const errors = ref({
     first_name: {
@@ -198,14 +201,156 @@ async function submit() {
     }
 }
 
+// Substitua pelo seu ID de cliente do Google
+const CLIENT_ID = '702425334809-n2jb1uf6kal86sg9ucg59dc6f76df7m6.apps.googleusercontent.com';
 
-onMounted(() => {
+// Configurações (substitua pelo seu Client ID)
+const config = {
+    client_id: CLIENT_ID,
+    callback: async (response) => {
+        console.log('Resposta do Google:', response);
+        // Aqui você processa o token JWT
+        const userData = parseJwt(response.credential);
+
+        if (userData) {
+            await googleAuth(userData).then(res => {
+                toast(res.data.message, {
+                    theme: "colored",
+                    autoClose: 2000,
+                    position: "top-right",
+                    transition: "bounce",
+                    type: 'success'
+                })
+                setTimeout(() => {
+                    store.dispatch("resetStaffs")
+                    store.dispatch("resetMyEvents")
+                    router.replace("/")
+                }, 1000)
+            }).catch(err => {
+                toast(err?.response?.data?.message || 'Algo deu errado!', {
+                    theme: "colored",
+                    autoClose: 2000,
+                    position: "top-right",
+                    transition: "bounce",
+                    type: 'error'
+                })
+            })
+        }
+        console.log('Dados do usuário:', userData);
+    }
+};
+
+// Função para decodificar o JWT
+const parseJwt = (token) => {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+            atob(base64)
+                .split('')
+                .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                .join('')
+        );
+        return JSON.parse(jsonPayload);
+    } catch (e) {
+        console.error('Erro ao decodificar JWT:', e);
+        return null;
+    }
+};
+// Carrega a API do Google Identity
+const loadGoogleIdentity = () => {
+    return new Promise((resolve, reject) => {
+        if (window.google?.accounts?.id) {
+            resolve();
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        script.onload = () => {
+            if (!window.google?.accounts?.id) {
+                reject(new Error('API do Google não carregou corretamente'));
+            } else {
+                resolve();
+            }
+        };
+        script.onerror = () => reject(new Error('Falha ao carregar o script do Google'));
+        document.head.appendChild(script);
+    });
+};
+
+// Inicializa o botão do Google
+const initGoogleButton = () => {
+    try {
+        // 1. Configuração global
+        window.google.accounts.id.initialize({
+            client_id: config.client_id,
+            callback: (response) => {
+                // Only proceed if not loading
+                if (!loadingAuthGoogle.value) {
+                    config.callback(response);
+                } else {
+                    toast("Por favor aguarde...", {
+                        theme: "colored",
+                        autoClose: 1000,
+                        position: "top-right",
+                        transition: "bounce",
+                        type: 'info'
+                    })
+                }
+            }
+        });
+
+        // 2. Renderiza o botão
+        window.google.accounts.id.renderButton(
+            googleButtonRef.value,
+            {
+                type: 'standard',
+                size: 'large',
+                theme: 'outline',
+                text: 'sign_in_with',
+                shape: 'rectangular',
+                width: '100%',
+            }
+        );
+
+        // Mostra o prompt automático (One-Tap) - VERSÃO CORRIGIDA
+        window.google.accounts.id.prompt(notification => {
+            // Nova forma de verificar o status do prompt
+            if (notification.isNotDisplayed()) {
+                const reasons = [
+                    'invalid_client',
+                    'missing_client_id',
+                    'unknown_reason'
+                ];
+
+                console.log('Prompt não mostrado. Razão:',
+                    reasons[notification.getNotDisplayedReason()] || 'desconhecida');
+            }
+
+            // Não existe mais notification.isSkipped()
+        });
+    } catch (e) {
+        error.value = `Erro ao inicializar o botão: ${e.message}`;
+        console.error('Erro no botão Google:', e);
+    }
+};
+
+onMounted(async () => {
     const input = document.querySelector("#phone");
     intl.value = intlTelInput(input, {
         loadUtilsOnInit: () => import("intl-tel-input/utils"),
         initialCountry: "ao",
         onlyCountries: ["ao"]
     });
+    try {
+        await loadGoogleIdentity();
+        initGoogleButton();
+    } catch (e) {
+        console.error('Erro na autenticação Google:', e);
+    }
 })
 </script>
 
@@ -213,8 +358,10 @@ onMounted(() => {
     <div class="w-auto">
         <div class="flex items-center mb-8 justify-center">
             <h1 class="font-bold text-gray-800 text-center text-xl">Registrar-se</h1>
+            
         </div>
-        <div class="flex flex-col mb-4">
+        <div ref="googleButtonRef"></div>
+        <div class="flex flex-col mt-4 mb-4">
             <label class="text-xs text-gray-500 mb-2 font-bold" for="firstName">Primeiro nome <span
                     class="text-brand-danger">*</span></label>
             <input maxlength="20" :readonly="loading" @input="validateFirstName"
@@ -276,8 +423,7 @@ onMounted(() => {
                 </button>
             </div>
 
-            <span v-show="errors.password.show"
-                class="text-brand-danger font-medium text-xs mt-1">
+            <span v-show="errors.password.show" class="text-brand-danger font-medium text-xs mt-1">
                 {{ errors.password.message }}
             </span>
         </div>
@@ -289,6 +435,7 @@ onMounted(() => {
                 <BtnSpinner v-if="loading" />
                 <p v-else>Cadastrar</p>
             </button>
+            
         </div>
         <div class="mx-auto my-1 p-2 text-[11px] text-center text-gray-500">
             Ao me cadastrar, concordo com os
@@ -310,5 +457,37 @@ onMounted(() => {
 .iti__search-input {
     outline: none;
     padding: 12px;
+}
+
+.google-btn-wrapper {
+    width: 100%;
+    position: relative;
+}
+
+/* Sobrescreve o iframe do botão do Google */
+::v-deep iframe[src*="accounts.google.com/gsi/button"] {
+    width: 100% !important;
+}
+
+/* Cria um overlay para estilizar o texto */
+.google-btn-wrapper::after {
+    content: "SIGN IN WITH GOOGLE";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: 0.25px;
+    text-transform: uppercase;
+    color: #5f6368;
+    /* Cor do texto padrão do Google */
+    z-index: 10;
+}
+
+/* Esconde o texto original do botão */
+::v-deep span[data-text] {
+    visibility: hidden !important;
 }
 </style>

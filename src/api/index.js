@@ -4,7 +4,7 @@ import store from "../store"
 import Cookies from "js-cookie"
 
 const instance = axios.create({
-    baseURL: 'https://api.piweto.it.ao/v1',
+    baseURL: 'http://localhost:5050/v1', //'https://api.piweto.it.ao/v1'
     headers: {
         'Content-Type': 'application/json'
     }

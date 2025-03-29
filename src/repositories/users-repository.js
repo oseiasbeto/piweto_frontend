@@ -92,6 +92,31 @@ export function useUsers() {
         }
     };
 
+    // Função para autenticar o usuário.
+    const googleAuth = async (data) => {
+        try {
+            loading.value = true;
+
+            const response = await api.post("/users/google-auth", data);
+            const user = response.data.user;
+            const accessToken = response.data.access_token;
+            const sessionId = response.data.session_id;
+
+            store.dispatch("setUser", user);
+            store.dispatch("setAccessToken", accessToken);
+
+            //scheduleTokenRefresh(accessToken);
+            setRefreshTokenFromCookies(sessionId);
+
+            return response;
+        } catch (err) {
+            console.log(err.message);
+            throw err;
+        } finally {
+            loading.value = false;
+        }
+    };
+
     // Função para verificar se um e-mail já está cadastrado.
     const checkEmail = async (email) => {
         try {
@@ -265,5 +290,5 @@ export function useUsers() {
         });
     }
 
-    return { loading, error, register, updateUser, auth, logout, refreshToken, checkEmail, activeEmail, checkOTPPhone, checkOTPPassword, forgotPassword, resetPassword };
+    return { loading, error, register, updateUser, auth, googleAuth, logout, refreshToken, checkEmail, activeEmail, checkOTPPhone, checkOTPPassword, forgotPassword, resetPassword };
 }
