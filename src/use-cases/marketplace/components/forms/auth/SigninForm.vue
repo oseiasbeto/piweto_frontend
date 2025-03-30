@@ -1,18 +1,19 @@
 <script setup>
-import { computed, onMounted, ref } from "vue"
+import { computed, watch, onMounted, ref } from "vue"
 import { toast } from "vue3-toastify"
 import { useStore } from "vuex"
 import { useRoute, useRouter } from "vue-router"
 import intlTelInput from 'intl-tel-input';
 import BtnSpinner from "../../spinners/BtnSpinner.vue";
 import { useUsers } from "../../../../../repositories/users-repository.js";
-import { fa } from "intl-tel-input/i18n";
 
 const { auth, loading, error } = useUsers()
 const { googleAuth, loading: loadingAuthGoogle } = useUsers()
 
 const emit = defineEmits(["onclose"])
 const googleButtonRef = ref(null)
+const googleApiReady = ref(false)
+const googleInitialized = ref(false)
 const intl = ref({})
 
 const store = useStore()
@@ -86,15 +87,6 @@ function validatePassword() {
             message: ""
         }
     }
-}
-
-function openModal(name) {
-    store.dispatch("setModal", {
-        name,
-        show: true,
-        data: {
-        }
-    })
 }
 
 async function submit() {
@@ -186,40 +178,22 @@ const parseJwt = (token) => {
         return null;
     }
 };
-// Carrega a API do Google Identity
-const loadGoogleIdentity = () => {
-    return new Promise((resolve, reject) => {
-        if (window.google?.accounts?.id) {
-            resolve();
-            return;
+
+// Modifique esta função para ser reutilizável
+const initGoogleButton = () => {
+    if (!window.google?.accounts?.id || googleInitialized.value) return
+
+    try {
+        // Limpa qualquer botão existente
+        if (googleButtonRef.value.firstChild) {
+            googleButtonRef.value.removeChild(googleButtonRef.value.firstChild)
         }
 
-        const script = document.createElement('script');
-        script.src = 'https://accounts.google.com/gsi/client';
-        script.async = true;
-        script.defer = true;
-        script.onload = () => {
-            if (!window.google?.accounts?.id) {
-                reject(new Error('API do Google não carregou corretamente'));
-            } else {
-                resolve();
-            }
-        };
-        script.onerror = () => reject(new Error('Falha ao carregar o script do Google'));
-        document.head.appendChild(script);
-    });
-};
-
-// Inicializa o botão do Google
-const initGoogleButton = () => {
-    try {
-        // 1. Configuração global
         window.google.accounts.id.initialize({
-            client_id: config.client_id,
+            client_id: CLIENT_ID,
             callback: (response) => {
-                // Only proceed if not loading
                 if (!loadingAuthGoogle.value) {
-                    config.callback(response);
+                    config.callback(response)
                 } else {
                     toast("Por favor aguarde...", {
                         theme: "colored",
@@ -230,9 +204,8 @@ const initGoogleButton = () => {
                     })
                 }
             }
-        });
+        })
 
-        // 2. Renderiza o botão
         window.google.accounts.id.renderButton(
             googleButtonRef.value,
             {
@@ -243,30 +216,33 @@ const initGoogleButton = () => {
                 shape: 'rectangular',
                 width: '100%',
             }
-        );
+        )
 
-        // Mostra o prompt automático (One-Tap) - VERSÃO CORRIGIDA
+        googleInitialized.value = true
+
+        // One-tap prompt (opcional)
         window.google.accounts.id.prompt(notification => {
-            // Nova forma de verificar o status do prompt
             if (notification.isNotDisplayed()) {
-                const reasons = [
-                    'invalid_client',
-                    'missing_client_id',
-                    'unknown_reason'
-                ];
-
-                console.log('Prompt não mostrado. Razão:',
-                    reasons[notification.getNotDisplayedReason()] || 'desconhecida');
+                console.log('Prompt não mostrado:', notification.getNotDisplayedReason())
             }
-
-            // Não existe mais notification.isSkipped()
-        });
+        })
     } catch (e) {
-        error.value = `Erro ao inicializar o botão: ${e.message}`;
-        console.error('Erro no botão Google:', e);
+        console.error('Erro no botão Google:', e)
+        return false
     }
-};
+}
 
+// Função para verificar e inicializar a API do Google
+const checkAndInitGoogle = () => {
+    if (window.google?.accounts?.id) {
+        if (initGoogleButton()) {
+            googleApiReady.value = true
+        }
+    } else {
+        // Tenta novamente após um pequeno delay
+        setTimeout(checkAndInitGoogle, 300)
+    }
+}
 
 onMounted(async () => {
     const input = document.querySelector("#phone");
@@ -276,11 +252,28 @@ onMounted(async () => {
         onlyCountries: ["ao"]
     });
     try {
-        await loadGoogleIdentity();
-        initGoogleButton();
+        // Verifica se a API do Google já está carregada
+        checkAndInitGoogle()
     } catch (e) {
         console.error('Erro na autenticação Google:', e);
     }
+})
+
+// Observa mudanças na referência do botão
+watch(googleButtonRef, (newVal) => {
+    if (newVal && googleApiReady.value) {
+        initGoogleButton()
+    }
+})
+
+// Adicione este watcher para lidar com navegação via router-link
+watch(() => route.path, () => {
+    // Espera o próximo tick para garantir que o DOM foi atualizado
+    setTimeout(() => {
+        if (googleButtonRef.value && window.google?.accounts?.id) {
+            initGoogleButton()
+        }
+    }, 100)
 })
 </script>
 

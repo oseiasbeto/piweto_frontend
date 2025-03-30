@@ -3,8 +3,10 @@ import { Promise } from 'core-js'
 import store from "../store"
 import Cookies from "js-cookie"
 
+const node_env = 'prod'
+
 const instance = axios.create({
-    baseURL: 'https://api.piweto.it.ao/v1',
+    baseURL: node_env == 'dev' ? 'http://localhost:5050/v1' : 'https://api.piweto.it.ao/v1',
     headers: {
         'Content-Type': 'application/json'
     }
@@ -52,6 +54,7 @@ instance.interceptors.response.use(
     }
 );
 
+/* 
 instance.interceptors.response.use(
     response => response,
     error => {
@@ -60,7 +63,7 @@ instance.interceptors.response.use(
         }
         return Promise.reject(error);
     }
-)
+)*/
 
 instance.interceptors.request.use((config) => {
     const hasLogged = store.getters.hasLogged
