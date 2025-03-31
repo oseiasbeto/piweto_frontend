@@ -5,6 +5,7 @@ import { toast } from "vue3-toastify"
 import { useUsers } from "@/repositories/users-repository.js";
 import AlertCookies from "./use-cases/marketplace/components/ui/AlertCookies.vue";
 import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 
 const { refreshToken, loading } = useUsers()
 const { googleAuth, loading: loadingAuthGoogle } = useUsers()
@@ -12,6 +13,7 @@ loading.value = true
 
 const sessionId = Cookies.get("session_id")
 const store = useStore()
+const router = useRouter()
 const sessionChecked = ref(false);
 const promptShown = ref(false);
 const googleInitialized = ref(false)
