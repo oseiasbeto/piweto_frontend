@@ -57,6 +57,14 @@ const errors = ref({
     }
 })
 
+const hasLogged = computed(() => {
+    return store.getters.hasLogged
+}) 
+const formInvalid = computed(() => {
+    if (!form.value.first_name || !form.value.last_name || !form.value.phone || !form.value.password || errors.value.email.show || errors.value.phone.show || errors.value.password.show) return true
+    else return false
+})
+
 function validateFirstName() {
     if (!form.value.first_name) {
         errors.value.first_name.show = true
@@ -88,7 +96,6 @@ function validateLastName() {
         errors.value.last_name.message = ""
     }
 }
-
 
 function validatePhone() {
     if (!form.value.phone) {
@@ -133,20 +140,6 @@ function validatePassword() {
         }
     }
 }
-
-
-function openModal(name) {
-    store.dispatch("setModal", {
-        show: true,
-        name,
-        data: {}
-    })
-}
-const formInvalid = computed(() => {
-    if (!form.value.first_name || !form.value.last_name || !form.value.phone || !form.value.password || errors.value.email.show || errors.value.phone.show || errors.value.password.show) return true
-    else return false
-})
-
 async function submit() {
     validateFirstName()
     validateLastName()
@@ -194,9 +187,20 @@ const CLIENT_ID = '702425334809-n2jb1uf6kal86sg9ucg59dc6f76df7m6.apps.googleuser
 const config = {
     client_id: CLIENT_ID,
     callback: async (response) => {
-        console.log('Resposta do Google:', response);
+        if (hasLogged.value) {
+            toast("O usuário já se encontra logado no sistema!", {
+                theme: "colored",
+                autoClose: 3000,  // Tempo maior para erros
+                position: "top-right",
+                transition: "bounce",
+                type: 'error'
+            });
+        }
+        
         // Aqui você processa o token JWT
         const userData = parseJwt(response.credential);
+
+
         if (userData && !loadingAuthGoogle.value) {
             await googleAuth(userData).then(res => {
                 toast(res.data.message, {
@@ -338,28 +342,13 @@ onMounted(async () => {
     }
 })
 
-// Watcher para desativar/reiniciar o botão durante o loading
-watch(loadingAuthGoogle, (isLoading) => {
-    if (!window.google?.accounts?.id) return;
-
-    if (isLoading) {
-        window.google.accounts.id.cancel(); // Cancela o prompt
-    } else {
-        // Opcional: Reabre o prompt se necessário
-        window.google.accounts.id.prompt(notification => {
-            if (notification.isNotDisplayed()) {
-                console.log('Prompt não mostrado:', notification.getNotDisplayedReason());
-            }
-        });
-    }
-});
 </script>
 
 <template>
     <div class="w-auto">
         <div class="flex items-center mb-8 justify-center">
             <h1 class="font-bold text-gray-800 text-center text-xl">Registrar-se</h1>
-            
+
         </div>
         <div ref="googleButtonRef"></div>
         <div class="flex flex-col mt-4 mb-4">
@@ -436,7 +425,7 @@ watch(loadingAuthGoogle, (isLoading) => {
                 <BtnSpinner v-if="loading" />
                 <p v-else>Cadastrar</p>
             </button>
-            
+
         </div>
         <div class="mx-auto my-1 p-2 text-[11px] text-center text-gray-500">
             Ao me cadastrar, concordo com os

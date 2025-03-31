@@ -44,6 +44,10 @@ const formInvalid = computed(() => {
     else return false
 })
 
+const hasLogged = computed(() => {
+    return store.getters.hasLogged
+}) 
+
 const resetForm = () => {
     form.value = {
         phone: "",
@@ -274,21 +278,6 @@ onMounted(async () => {
     }
 })
 
-// Watcher para desativar/reiniciar o botão durante o loading
-watch(loadingAuthGoogle, (isLoading) => {
-    if (!window.google?.accounts?.id) return;
-
-    if (isLoading) {
-        window.google.accounts.id.cancel(); // Cancela o prompt
-    } else {
-        // Opcional: Reabre o prompt se necessário
-        window.google.accounts.id.prompt(notification => {
-            if (notification.isNotDisplayed()) {
-                console.log('Prompt não mostrado:', notification.getNotDisplayedReason());
-            }
-        });
-    }
-});
 </script>
 
 <template>
