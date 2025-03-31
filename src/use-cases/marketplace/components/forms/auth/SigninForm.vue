@@ -7,7 +7,7 @@ import intlTelInput from 'intl-tel-input';
 import BtnSpinner from "../../spinners/BtnSpinner.vue";
 import { useUsers } from "../../../../../repositories/users-repository.js";
 
-const { auth, loading, error } = useUsers()
+const { auth, loading } = useUsers()
 const { googleAuth, loading: loadingAuthGoogle } = useUsers()
 
 const emit = defineEmits(["onclose"])
@@ -129,7 +129,7 @@ const config = {
         // Aqui você processa o token JWT
         const userData = parseJwt(response.credential);
 
-        if (userData) {
+        if (userData && !loadingAuthGoogle.value) {
             await googleAuth(userData).then(res => {
                 toast(res.data.message, {
                     theme: "colored",
@@ -181,19 +181,19 @@ const parseJwt = (token) => {
 
 // Modifique esta função para ser reutilizável
 const initGoogleButton = () => {
-    if (!window.google?.accounts?.id || googleInitialized.value) return
+    if (!window.google?.accounts?.id || googleInitialized.value) return;
 
     try {
         // Limpa qualquer botão existente
         if (googleButtonRef.value.firstChild) {
-            googleButtonRef.value.removeChild(googleButtonRef.value.firstChild)
+            googleButtonRef.value.removeChild(googleButtonRef.value.firstChild);
         }
 
         window.google.accounts.id.initialize({
             client_id: CLIENT_ID,
             callback: (response) => {
                 if (!loadingAuthGoogle.value) {
-                    config.callback(response)
+                    config.callback(response);
                 } else {
                     toast("Por favor aguarde...", {
                         theme: "colored",
@@ -201,36 +201,51 @@ const initGoogleButton = () => {
                         position: "top-right",
                         transition: "bounce",
                         type: 'info'
-                    })
+                    });
                 }
             }
-        })
+        });
+
+        // Adiciona um atributo para controle de estado
+        const buttonConfig = {
+            type: 'standard',
+            size: 'large',
+            theme: 'outline',
+            text: 'sign_in_with',
+            shape: 'rectangular',
+            width: '100%',
+        };
+
+        // Se estiver carregando, desativa o botão
+        if (loadingAuthGoogle.value) {
+            buttonConfig.attributes = {
+                'data-login_pending': 'true'
+            };
+        }
 
         window.google.accounts.id.renderButton(
             googleButtonRef.value,
-            {
-                type: 'standard',
-                size: 'large',
-                theme: 'outline',
-                text: 'sign_in_with',
-                shape: 'rectangular',
-                width: '100%',
-            }
-        )
+            buttonConfig
+        );
 
-        googleInitialized.value = true
+        googleInitialized.value = true;
 
-        // One-tap prompt (opcional)
-        window.google.accounts.id.prompt(notification => {
-            if (notification.isNotDisplayed()) {
-                console.log('Prompt não mostrado:', notification.getNotDisplayedReason())
-            }
-        })
+        // === CONTROLE DO ONE TAP PROMPT ===
+        if (!loadingAuthGoogle.value) {
+            window.google.accounts.id.prompt(notification => {
+                if (notification.isNotDisplayed()) {
+                    console.log('Prompt não mostrado:', notification.getNotDisplayedReason());
+                }
+            });
+        } else {
+            // Cancela o prompt se estiver carregando
+            window.google.accounts.id.cancel();
+        }
     } catch (e) {
-        console.error('Erro no botão Google:', e)
-        return false
+        console.error('Erro no botão Google:', e);
+        return false;
     }
-}
+};
 
 // Função para verificar e inicializar a API do Google
 const checkAndInitGoogle = () => {
@@ -259,22 +274,21 @@ onMounted(async () => {
     }
 })
 
-// Observa mudanças na referência do botão
-watch(googleButtonRef, (newVal) => {
-    if (newVal && googleApiReady.value) {
-        initGoogleButton()
-    }
-})
+// Watcher para desativar/reiniciar o botão durante o loading
+watch(loadingAuthGoogle, (isLoading) => {
+    if (!window.google?.accounts?.id) return;
 
-// Adicione este watcher para lidar com navegação via router-link
-watch(() => route.path, () => {
-    // Espera o próximo tick para garantir que o DOM foi atualizado
-    setTimeout(() => {
-        if (googleButtonRef.value && window.google?.accounts?.id) {
-            initGoogleButton()
-        }
-    }, 100)
-})
+    if (isLoading) {
+        window.google.accounts.id.cancel(); // Cancela o prompt
+    } else {
+        // Opcional: Reabre o prompt se necessário
+        window.google.accounts.id.prompt(notification => {
+            if (notification.isNotDisplayed()) {
+                console.log('Prompt não mostrado:', notification.getNotDisplayedReason());
+            }
+        });
+    }
+});
 </script>
 
 <template>
@@ -354,3 +368,11 @@ watch(() => route.path, () => {
         </div>
     </div>
 </template>
+
+<style>
+.g_id_signin [data-login_pending="true"] {
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+</style>
