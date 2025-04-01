@@ -233,18 +233,6 @@ const initGoogleButton = () => {
         );
 
         googleInitialized.value = true;
-
-        // === CONTROLE DO ONE TAP PROMPT ===
-        if (!loadingAuthGoogle.value) {
-            window.google.accounts.id.prompt(notification => {
-                if (notification.isNotDisplayed()) {
-                    console.log('Prompt não mostrado:', notification.getNotDisplayedReason());
-                }
-            });
-        } else {
-            // Cancela o prompt se estiver carregando
-            window.google.accounts.id.cancel();
-        }
     } catch (e) {
         console.error('Erro no botão Google:', e);
         return false;
