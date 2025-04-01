@@ -5,7 +5,7 @@ import { toast } from "vue3-toastify"
 import { useUsers } from "@/repositories/users-repository.js";
 import AlertCookies from "./use-cases/marketplace/components/ui/AlertCookies.vue";
 import { useStore } from "vuex";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 const { refreshToken, loading } = useUsers()
 const { googleAuth, loading: loadingAuthGoogle } = useUsers()
@@ -14,6 +14,7 @@ loading.value = true
 const sessionId = Cookies.get("session_id")
 const store = useStore()
 const router = useRouter()
+const route = useRoute()
 const sessionChecked = ref(false);
 const promptShown = ref(false);
 const googleInitialized = ref(false)
@@ -22,7 +23,7 @@ const googleInitialized = ref(false)
 const CLIENT_ID = '702425334809-n2jb1uf6kal86sg9ucg59dc6f76df7m6.apps.googleusercontent.com';
 const hasLogged = computed(() => {
     return store.getters.hasLogged
-}) 
+})
 const initializeGoogleAuth = () => {
     if (!window.google?.accounts?.id || googleInitialized.value) return;
 
@@ -68,7 +69,7 @@ const parseJwt = (token) => {
 };
 
 const handleGoogleResponse = async (response) => {
-    if(hasLogged.value) {
+    if (hasLogged.value) {
         toast("O usuário já se encontra logado no sistema!", {
             theme: "colored",
             autoClose: 3000,  // Tempo maior para erros
@@ -118,7 +119,10 @@ const handleGoogleResponse = async (response) => {
         store.dispatch("resetMyEvents");
 
         // Usa replace para evitar voltar para a página de login
-        await router.replace("/");
+        if (route.meta.routeAuth) {
+            await router.replace("/");
+        }
+
 
     } catch (err) {
         console.error('Erro na autenticação Google:', err);
@@ -214,7 +218,7 @@ onMounted(() => {
     <div class="app text-[#212529]">
         <div v-if="!loading">
             <router-view></router-view>
-            <AlertCookies/>
+            <AlertCookies />
         </div>
         <div v-else>
         </div>
