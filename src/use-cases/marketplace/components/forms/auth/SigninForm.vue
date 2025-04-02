@@ -124,7 +124,7 @@ async function submit() {
 }
 
 // Substitua pelo seu ID de cliente do Google
-const CLIENT_ID = '702425334809-n2jb1uf6kal86sg9ucg59dc6f76df7m6.apps.googleusercontent.com';
+const CLIENT_ID = '914842748542-mc9j2ltt0no88mqlu144u1q1hu19lhq1.apps.googleusercontent.com';
 
 // Configurações (substitua pelo seu Client ID)
 const config = {

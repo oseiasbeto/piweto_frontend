@@ -20,7 +20,7 @@ const promptShown = ref(false);
 const googleInitialized = ref(false)
 
 // Configurações do Google (use o mesmo Client ID do seu componente de login)
-const CLIENT_ID = '702425334809-n2jb1uf6kal86sg9ucg59dc6f76df7m6.apps.googleusercontent.com';
+const CLIENT_ID = '914842748542-mc9j2ltt0no88mqlu144u1q1hu19lhq1.apps.googleusercontent.com';
 const hasLogged = computed(() => {
     return store.getters.hasLogged
 })
