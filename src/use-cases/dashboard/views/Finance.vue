@@ -44,11 +44,11 @@ const payout = () => {
 
 const statusBgColor = (status) => {
     switch (status) {
-        case "pending":
+        case "p":
             return "bg-yellow-500"
-        case "approved":
+        case "a":
             return "bg-green-500"
-        case "rejected":
+        case "r":
             return "bg-red-500"
         default:
             return 'bg-gray-300'
@@ -56,11 +56,11 @@ const statusBgColor = (status) => {
 }
 const statusTxtColor = (status) => {
     switch (status) {
-        case "pending":
+        case "p":
             return "text-yellow-500"
-        case "approved":
+        case "a":
             return "text-green-500"
-        case "rejected":
+        case "r":
             return "text-red-500"
         default:
             return 'text-gray-300'
@@ -69,11 +69,11 @@ const statusTxtColor = (status) => {
 
 const generateStatusLegend = (status) => {
     switch (status) {
-        case "pending":
+        case "p":
             return "Pendente"
-        case "approved":
+        case "a":
             return "Pago"
-        case "rejected":
+        case "r":
             return "Rejeitado"
     }
 }
@@ -112,7 +112,7 @@ watch(event, (newEvent) => {
         <!-- Montante Pendente -->
         <div class="bg-white p-6 rounded-md shadow-md border-t-4 border-red-500">
             <h2 class="text-medium font-medium text-gray-500 mb-4">Montante Pendente</h2>
-            <h1 class="text-2xl font-bold text-gray-900">{{ formatAmount(event?.orders_pending_cash || 0) }}</h1>
+            <h1 class="text-2xl font-bold text-gray-900">{{ formatAmount(event?.orders_p_cash || 0) }}</h1>
         </div>
 
         <!-- Disponível para Repasse -->

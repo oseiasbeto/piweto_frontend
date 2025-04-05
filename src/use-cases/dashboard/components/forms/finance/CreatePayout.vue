@@ -50,7 +50,7 @@ const submitForm = async () => {
         Swal.fire({
             icon: "success",
             title: "Levantamento Solicitado!",
-            text: "Seu pedido de levantamento foi enviado com sucesso. O valor estará disponível em sua conta bancária em até 7 dias.",
+            text: "Seu pedido de levantamento foi enviado com sucesso. O valor estará disponível em sua conta bancária em até 24 horas.",
             confirmButtonText: "Entendi",
             confirmButtonColor: "#6366F1", // Cor roxa para combinar com o design
         }).then(() => {
