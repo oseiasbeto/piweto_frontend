@@ -44,11 +44,11 @@ const payout = () => {
 
 const statusBgColor = (status) => {
     switch (status) {
-        case "p":
+        case "in_transit":
             return "bg-yellow-500"
-        case "a":
+        case "completed":
             return "bg-green-500"
-        case "r":
+        case "failed":
             return "bg-red-500"
         default:
             return 'bg-gray-300'
@@ -56,11 +56,11 @@ const statusBgColor = (status) => {
 }
 const statusTxtColor = (status) => {
     switch (status) {
-        case "p":
+        case "in_transit":
             return "text-yellow-500"
-        case "a":
+        case "completed":
             return "text-green-500"
-        case "r":
+        case "failed":
             return "text-red-500"
         default:
             return 'text-gray-300'
@@ -69,11 +69,11 @@ const statusTxtColor = (status) => {
 
 const generateStatusLegend = (status) => {
     switch (status) {
-        case "p":
+        case "in_transit":
             return "Pendente"
-        case "a":
+        case "completed":
             return "Pago"
-        case "r":
+        case "failed":
             return "Rejeitado"
     }
 }
