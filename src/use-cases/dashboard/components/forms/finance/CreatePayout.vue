@@ -65,6 +65,13 @@ const submitForm = async () => {
                     text: "Você já tem um pedido de levantamento em andamento. Aguarde até que seja processado antes de solicitar um novo.",
                     confirmButtonText: "Entendi"
                 });
+            } else {
+                toast('Erro interno, tente novamente mais tarde!', {
+                    theme: "colored",
+                    position: "top-right",
+                    autoClose: 2500,
+                    type: 'error'
+                })
             }
         })
         .finally(() => {
