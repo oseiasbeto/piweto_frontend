@@ -84,10 +84,10 @@ const validateAmount = (e) => {
             show: true,
             message: "Por favor, insira um valor válido para continuar."
         }
-    } else if (form.value.amount < 5000) {
+    } else if (form.value.amount < 1000) {
         errors.value.amount = {
             show: true,
-            message: "O valor mínimo para saque é de 5.000 Kz."
+            message: "O valor mínimo para saque é de 1.000 Kz."
         }
     } else if (form.value.amount > event.value.balance) {
         errors.value.amount = {
