@@ -2,7 +2,7 @@
 import DropzoneImage from "../components/ui/DropzoneImage.vue";
 import PreviewImage from "../components/ui/PreviewImage.vue"
 import { useStore } from "vuex"
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import Quill from 'quill';
 import Swal from "sweetalert2"
 import formatAmount from "@/utils/formatAmount";
@@ -32,7 +32,13 @@ const categories = ref([
 ]);
 const hasError = ref(true)
 const { newEvent, loading: loadingEvent } = useEvents()
+
 loadingEvent.value = false
+
+// Referências para os DatePickers de horário
+const startsTimePickerRef = ref(null);
+const endsTimePickerRef = ref(null);
+
 const router = useRouter()
 const route = useRoute()
 
@@ -137,6 +143,8 @@ const errors = ref({
         message: ""
     }
 })
+
+const dropzoneRef = ref(null);
 
 // esta funcao computada deve retornar os dados do formulario de criacao de um evento.
 const form = computed(() => {
@@ -297,6 +305,9 @@ function handleEndsTimeDateChange(e) {
     errors.value.ends_time_at = {
         show: false,
         message: ""
+    }
+    if (endsTimePickerRef.value) {
+        endsTimePickerRef.value.blur(); // Fecha o modal após selecionar o horário
     }
 }
 
@@ -470,6 +481,20 @@ const createEvent = async (status) => {
     }
 }
 
+const handleLabelClick = async () => {
+    if (form.value.file) {
+        // Se há uma imagem, resetamos form.file para mostrar o DropzoneImage
+        form.value.file = null;
+        // Aguarda o próximo tick para garantir que o DropzoneImage seja montado
+        await nextTick();
+    }
+    if (dropzoneRef.value && typeof dropzoneRef.value.triggerInput === 'function') {
+        dropzoneRef.value.triggerInput();
+    } else {
+        console.error('triggerInput não está disponível em dropzoneRef');
+    }
+};
+
 onMounted(() => {
     if (!type.value || !['presencial', 'online'].includes(type.value)) {
         router.push({ path: "/eventos/meus-eventos" })
@@ -547,17 +572,17 @@ onBeforeUnmount(() => {
                                     Imagem de divulgação (opcional)</label>
                                 <div class="flex flex-col lg:flex-row items-center gap-4 lg:gap-8 mt-2">
                                     <div class="w-full md:w-auto">
-                                        <DropzoneImage @drop.prevent="dropCover" @change="selectCover"
+                                        <DropzoneImage ref="dropzoneRef" @drop.prevent="dropCover" @change="selectCover"
                                             v-if="!form.file" />
                                         <PreviewImage v-else :image="form.file" />
                                     </div>
                                     <div class="w-full md:w-auto">
                                         <div class="flex gap-3 mb-3 items-center" v-if="form.file">
-                                            <label
+                                            <button
                                                 class="border cursor-pointer border-[#0097ff] text-[#0097ff] text-[10px] font-medium  uppercase rounded-full py-[6px] px-3 hover:bg-[#0097ff] hover:border-[#0097ff] hover:text-white"
-                                                for="changeCover">
+                                                @click="handleLabelClick">
                                                 Trocar de imagem
-                                            </label>
+                                            </button>
                                             <button
                                                 class="border cursor-pointer border-[#0097ff] text-[#0097ff] text-[10px] font-medium  uppercase rounded-full py-[6px] px-3 hover:bg-[#0097ff] hover:border-[#0097ff] hover:text-white"
                                                 @click="replaceCover">Remover</button>
@@ -678,94 +703,76 @@ onBeforeUnmount(() => {
                             <div class="mb-4">
                                 <h3 class="text-xl mb-1 font-medium text-[#0097ff]">4. Data e horário</h3>
                                 <p class="ml-[22px] text-sm text-gray-500">Informe aos participantes quando seu evento
-                                    vai
-                                    acontecer.
-                                </p>
+                                    vai acontecer.</p>
                             </div>
                             <div>
-                                <div class="w-full lg:w-[50%] flex flex-col lg:flex-row items-center gap-4">
+                                <div class="w-full flex flex-row items-center gap-4">
                                     <div class="w-full">
                                         <label for="starts_atDate" class="flex items-center gap-[3px] text-[12px] mb-1">
                                             Data de Início
                                             <span
                                                 class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
                                         </label>
-
-                                        <div id="starts_atDateField" class="w-full md:w-[210px]">
+                                        <div id="starts_atDateField" class="w-full">
                                             <date-picker :clearable="false" @change="handleStartsDateChange"
                                                 :disabled-date="disabledStartsDate" :lang="langConfig"
-                                                v-model:value="form.starts_at.date"></date-picker>
+                                                v-model:value="form.starts_at.date"
+                                                class="responsive-datepicker"></date-picker>
                                         </div>
-
-
                                         <small class="text-xs text-red-500" :class="{ danger: errors.starts_at.show }">
-                                            <span v-if="errors.starts_at.show">
-                                                {{ errors.starts_at.message }}
-                                            </span>
+                                            <span v-if="errors.starts_at.show">{{ errors.starts_at.message }}</span>
                                         </small>
                                     </div>
                                     <div class="w-full">
-                                        <label for="Starts_atHm" class="flex items-center gap-[3px] text-[12px] mb-1">
+                                        <label for="starts_atHm" class="flex items-center gap-[3px] text-[12px] mb-1">
                                             Hora de Início
                                             <span
                                                 class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
                                         </label>
-
-                                        <div id="starts_atHmField" class="w-full md:w-[210px]">
-                                            <date-picker :clearable="false" @change="handleStartsTimeDateChange"
-                                                v-model:value="form.starts_at.hm" format="HH:mm"
-                                                type="time"></date-picker>
+                                        <div id="starts_atHmField" class="w-full">
+                                            <date-picker ref="startsTimePickerRef" :clearable="false"
+                                                @change="handleStartsTimeDateChange" v-model:value="form.starts_at.hm"
+                                                format="HH:mm" type="time" class="responsive-datepicker"></date-picker>
                                         </div>
-
-
                                         <small class="text-xs text-red-500"
                                             :class="{ danger: errors.starts_time_At.show }">
-                                            <span v-if="errors.starts_time_At.show">
-                                                {{ errors.starts_time_At.message }}
-                                            </span>
+                                            <span v-if="errors.starts_time_At.show">{{ errors.starts_time_At.message
+                                            }}</span>
                                         </small>
                                     </div>
                                 </div>
-                                <div class="w-full lg:w-[50%] flex flex-col lg:flex-row items-center gap-4">
+                                <div class="w-full flex flex-row items-center gap-4">
                                     <div class="w-full">
                                         <label for="ends_atDate" class="flex items-center gap-[3px] text-[12px] mb-1">
                                             Data de Término
                                             <span
                                                 class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
                                         </label>
-
-                                        <div id="ends_atDateField" class="w-full md:w-[210px]">
+                                        <div id="ends_atDateField" class="w-full">
                                             <date-picker :clearable="false" @change="handleEndsDateChange"
                                                 :disabled-date="disabledEndsDate" :lang="langConfig"
-                                                v-model:value="form.ends_at.date"></date-picker>
+                                                v-model:value="form.ends_at.date"
+                                                class="responsive-datepicker"></date-picker>
                                         </div>
-
-
                                         <small class="text-xs text-red-500" :class="{ danger: errors.ends_at.show }">
-                                            <span v-if="errors.ends_at.show">
-                                                {{ errors.ends_at.message }}
-                                            </span>
+                                            <span v-if="errors.ends_at.show">{{ errors.ends_at.message }}</span>
                                         </small>
                                     </div>
                                     <div class="w-full">
-                                        <label for="exitTimeHm" class="flex items-center gap-[3px] text-[12px] mb-1">
+                                        <label for="ends_atHm" class="flex items-center gap-[3px] text-[12px] mb-1">
                                             Hora de Término
                                             <span
                                                 class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
                                         </label>
-
-                                        <div id="ends_atHmField" class="w-full md:w-[210px]">
-                                            <date-picker :clearable="false" @change="handleEndsTimeDateChange"
-                                                v-model:value="form.ends_at.hm" format="HH:mm"
-                                                type="time"></date-picker>
+                                        <div id="ends_atHmField" class="w-full">
+                                            <date-picker ref="endsTimePickerRef" :clearable="false"
+                                                @change="handleEndsTimeDateChange" v-model:value="form.ends_at.hm"
+                                                format="HH:mm" type="time" class="responsive-datepicker"></date-picker>
                                         </div>
-
-
                                         <small class="text-xs text-red-500"
                                             :class="{ danger: errors.ends_time_at.show }">
-                                            <span v-if="errors.ends_time_at.show">
-                                                {{ errors.ends_time_at.message }}
-                                            </span>
+                                            <span v-if="errors.ends_time_at.show">{{ errors.ends_time_at.message
+                                            }}</span>
                                         </small>
                                     </div>
                                 </div>
@@ -826,7 +833,7 @@ onBeforeUnmount(() => {
                                                 <td class="px-4 py-3 text-center text-sm hidden sm:table-cell">
                                                     {{ batch.quantity }}</td>
                                                 <td class="px-4 py-3 text-center text-sm">{{ formatAmount(batch.price)
-                                                    }}</td>
+                                                }}</td>
                                                 <td class="px-4 py-3 text-center text-sm hidden md:table-cell">
                                                     4%</td>
                                                 <td class="px-4 py-3 text-center text-sm hidden md:table-cell">
@@ -963,5 +970,53 @@ onBeforeUnmount(() => {
 .multiselect__option--highlight {
     background: #0097ff !important;
     color: white !important;
+}
+
+.responsive-datepicker {
+    width: 100% !important;
+    /* Largura total por padrão */
+}
+
+/* Ajusta o container principal do DatePicker */
+.mx-datepicker {
+    width: 100% !important;
+    max-width: 210px;
+    /* Largura máxima em telas maiores */
+}
+
+/* Ajusta o input dentro do DatePicker */
+.mx-input-wrapper input {
+    width: 100% !important;
+    border: 1px solid rgb(209 213 219 / 1) !important;
+    border-radius: 2px !important;
+    background-color: #fff !important;
+    font-size: 13px !important;
+    box-shadow: none !important;
+    height: 40px;
+}
+
+/* Ajusta o popup do DatePicker em telas menores */
+@media (max-width: 768px) {
+    .mx-datepicker {
+        max-width: 100% !important;
+        /* Ocupa toda a largura em mobile */
+    }
+
+    .mx-datepicker-popup {
+        width: 90vw !important;
+        /* Largura relativa à viewport em mobile */
+        max-width: 300px;
+        /* Limite máximo para evitar overflow */
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        /* Centraliza o popup */
+    }
+}
+
+/* Garante que o layout não quebre em mobile */
+@media (max-width: 640px) {
+    .w-full.flex.flex-col.lg\\:flex-row {
+        flex-direction: column !important;
+    }
 }
 </style>

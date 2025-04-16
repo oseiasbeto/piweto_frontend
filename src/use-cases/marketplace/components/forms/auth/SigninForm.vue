@@ -46,7 +46,7 @@ const formInvalid = computed(() => {
 
 const hasLogged = computed(() => {
     return store.getters.hasLogged
-}) 
+})
 
 const resetForm = () => {
     form.value = {
@@ -135,13 +135,6 @@ const config = {
 
         if (userData && !loadingAuthGoogle.value) {
             await googleAuth(userData).then(res => {
-                toast(res.data.message, {
-                    theme: "colored",
-                    autoClose: 2000,
-                    position: "top-right",
-                    transition: "bounce",
-                    type: 'success'
-                })
                 setTimeout(() => {
                     store.dispatch("resetStaffs")
                     store.dispatch("resetMyEvents")

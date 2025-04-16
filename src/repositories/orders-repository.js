@@ -1,13 +1,11 @@
 import api from "@/api";
 import { ref } from 'vue';
 import { useStore } from "vuex";
-import { useRouter } from "vue-router";
 
 export function useOrders() {
     const loading = ref(false);
     const error = ref(false);
     const store = useStore()
-    const router = useRouter()
 
     const newOrder = async (payload) => {
         try {
@@ -21,8 +19,7 @@ export function useOrders() {
                 phone: payload.data.phone
             })
 
-            const newOrder = response.data.newOrder
-            router.replace(`/checkout/detalhes-do-pedido/${newOrder.id}`)
+            return response
         } catch (err) {
             error.value = true
             console.log(err.message)

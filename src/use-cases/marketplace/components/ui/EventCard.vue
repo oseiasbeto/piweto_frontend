@@ -138,7 +138,7 @@ function onImageLoad(event) {
 
 <template>
     <div class="bg-white overflow-hidden transition-all rounded-[15px] mb-3.5 md:hover:shadow-lg">
-        <router-link :to="'/evento/' + props.event.slug">
+        <a :href="'/evento/' + props.event.slug" target="_blank">
             <div class="h-[150px]  overflow-hidden rounded-b-[15px]"
             :class="isBigCover ? 'lg:h-[285px]': 'lg:h-[150px]'"
             >
@@ -148,8 +148,8 @@ function onImageLoad(event) {
                 :alt="props.event.name"
                 >
             </div>
-        </router-link>
-        <router-link :to="'/evento/' + props.event.slug">
+        </a>
+        <a :href="'/evento/' + props.event.slug" target="_blank">
             <div class="py-3 px-0 md:px-3 flex flex-col gap-2">
                 <div class="flex text-brand-info text-xs items-center gap-1">
                     <p class="flex-1 w-64 uppercase font-bold truncate">{{ formatDate(new Date(event.starts_at.date),
@@ -174,7 +174,7 @@ function onImageLoad(event) {
                 </div>
                 <div class="my-[1px]"></div>
             </div>
-        </router-link>
+        </a>
         <div v-if="props.isTicket">
             <div class="mb-2">
                 <hr>

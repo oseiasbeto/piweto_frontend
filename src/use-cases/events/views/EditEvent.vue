@@ -16,6 +16,7 @@ import Multiselect from 'vue-multiselect'
 import Spinner from "@/use-cases/checkout/components/ui/Spinner.vue";
 import { useStaffs } from "@/repositories/staffs-repository";
 
+const dropzoneRef = ref(null)
 const store = useStore()
 const loadingGlobal = ref(true)
 const categories = ref([
@@ -151,6 +152,23 @@ function calcularValorComTaxa(valor) {
     const valorComTaxa = valor * (1 - taxa);
     return parseFloat(valorComTaxa.toFixed(2));
 }
+
+const handleLabelClick = async () => {
+    if (form.value.file) {
+        // Se há uma imagem, resetamos form.file para mostrar o DropzoneImage
+        form.value.file = null;
+        // Aguarda o próximo tick para garantir que o DropzoneImage seja montado
+        await nextTick();
+    } else if (form.value.cover.low) {
+        form.value.cover.low = null;
+        await nextTick();
+    }
+    if (dropzoneRef.value && typeof dropzoneRef.value.triggerInput === 'function') {
+        dropzoneRef.value.triggerInput();
+    } else {
+        console.error('triggerInput não está disponível em dropzoneRef');
+    }
+};
 
 const disabledEndsDate = computed(() => {
     const today = new Date(form.value.starts_at.date ?? new Date());
@@ -662,18 +680,18 @@ onBeforeUnmount(() => {
                                     <div class="flex flex-col lg:flex-row items-center gap-4 lg:gap-8 mt-2">
                                         <div class="w-full md:w-auto">
                                             <DropzoneImage @drop.prevent="dropCover" @change="selectCover"
-                                                v-if="!form.file && !form?.cover?.low" />
+                                                ref="dropzoneRef" v-if="!form.file && !form?.cover?.low" />
                                             <PreviewImage :createUrl="!form.file && form?.cover?.low ? false : true"
                                                 v-else :image="form?.file || form?.cover?.low" />
                                         </div>
                                         <div class="w-full md:w-auto">
                                             <div class="flex gap-3 mb-3 items-center"
                                                 v-if="form?.file || form?.cover?.low">
-                                                <label
+                                                <button
                                                     class="border cursor-pointer border-[#0097ff] text-[#0097ff] text-[10px] font-medium  uppercase rounded-full py-[6px] px-3 hover:bg-[#0097ff] hover:border-[#0097ff] hover:text-white"
-                                                    for="changeCover">
+                                                    @click="handleLabelClick">
                                                     Trocar de imagem
-                                                </label>
+                                                </button>
                                                 <button
                                                     class="border cursor-pointer border-[#0097ff] text-[#0097ff] text-[10px] font-medium  uppercase rounded-full py-[6px] px-3 hover:bg-[#0097ff] hover:border-[#0097ff] hover:text-white"
                                                     @click="replaceCover">Remover</button>

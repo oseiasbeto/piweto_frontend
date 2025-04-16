@@ -213,7 +213,12 @@ const config = {
                 setTimeout(() => {
                     store.dispatch("resetStaffs")
                     store.dispatch("resetMyEvents")
-                    router.replace("/")
+                    const redirect = route.query.r
+                    if (redirect) {
+                        router.push(redirect);
+                    } else {
+                        router.push('/')
+                    }
                 }, 1000)
             }).catch(err => {
                 toast(err?.response?.data?.message || 'Algo deu errado!', {

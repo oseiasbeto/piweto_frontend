@@ -1,6 +1,5 @@
 <script setup>
 import UserMenu from "@/components/UserMenu.vue";
-import { useCarts } from "@/repositories/carts-repository";
 import { useOrders } from "@/repositories/orders-repository";
 import Container from "@/use-cases/marketplace/components/ui/Container.vue";
 import formatAmount from "@/utils/formatAmount";
@@ -9,6 +8,7 @@ import { formatTime } from "@/utils/formatTime";
 import { onMounted, computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
+import Swal from "sweetalert2"
 import moment from "moment";
 import intlTelInput from 'intl-tel-input';
 import AlertConfirmEmail from "@/components/AlertConfirmEmail.vue";
@@ -79,18 +79,14 @@ const user = computed(() => {
 })
 
 // tem como finalidade finalizar a compra, criando um novo pedido.
-function finishPurchase() {
+async function finishPurchase() {
     validatePhone()
 
     // isto impede do usuario fazer uma requesicao enquanto ja tiver uma em andamento.
     if (loadingOrder.value || errors.value.phone.show || !form.value.paymentMethod) return
 
     // isto deve criar um novo pedido e redirecionar para a pagina de obrigado caso tenha prosseguido com exito.
-
-    if (form.value.paymentMethod == 'mult') {
-        form.value.paymentMethod = 'reference'
-    }
-    newOrder({
+    await newOrder({
         cart: cart?.value,
         eventId: cart?.value.event?._id,
         paymentMethod: form.value.paymentMethod,
@@ -98,6 +94,35 @@ function finishPurchase() {
             fullName: user.value.full_name,
             email: form.value.email ?? user.value.email,
             phone: form.value.phone ?? user.value.phone
+        }
+    }).then(res => {
+        switch (form.value.paymentMethod) {
+            case 'reference':
+                const newOrder = res.data.newOrder
+                router.replace(`/checkout/detalhes-do-pedido/${newOrder.id}`)
+                break;
+            case 'mul':
+                Swal.fire({
+                    icon: "success",
+                    title: "Notificação enviada com sucesso",
+                    text: "Enviamos uma notificação para o seu Multicaixa Express. Finalize o pagamento em até 15 minutos para concluir a operação.",
+                    confirmButtonText: "Entendi"
+                }).then(() => {
+                    router.replace('/meus-ingressos')
+                })
+        }
+    }).catch(err => {
+        if (err.response.status === 400) {
+            if (form.value.paymentMethod === 'mul') {
+                Swal.fire({
+                    icon: "error",
+                    title: "Número não reconhecido",
+                    text: "O número informado não está associado a uma conta Multicaixa Express. Verifique os dados e tente novamente.",
+                    confirmButtonText: "OK"
+                }).then(() => {
+                    form.value.phone = ''
+                });
+            }
         }
     })
 }
@@ -256,8 +281,13 @@ onMounted(async () => {
                                 @input="validatePhone" type="tel" ref="inputPhone" autocomplete="off"
                                 oncontextmenu="false" v-model="form.phone"
                                 :class="{ '!border-brand-danger': errors.phone.show }">
-                            <span class="text-brand-danger text-xs font-medium my-1" v-show="errors.phone.show">
+                            <span class="text-brand-danger text-xs font-medium my-1" v-if="errors.phone.show">
                                 {{ errors.phone.message }}
+                            </span>
+                            <span class="text-gray-500 text-xs font-medium my-1"
+                                v-else-if="form.paymentMethod == 'mul'">
+                                Por favor, informe o número de telefone associado à sua conta Multicaixa Express para
+                                continuarmos.
                             </span>
                         </div>
 
@@ -285,7 +315,7 @@ onMounted(async () => {
                                     class="w-full py-3 flex gap-2.5 font-bold text-[#495057] cursor-pointer hover:bg-[#f8f9fa] items-center px-5"
                                     for="reference_mult">
                                     <input class="scale-[1.3]" v-model="form.paymentMethod" id="reference_mult"
-                                        type="radio" value="mult">
+                                        type="radio" value="mul">
                                     <div class="w-[20px] h-[20px] mt-[2px] overflow-hidden">
                                         <img width="30px" class="object-cover" src="@/assets/imgs/express_logo.webp">
                                     </div>
