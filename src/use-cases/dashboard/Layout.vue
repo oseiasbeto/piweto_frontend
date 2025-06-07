@@ -14,6 +14,7 @@ import CheckIn from "./views/CheckIn.vue";
 import Finance from "./views/Finance.vue";
 import Spinner from "../checkout/components/ui/Spinner.vue";
 import AlertConfirmEmail from "@/components/AlertConfirmEmail.vue";
+import Staffs from "./views/Staffs.vue";
 
 const { getStaffById, loading: loadingStaff } = useStaffs()
 loadingStaff.value = true
@@ -80,6 +81,7 @@ onMounted(async () => {
                     
                     <Dashboard v-if="route.name == 'Dashboard'" />
                     <Tickets v-if="route.name == 'Tickets'" />
+                    <Staffs v-if="route.name == 'Staffs'" />
                     <Partakers v-if="route.name == 'Partakers'" />
                     <CheckIn v-if="route.name == 'Check in'" />
                     <Finance v-if="route.name == 'Finance'" />

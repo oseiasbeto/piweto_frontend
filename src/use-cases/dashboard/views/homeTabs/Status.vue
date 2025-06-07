@@ -111,7 +111,7 @@ const copyLink = (link) => {
         <div class="bg-white p-6 rounded-md shadow-md border-t-4 border-gray-500 flex flex-col items-center">
             <h2 class="text-medium font-medium text-gray-500 mb-4">QR Code do Evento</h2>
             <div ref="qrCodeRef">
-                <qrcode-vue :value="eventUrl" :size="150" level="H" />
+                <qrcode-vue :value="`https://piweto.it.ao/evento/${event?.slug}`" :size="150" level="H" />
             </div>
             <button @click="downloadQRCode" class="bg-blue-500 text-white px-4 py-2 rounded-lg mt-4">
                 Baixar QR Code

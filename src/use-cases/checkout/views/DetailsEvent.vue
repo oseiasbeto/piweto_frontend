@@ -14,6 +14,7 @@ import { formatTime } from "@/utils/formatTime";
 import Spinner from "../components/ui/Spinner.vue";
 import BtnSpinner from "../../marketplace/components/spinners/BtnSpinner";
 import moment from "moment";
+import UserMenu from "@/components/UserMenu.vue";
 
 const { getEvent, loading: loadingEvent, error: errorEvent } = useEvents();
 const { getBatches, loading: loadingBatches, error: errorBatches } = useBatches()
@@ -453,12 +454,65 @@ onMounted(async () => {
                                 <div class="mt-7 hidden lg:block mb-4">
                                     <hr />
                                 </div>
-                                <div>
+                                <div class="mb-5">
                                     <div class="mb-3">
                                         <h3 class="text-[#6c757d] font-bold text-lg">Descrição do evento</h3>
                                     </div>
                                     <div class="text-[#212529] font-normal text-base" v-html="event.description"></div>
                                 </div>
+                                <hr>
+                                <div class="mt-4 mb-8">
+                                    <div class="mb-3">
+                                        <h3 class="text-[#6c757d] mb-3 font-bold text-lg">Sobre o organizador</h3>
+                                        <div class="text-[#495057] mb-4 text-[15px]">
+                                            <div class="gap-3 text-base py-4 flex text-[#1b1e21]">
+                                                <div class="shrink-0">
+                                                    <img class="w-10 h-10 border rounded-full border-gray-300 bg-white"
+                                                        v-lazy="'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'">
+                                                </div>
+                                                <div>
+                                                    <div
+                                                        class="font-bold flex gap-0.5 items-center whitespace-break-spaces max-w-full lg:w-full">
+                                                        {{
+                                                            event?.created_by?.first_name }} {{
+                                                            event?.created_by?.last_name }}
+                                                        <svg v-if="event?.created_by?.is_checked"
+                                                            aria-label="Verificado" role="img" viewBox="0 0 40 40"
+                                                            class="w-4 h-4 shrink-0">
+                                                            <title>Verificado</title>
+                                                            <path fill="#0095f6"
+                                                                d="M19.998 3.094 14.638 0l-2.972 5.15H5.432v6.354L0 14.64 3.094 20 0 25.359l5.432 3.137v5.905h5.975L14.638 40l5.36-3.094L25.358 40l3.232-5.6h6.162v-6.01L40 25.359 36.905 20 40 14.641l-5.248-3.03v-6.46h-6.419L25.358 0l-5.36 3.094Zm7.415 11.225 2.254 2.287-11.43 11.5-6.835-6.93 2.244-2.258 4.587 4.581 9.18-9.18Z">
+                                                            </path>
+                                                        </svg>
+                                                    </div>
+                                                    <div class="max-w-full lg:w-full text-gray-500">{{
+                                                        event?.created_by?.bio }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-1 items-center lg:flex-row flex-col gap-3">
+                                            <a v-if="event?.created_by?.email?.length" style="letter-spacing: 0.5px;"
+                                                :href="`mailto:contato@evento.com?subject=Informações sobre ${encodeURIComponent(event?.name)}&body=Olá,%0D%0A%0D%0AGostaria de saber mais sobre ${encodeURIComponent(event?.name)}.%0D%0A%0D%0AObrigado!`"
+                                                target="_blank"
+                                                class="rounded-full  gap-1 hover:bg-brand-primary hover:text-white transition-colors px-5 py-2 border uppercase text-[14px] font-bold border-brand-primary text-brand-primary lg:w-auto w-full"
+                                                role="button" aria-pressed="true">
+
+
+                                                Enviar e-mail
+                                            </a>
+
+                                            <a v-if="event?.created_by?.phone?.length" style="letter-spacing: 0.5px;"
+                                                :href="`https://wa.me/${event?.created_by?.phone}?text=${encodeURIComponent('Olá, gostaria de informações sobre ' + event?.name)}`"
+                                                target="_blank"
+                                                class="rounded-full  gap-1 hover:bg-brand-primary hover:text-white transition-colors px-5 py-2 border uppercase text-[14px] font-bold border-brand-primary text-brand-primary lg:w-auto w-full"
+                                                role="button" aria-pressed="true">
+                                                Contato via WhatsApp
+                                            </a>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <hr />
                                 <div class="mt-4">
                                     <div class="mb-3">
                                         <h3 class="text-[#6c757d] mb-1 font-bold text-lg">Local</h3>
@@ -483,6 +537,8 @@ onMounted(async () => {
                                         </a>
                                     </div>
                                 </div>
+
+
                             </div>
                             <div class="px-4 hidden lg:block w-full">
                                 <div class="sticky top-0">

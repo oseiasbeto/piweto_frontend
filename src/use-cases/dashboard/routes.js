@@ -28,5 +28,15 @@ export default [
             title: 'Financeiro | Gerenciador de eventos'
         },
         component: () => import('./Layout.vue')
+    },
+    {
+        name: 'Staffs',
+        path: '/gerenciador-de-eventos/colaboradores/:id',
+        meta: {
+            requiresAuth: true,
+            rootPage: 'dashboard',
+            title: 'Colaboradores | Gerenciador de eventos'
+        },
+        component: () => import('./Layout.vue')
     }
 ]

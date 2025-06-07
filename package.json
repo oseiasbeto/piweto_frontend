@@ -17,6 +17,7 @@
     "@vuepic/vue-datepicker": "^10.0.0",
     "@vueup/vue-quill": "^1.2.0",
     "axios": "^1.7.7",
+    "caniuse-lite": "^1.0.30001720",
     "chart.js": "^4.4.6",
     "cleave.js": "^1.6.0",
     "core-js": "^3.8.3",
