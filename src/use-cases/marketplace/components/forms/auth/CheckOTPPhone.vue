@@ -4,7 +4,7 @@ import BtnSpinner from '../../spinners/BtnSpinner.vue';
 import { toast } from "vue3-toastify"
 import { useUsers } from "@/repositories/users-repository";
 import { useStore } from 'vuex';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 // Estados reativos
 const form = ref({
@@ -13,6 +13,7 @@ const form = ref({
 
 const store = useStore()
 const router = useRouter()
+const route = useRoute()
 
 const { checkOTPPhone, auth } = useUsers()
 
@@ -62,17 +63,15 @@ const submitOTP = async () => {
                     })
                     setTimeout(() => {
                         loading.value = false
-                        router.push('/')
+                        const redirect = route.query.r
+                        if (redirect) {
+                            router.push(redirect);
+                        } else {
+                            router.push('/')
+                        }
                     }, 1500)
                 })
                     .catch(err => {
-                        toast('Conta confirmada com sucesso!', {
-                            theme: "colored",
-                            position: "top-right",
-                            autoClose: 1000,
-                            type: 'success'
-                        })
-
                         setTimeout(() => {
                             toast('Houve um erro ao autenticar automaticamente!', {
                                 theme: "colored",
@@ -130,9 +129,8 @@ const resendOTP = () => {
                         class="text-brand-danger">*</span></label>
                 <input :readonly="loading"
                     class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
-                    placeholder="Escreva o código"
-                    @input="validateOTP" type="text" id="otp" autocomplete="off" oncontextmenu="false"
-                    v-model="form.otp" :class="{ '!border-brand-danger': errors.otp.show }">
+                    placeholder="Escreva o código" @input="validateOTP" type="text" id="otp" autocomplete="off"
+                    oncontextmenu="false" v-model="form.otp" :class="{ '!border-brand-danger': errors.otp.show }">
 
             </div>
             <span class="text-brand-danger text-xs mt-1" v-show="errors.otp.show">
@@ -152,7 +150,8 @@ const resendOTP = () => {
         <div
             class="relative text-sm mt-3 justify-center w-full pt-4 border-t border-gray-300 left-0 flex items-center gap-1">
             <p>Não recebeu o código?</p>
-            <button :disabled="loading" @click="resendOTP" class="text-brand-primary font-semibold">Reenviar código</button>
+            <button :disabled="loading" @click="resendOTP" class="text-brand-primary font-semibold">Reenviar
+                código</button>
         </div>
     </div>
 </template>

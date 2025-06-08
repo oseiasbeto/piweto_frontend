@@ -12,10 +12,14 @@ module.exports = {
           danger: "#f33e5c",
         },
       },
+      borderRadius: {
+        'custom': '.16rem',
+      },
       boxShadow: {
         'custom': '0 1px 15px 1px rgba(81,77,92,.5)',
         'custom-secondary': '0 1px 15px 1px rgba(81, 77, 92, .16);',
-        'custom-google': '0px 2px 8px 0px rgba(60, 64, 67, 0.25)'
+        'custom-google': '0px 2px 8px 0px rgba(60, 64, 67, 0.25)',
+        'sidebar': '0 -.05333rem .16rem #dbdbdb80'
       },
       fontFamily: {
         primary: ['Poppins', 'sans-serif'], // Fonte principal

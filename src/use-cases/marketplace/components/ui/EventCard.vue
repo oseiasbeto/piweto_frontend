@@ -64,67 +64,93 @@ const generateStatusLegend = (status) => {
 }
 
 const downloadQRCode = async () => {
-    await nextTick(); // Aguarda a renderização do QR Code
+    await nextTick(); // Wait for QR Code rendering
 
-    const qrValue = ref(props.ticket.code); // Código do ingresso
-    const reservationNumber = ref(props.ticket.booking_number); // Número da reserva
-    const eventName = ref(props.event.name); // Nome do evento
-    const ticketType = ref(props.ticket.batch.name); // Tipo do ingresso
-    const eventDate = ref(moment(props.event.starts_at.date).format("DD/MM/YYYY")); // Data do evento
-    const price = ref(props.ticket.price); // Preço do ingresso
-    const footerText = "Este ingresso foi emitido pelo Piweto"; // Mensagem no rodapé
+    try {
+        // Extract values
+        const qrValue = props.ticket.code;
+        const reservationNumber = props.ticket.booking_number;
+        const eventName = props.event.name;
+        const ticketType = props.ticket.batch.name;
+        const eventDate = moment(props.event.starts_at.date);
+        const price = props.ticket.price;
+        const participantName = user.value?.full_name; // Added participant name
+        const footerText = "Este ingresso foi emitido pelo Piweto";
 
-    if (qrcodeRef.value) {
-        // Pega o <canvas> gerado pelo componente qrcode.vue
-        const qrCanvas = qrcodeRef.value.getElementsByTagName("canvas")[0];
-
-        if (!qrCanvas) {
-            console.error("Canvas do QR Code não encontrado!");
+        if (!qrcodeRef.value) {
+            console.error("QR Code reference not found!");
             return;
         }
 
-        // Criamos um novo canvas maior para incluir o texto + QR Code
+        const qrCanvas = qrcodeRef.value.getElementsByTagName("canvas")[0];
+        if (!qrCanvas) {
+            console.error("QR Code canvas not found!");
+            return;
+        }
+
+        // Constants for layout
+        const PADDING = 20;
+        const TEXT_HEIGHT = 160; // Increased to accommodate participant name
+        const LINE_HEIGHT = 20;
+        const FOOTER_MARGIN = 10;
+        
+        const qrSize = qrCanvas.width;
+        const totalHeight = qrSize + TEXT_HEIGHT + PADDING;
+
+        // Create new canvas
         const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-
-        // Definir tamanho do canvas (QR Code + espaço para texto)
-        const qrSize = qrCanvas.width; // Tamanho do QR Code original
-        const padding = 20;
-        const textHeight = 140; // Ajustei a altura do texto para acomodar a reserva
-        const totalHeight = qrSize + textHeight + padding;
-
-        canvas.width = qrSize + padding * 2;
+        canvas.width = qrSize + PADDING * 2;
         canvas.height = totalHeight;
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+            console.error("Could not get canvas context");
+            return;
+        }
 
-        // Fundo branco
+        // Draw white background
         ctx.fillStyle = '#fff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Adicionar QR Code no centro
-        ctx.drawImage(qrCanvas, padding, textHeight);
+        // Add QR Code centered
+        ctx.drawImage(qrCanvas, PADDING, TEXT_HEIGHT);
 
-        // Estilizar e adicionar informações extras
+        // Style and add text information
         ctx.fillStyle = '#000';
-        ctx.font = '16px Arial';
         ctx.textAlign = 'center';
 
-        ctx.fillText(eventName.value, canvas.width / 2, 20); // Nome do evento
-        ctx.fillText(`Ingresso: ${ticketType.value}`, canvas.width / 2, 40); // Tipo do ingresso
-        ctx.fillText(`Data: ${moment(eventDate.value).format("YYYY/MM/DD")}`, canvas.width / 2, 60); // Data do evento
-        ctx.fillText(`Preço: ${formatAmount(price.value)}`, canvas.width / 2, 80); // Preço do ingresso
-        ctx.fillText(`Código: ${qrValue.value}`, canvas.width / 2, 100); // Código do ingresso
-        ctx.fillText(`Reserva: ${reservationNumber.value}`, canvas.width / 2, 120); // Número da reserva
+        // Draw each line of text
+        const textLines = [
+            eventName,
+            `Participante: ${participantName}`, // Added participant name line
+            `Ingresso: ${ticketType}`,
+            `Data: ${eventDate.format("DD/MM/YYYY")}`,
+            `Preço: ${formatAmount(price)}`,
+            `Código: ${qrValue}`,
+            `Reserva: ${reservationNumber}`
+        ];
 
-        // Adicionar a mensagem no rodapé
+        ctx.font = '16px Arial';
+        textLines.forEach((text, index) => {
+            ctx.fillText(text, canvas.width / 2, 20 + (index * LINE_HEIGHT));
+        });
+
+        // Add footer
         ctx.font = '12px Arial';
         ctx.fillStyle = '#555';
-        ctx.fillText(footerText, canvas.width / 2, totalHeight - 10); // Texto de rodapé
+        ctx.fillText(footerText, canvas.width / 2, totalHeight - FOOTER_MARGIN);
 
-        // Criar link para download
+        // Create download link
         const link = document.createElement('a');
         link.href = canvas.toDataURL('image/png');
-        link.download = qrValue.value + '.png';
+        link.download = `${qrValue}.png`;
+        link.setAttribute('aria-label', `Download QR Code for ticket ${qrValue}`);
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
+    } catch (error) {
+        console.error("Error generating QR Code download:", error);
+        // You might want to show a user-friendly error message here
     }
 };
 

@@ -284,7 +284,10 @@ onMounted(async () => {
         <div class="flex my-1 items-center justify-between">
             <div></div>
             <div>
-                <router-link to="/conta/esqueci-a-senha" class="text-brand-info text-xs font-semibold">Esqueci a
+                <router-link :to="{
+                    path: '/conta/esqueci-a-senha',
+                    query: { ...(route.query.r ? { r: route.query.r } : {}) }
+                }" class="text-brand-info text-xs font-semibold">Esqueci a
                     senha</router-link>
             </div>
         </div>
@@ -334,7 +337,10 @@ onMounted(async () => {
         <div
             class="relative text-sm mt-3 justify-center w-full pt-4 border-t border-gray-300 left-0 flex items-center gap-1">
             <p>Não tens uma conta?</p>
-            <router-link to="/conta/registrar-se" class="text-brand-primary font-semibold">Cadastra-se</router-link>
+            <router-link :to="{
+                    path: '/conta/registrar-se',
+                    query: { ...(route.query.r ? { r: route.query.r } : {}) }
+                }" class="text-brand-primary font-semibold">Cadastra-se</router-link>
         </div>
     </div>
 </template>

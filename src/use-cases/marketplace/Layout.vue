@@ -49,7 +49,7 @@ const sidebar = computed(() => {
             <MyTickets v-if="route.name == 'My tickets'" />
             <TermsOfUse v-if="route.name == 'Terms of use'" />
             <PrivacyPolicy v-if="route.name == 'Privacy Policy'" />
-            <About v-if="route.name == 'How does it work'"/>
+            <About v-if="route.name == 'How does it work'" />
             <!--end pages-->
 
 
@@ -71,12 +71,13 @@ const sidebar = computed(() => {
             </a>
 
             <Sidebar :isView="sidebar.show" />
+
             <!--start footer-->
             <Footer />
             <!--end footer-->
         </div>
         <!--end views marketplace-->
-
+        
         <!--start modal marketplace-->
         <Modal />
         <!--end modal marketplace-->
