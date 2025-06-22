@@ -7,8 +7,7 @@ import { useUsers } from "../../../../../repositories/users-repository";
 import intlTelInput from 'intl-tel-input';
 import { useRoute, useRouter } from "vue-router";
 
-const { register, loading, error } = useUsers()
-const { googleAuth, loading: loadingAuthGoogle } = useUsers()
+const { register, loading } = useUsers()
 const emits = defineEmits(['onregistred'])
 
 const form = ref({
@@ -20,9 +19,7 @@ const form = ref({
     viewPassword: false,
     strength: "Fraca"
 })
-const googleButtonRef = ref(null);
-const googleApiReady = ref(null);
-const googleInitialized = ref(null);
+
 const intl = ref({})
 
 const store = useStore()
@@ -57,9 +54,6 @@ const errors = ref({
     }
 })
 
-const hasLogged = computed(() => {
-    return store.getters.hasLogged
-}) 
 const formInvalid = computed(() => {
     if (!form.value.first_name || !form.value.last_name || !form.value.phone || !form.value.password || errors.value.email.show || errors.value.phone.show || errors.value.password.show) return true
     else return false
@@ -180,146 +174,6 @@ async function submit() {
     }
 }
 
-// Substitua pelo seu ID de cliente do Google
-const CLIENT_ID = '914842748542-mc9j2ltt0no88mqlu144u1q1hu19lhq1.apps.googleusercontent.com';
-
-// Configurações (substitua pelo seu Client ID)
-const config = {
-    client_id: CLIENT_ID,
-    callback: async (response) => {
-        if (hasLogged.value) {
-            toast("O usuário já se encontra logado no sistema!", {
-                theme: "colored",
-                autoClose: 3000,  // Tempo maior para erros
-                position: "top-right",
-                transition: "bounce",
-                type: 'error'
-            });
-        }
-        
-        // Aqui você processa o token JWT
-        const userData = parseJwt(response.credential);
-
-
-        if (userData && !loadingAuthGoogle.value) {
-            await googleAuth(userData).then(res => {
-                toast(res.data.message, {
-                    theme: "colored",
-                    autoClose: 2000,
-                    position: "top-right",
-                    transition: "bounce",
-                    type: 'success'
-                })
-                setTimeout(() => {
-                    store.dispatch("resetStaffs")
-                    store.dispatch("resetMyEvents")
-                    const redirect = route.query.r
-                    if (redirect) {
-                        router.push(redirect);
-                    } else {
-                        router.push('/')
-                    }
-                }, 1000)
-            }).catch(err => {
-                toast(err?.response?.data?.message || 'Algo deu errado!', {
-                    theme: "colored",
-                    autoClose: 2000,
-                    position: "top-right",
-                    transition: "bounce",
-                    type: 'error'
-                })
-            })
-        }
-    }
-};
-
-// Função para decodificar o JWT
-const parseJwt = (token) => {
-    try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(
-            atob(base64)
-                .split('')
-                .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-                .join('')
-        );
-        return JSON.parse(jsonPayload);
-    } catch (e) {
-        console.error('Erro ao decodificar JWT:', e);
-        return null;
-    }
-};
-
-
-// Modifique esta função para ser reutilizável
-const initGoogleButton = () => {
-    if (!window.google?.accounts?.id || googleInitialized.value) return;
-
-    try {
-        // Limpa qualquer botão existente
-        if (googleButtonRef.value.firstChild) {
-            googleButtonRef.value.removeChild(googleButtonRef.value.firstChild);
-        }
-
-        window.google.accounts.id.initialize({
-            client_id: CLIENT_ID,
-            callback: (response) => {
-                if (!loadingAuthGoogle.value) {
-                    config.callback(response);
-                } else {
-                    toast("Por favor aguarde...", {
-                        theme: "colored",
-                        autoClose: 1000,
-                        position: "top-right",
-                        transition: "bounce",
-                        type: 'info'
-                    });
-                }
-            }
-        });
-
-        // Adiciona um atributo para controle de estado
-        const buttonConfig = {
-            type: 'standard',
-            size: 'large',
-            theme: 'outline',
-            text: 'sign_in_with',
-            shape: 'rectangular',
-            width: '100%',
-        };
-
-        // Se estiver carregando, desativa o botão
-        if (loadingAuthGoogle.value) {
-            buttonConfig.attributes = {
-                'data-login_pending': 'true'
-            };
-        }
-
-        window.google.accounts.id.renderButton(
-            googleButtonRef.value,
-            buttonConfig
-        );
-
-        googleInitialized.value = true;
-    } catch (e) {
-        console.error('Erro no botão Google:', e);
-        return false;
-    }
-};
-
-// Função para verificar e inicializar a API do Google
-const checkAndInitGoogle = () => {
-    if (window.google?.accounts?.id) {
-        if (initGoogleButton()) {
-            googleApiReady.value = true
-        }
-    } else {
-        // Tenta novamente após um pequeno delay
-        setTimeout(checkAndInitGoogle, 300)
-    }
-}
-
 onMounted(async () => {
     const input = document.querySelector("#phone");
     intl.value = intlTelInput(input, {
@@ -327,12 +181,6 @@ onMounted(async () => {
         initialCountry: "ao",
         onlyCountries: ["ao"]
     });
-    try {
-        // Verifica se a API do Google já está carregada
-        checkAndInitGoogle()
-    } catch (e) {
-        console.error('Erro na autenticação Google:', e);
-    }
 })
 
 </script>
@@ -341,9 +189,7 @@ onMounted(async () => {
     <div class="w-auto">
         <div class="flex items-center mb-8 justify-center">
             <h1 class="font-bold text-gray-800 text-center text-xl">Registrar-se</h1>
-
         </div>
-        <div ref="googleButtonRef"></div>
         <div class="flex flex-col mt-4 mb-4">
             <label class="text-xs text-gray-500 mb-2 font-bold" for="firstName">Primeiro nome <span
                     class="text-brand-danger">*</span></label>
@@ -354,7 +200,7 @@ onMounted(async () => {
             <span class="text-brand-danger text-xs font-medium my-1"> {{ errors.first_name.message }}</span>
         </div>
         <div class="flex flex-col mb-4">
-            <label class="text-xs text-gray-500 mb-2 font-bold" for="lastName">Ultimo nome <span
+            <label class="text-xs text-gray-500 mb-2 font-bold" for="lastName">Último nome <span
                     class="text-brand-danger">*</span></label>
             <input maxlength="20" :readonly="loading" @input="validateLastName"
                 class="outline-none h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4" type="text"

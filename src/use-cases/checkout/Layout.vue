@@ -16,24 +16,28 @@ const store = useStore()
 </script>
 
 <template>
-    <div class="relative">
+    <div class="relative min-h-screen bg-[#f5f7f8]">
         <!--start navbar-->
         <Navbar />
         <!--end navbar-->
-        <div class="relative">
+
+        <!--start main-->
+        <main class="relative min-h-[calc(-230px+100vh)]">
             <!--start pages from checkout-->
             <Cart v-if="route.name == 'Cart'" />
             <Order v-if="route.name == 'Order'" />
             <DetailsEvent v-if="route.name == 'Details event'" />
             <!--end pages from checkout-->
+        </main>
+        <!--end main-->
 
-            <!--start footer-->
-            <Footer/>
-            <!--end footer-->
-        </div>
+        <!--start footer-->
+        <Footer />
+        <!--end footer-->
 
         <!--start modal-->
-        <Modal/>
+        <Modal />
         <!--end modal-->
     </div>
+
 </template>

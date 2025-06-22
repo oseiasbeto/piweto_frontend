@@ -71,7 +71,14 @@ const sendEmail = async () => {
                         type: 'error'
                     })
                 }
-
+                else if (err.response.data.message === 'Este e-mail ja esta em uso!') {
+                    toast(err.response.data.message, {
+                        theme: "colored",
+                        position: "top-right",
+                        autoClose: 2500,
+                        type: 'error'
+                    })
+                }
             })
     }
 };

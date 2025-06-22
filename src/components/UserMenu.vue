@@ -48,7 +48,7 @@ const user = computed(() => {
 async function handlelogout() {
     const session_id = Cookies.get("session_id")
     await logout(session_id).then(() => {
-        if (route.meta.rootPage != 'marketplace') {
+        if (route.meta.rootPage !== 'marketplace') {
             store.dispatch("setToast", {
                 show: true,
                 message: "Deslogado com sucesso.",
@@ -63,7 +63,11 @@ async function handlelogout() {
                 type: "success"
             })
         }
-        router.push('/')
+        if (route.meta.rootPage !== 'marketplace' && route.name !== 'Details event') {
+            router.push('/')
+        }
+    }).catch(err => {
+        console.log(err)
     })
 }
 </script>

@@ -1,58 +1,54 @@
 <script setup>
 import Logo from '@/components/Logo.vue';
 import Container from '@/use-cases/marketplace/components/ui/Container.vue';
+import { useRoute } from 'vue-router';
 
+const route = useRoute()
 </script>
 
 <template>
-    <div class="bg-[#292b2c] w-full text-white border-t-2 border-brand-primary">
+    <div class="bg-[rgb(221,224,228)] text-[rgb(132,140,155)] w-full p-6">
         <Container>
-            <div class="flex px-4 justify-center pt-10 pb-16">
-                <div>
-                    <div class="flex justify-center">
-                        <Logo :is-white="true" size="w-[100px] h-[56px]" />
-                    </div>
+            <div :class="{ 'pb-[72px] lg:pb-0': route.name === 'Cart' }">
+                <div class="mb-4">
+                    <ul class="flex flex-wrap gap-4 text-sm">
+                        <li>
+                            <a class="text-xs hover:underline"
+                                href="https://api.whatsapp.com/send/?phone=948360831&text&type=phone_number&app_absent=0"
+                                target="_blank" rel="noopener noreferrer">
+                                Central de ajuda
+                            </a>
+                        </li>
 
-                    <ul class="flex flex-wrap text-sm justify-center items-center gap-2 lg:gap-3 py-4">
-                        <li class="flex items-center gap-1.5"><a href="/conta/login" class="flex flex-nowrap hover:underline">Login</a> | </li>
-                        <li class="flex items-center gap-1.5"><a class="flex flex-nowrap hover:underline" href="/conta/registrar-se">Criar
-                                Conta</a> | </li>
-                        <li class="flex items-center gap-1.5"><a class="flex flex-nowrap hover:underline" href="/meus-ingressos">Meus Ingressos</a> | </li>
-                        <li class="flex items-center gap-1.5"><a class="flex flex-nowrap hover:underline" href="/como-funciona">Sou organizador</a> | </li>
+                        <li>
+                            <a class="text-xs hover:underline" href="/termos-de-uso" target="_blank"
+                                rel="noopener noreferrer">
+                                Termos de Uso
+                            </a>
+                        </li>
 
-                        <li class="flex items-center gap-1.5"><a class="flex flex-nowrap hover:underline" href="https://wa.me/948360831" target="_blank">Fale
-                                conosco</a> </li>
-
+                        <li>
+                            <a class="text-xs hover:underline" href="/politica-de-privacidade" target="_blank"
+                                rel="noopener noreferrer">
+                                Privacidade
+                            </a>
+                        </li>
+                        <li>
+                            <a class="text-xs hover:underline" href="/como-funciona" target="_blank"
+                                rel="noopener noreferrer">
+                                Sou organizador de eventos
+                            </a>
+                        </li>
                     </ul>
-                    <div class="pt-3 pb-8 opacity-[0.2]">
-                         <hr>
-                    </div>
-                   
-
-                    <div class="subfooter text-sm text-center">
-                        <p>
-                            © Piweto - Todos os direitos reservados.
-
-                            <br>
-
-                            NIF: 482819381281671
-
-
-
-                        </p>
-                     
-                        <ul class="flex gap-1.5 my-3 justify-center items-center mx-auto">
-
-                            <li><a href="/termos-de-uso/" target="_blank">Termos de uso</a>
-                            </li>
-                            <li><a href="/politica-de-privacidade/" target="_blank">Política de
-                                    privacidade</a></li>
-
-                        </ul>
+                </div>
+                <div class="flex">
+                    <div class="flex items-center gap-2">
+                        <Logo :is-gray="true" size="w-[80px] h-[56px]" />
+                        <p class="text-[10px]"><span>Piweto Internet Soluções S.A.</span> © Copyright 2025</p>
                     </div>
                 </div>
             </div>
-        </Container>
 
+        </Container>
     </div>
 </template>

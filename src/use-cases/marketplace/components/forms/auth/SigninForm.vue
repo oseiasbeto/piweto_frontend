@@ -20,6 +20,10 @@ const store = useStore()
 const route = useRoute()
 const router = useRouter()
 
+const cart = computed(() => {
+    return store.getters.cart
+})
+
 const form = ref({
     phone: "",
     password: "",
@@ -42,10 +46,6 @@ const errors = ref({
 const formInvalid = computed(() => {
     if (!form.value.phone || !form.value.password || errors.value.phone.show || errors.value.password.show) return true
     else return false
-})
-
-const hasLogged = computed(() => {
-    return store.getters.hasLogged
 })
 
 const resetForm = () => {
@@ -104,10 +104,24 @@ async function submit() {
                 store.dispatch("resetStaffs")
                 store.dispatch("resetMyEvents")
                 const redirect = route.query.r
-                if (redirect) {
-                    router.push(redirect);
+                const regexCheckoutPath = /^checkout\/carrinho\/[a-z0-9-]+_\d+$/;
+
+                if (regexCheckoutPath.test(redirect)) {
+                    if (cart.value?.id) {
+                        router.push(redirect);
+                    } else {
+                        const match = redirect.match(/^checkout\/carrinho\/([a-z0-9-]+_\d+)$/);
+                        if (match) {
+                            const slug = match[1];
+                            router.push('/evento/' + slug)
+                        }
+                    }
                 } else {
-                    router.push('/')
+                    if (redirect) {
+                        router.push(redirect);
+                    } else {
+                        router.push('/')
+                    }
                 }
             })
             .catch(error => {
@@ -134,15 +148,29 @@ const config = {
         const userData = parseJwt(response.credential);
 
         if (userData && !loadingAuthGoogle.value) {
-            await googleAuth(userData).then(res => {
+            await googleAuth(userData).then(() => {
                 setTimeout(() => {
                     store.dispatch("resetStaffs")
                     store.dispatch("resetMyEvents")
                     const redirect = route.query.r
-                    if (redirect) {
-                        router.push(redirect);
+                    const regexCheckoutPath = /^checkout\/carrinho\/[a-z0-9-]+_\d+$/;
+
+                    if (regexCheckoutPath.test(redirect)) {
+                        if (cart.value?.id) {
+                            router.push(redirect);
+                        } else {
+                            const match = redirect.match(/^checkout\/carrinho\/([a-z0-9-]+_\d+)$/);
+                            if (match) {
+                                const slug = match[1];
+                                router.push('/evento/' + slug)
+                            }
+                        }
                     } else {
-                        router.push('/')
+                        if (redirect) {
+                            router.push(redirect);
+                        } else {
+                            router.push('/')
+                        }
                     }
                 }, 1000)
             }).catch(err => {
@@ -338,9 +366,9 @@ onMounted(async () => {
             class="relative text-sm mt-3 justify-center w-full pt-4 border-t border-gray-300 left-0 flex items-center gap-1">
             <p>Não tens uma conta?</p>
             <router-link :to="{
-                    path: '/conta/registrar-se',
-                    query: { ...(route.query.r ? { r: route.query.r } : {}) }
-                }" class="text-brand-primary font-semibold">Cadastra-se</router-link>
+                path: '/conta/registrar-se',
+                query: { ...(route.query.r ? { r: route.query.r } : {}) }
+            }" class="text-brand-primary font-semibold">Cadastra-se</router-link>
         </div>
     </div>
 </template>

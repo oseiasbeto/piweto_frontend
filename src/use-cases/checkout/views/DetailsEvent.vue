@@ -60,13 +60,10 @@ const generateColorAlert = computed(() => {
     switch (alert.value.type) {
         case 'warning':
             return 'bg-[#fff3cd] text-[#856404] border-[#ffeeba]'
-            break;
 
         default:
             return 'bg-[#f8d7da] text-[#721c24] border-[#f5c6cb]'
-            break;
     }
-    return store.getters.hasLogged
 })
 
 const formattedDate = (date) => {
@@ -142,34 +139,21 @@ function setModalSignIn() {
 // Esta função tem como finalidade fazer uma requesição REST a api para criar um carrinho de compras com os ingressos selecionados pelo corrente usuário. 
 async function sendToCart() {
     if (batchesSelected.value.length) {
-        if (hasLogged.value) {
-            loadingCart.value = true
-            setTimeout(() => {
-                const id = `RES-${Date.now()}`
-                store.dispatch("setCart", {
-                    id,
-                    amount: amount.value,
-                    event: event.value,
-                    amount_after_discount: amountAfterDiscount.value,
-                    coupon: coupon.value,
-                    batches: batchesSelected.value
-                })
 
-                router.push('/checkout/carrinho/' + event.value.slug)
-                loadingCart.value = false
-            }, 1030)
-        } else {
-            loadingCart.value = true
-            setTimeout(() => {
-                loadingCart.value = false
-                router.push({
-                    path: "/conta/login",
-                    query: {
-                        r: route.fullPath
-                    }
-                })
-            }, 750)
-        }
+        const id = `RES-${Date.now()}`
+        store.dispatch("setCart", {
+            id,
+            amount: amount.value,
+            event: event.value,
+            amount_after_discount: amountAfterDiscount.value,
+            coupon: coupon.value,
+            batches: batchesSelected.value
+        })
+        loadingCart.value = true
+        setTimeout(() => {
+            router.push('/checkout/carrinho/' + event.value.slug)
+            loadingCart.value = false
+        }, 1030)
     } else {
         alert.value = {
             show: true,
@@ -259,15 +243,25 @@ function removeCoupon() {
 }
 
 onMounted(async () => {
-    await getEvent(route.params.slug).then(async () => {
-        document.title = event.value.name
+    if (!event.value?.slug || event.value?.slug !== route.params.slug) {
+        await getEvent(route.params.slug).then(async () => {
+            document.title = event.value.name
+            await getBatches({
+                event: event.value._id,
+                page: 1,
+                visibility: 'public',
+                limit: 10
+            });
+        })
+    } else {
+        loadingEvent.value = false
         await getBatches({
             event: event.value._id,
             page: 1,
             visibility: 'public',
             limit: 10
         });
-    })
+    }
 })
 </script>
 
@@ -328,7 +322,7 @@ onMounted(async () => {
                                         </svg>
 
                                         <p>{{ formatDate(event.starts_at.date) }} às {{ formatTime(event.starts_at.hm)
-                                        }}
+                                            }}
                                             > {{
                                                 formatDate(event.ends_at.date) }} às {{ formatTime(event.ends_at.hm) }}</p>
                                     </span>

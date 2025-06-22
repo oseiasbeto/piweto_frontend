@@ -16,10 +16,10 @@ const hasLogged = computed(() => {
 </script>
 
 <template>
-    <div class="bg-[#343a40] relative z-[100] top-0 h-[56px] w-full">
+    <div class="bg-[#292a37] sticky border-b border-b-[rgb(76,87,108)] z-[9999] top-0 h-12 lg:h-14 w-full">
         <Container>
             <div class="flex relative justify-center px-4 items-center">
-                <Logo :is-white="true" size="w-[100px] h-[56px]"/>
+                <Logo :is-white="true" size="lg:w-[100px] hover:opacity-80 transition-opacity w-[80px] h-12 lg:h-14"/>
                 <div class="absolute right-[16px]">
                     <a v-if="!hasLogged" :href="`/conta/login?r=${route.fullPath}`" class="text-base text-white">Login</a>
                     <UserMenu v-else :show-border="false" :show-name="false"/>
