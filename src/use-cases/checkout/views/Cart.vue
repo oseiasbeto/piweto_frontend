@@ -25,6 +25,7 @@ const form = ref({
     lastName: "",
     email: "",
     phone: "",
+    providerPayment: "paypay",
     paymentMethod: ""
 })
 
@@ -94,6 +95,16 @@ const user = computed(() => {
     return store.getters.currentUser
 })
 
+function changeProvidePayment(name) {
+    if (name === 'paypay') {
+        form.value.providerPayment = name
+        form.paymentMethod = name
+    } else if(name === 'emis') {
+        form.value.providerPayment = name
+        form.value.paymentMethod = 'mul'
+    }
+}
+
 // tem como finalidade finalizar a compra, criando um novo pedido.
 async function finishPurchase() {
     validatePhone()
@@ -149,6 +160,8 @@ onMounted(async () => {
         form.value = {
             firstName: user.value.first_name,
             lastName: user.value.last_name,
+            providerPayment: "emis",
+            paymentMethod: 'mul',
             phone: user.value.phone,
             email: user.value.email
         }
@@ -174,163 +187,277 @@ onMounted(async () => {
             <div class="mt-5 mb-10 lg:mt-8">
 
                 <div class="flex gap-4 lg:gap-8 px-0 lg:px-4 lg:flex-row justify-between">
-                    <div
-                        class="p-4 lg:p-8 bg-white flex-shrink-0 w-full shadow-[0px_1px_2px_0px_rgba(25,31,40,0.15)] lg:w-2/3 lg:rounded-[8px]">
+                    <div class="flex-shrink-0 flex flex-col gap-5 w-full lg:w-2/3">
                         <!--start forn-->
-                        <div>
-                            <div class="mb-5">
-                                <h1 style="letter-spacing: 0.2px; line-height: 1.2"
-                                    class="text-base lg:text-lg text-[rgb(76,87,108)] mb-4 font-bold">Recebimento do
-                                    ingresso
-                                </h1>
-                                <div
-                                    class="bg-[#f9f9f9] gap-3 text-base py-4 px-5 flex items-center rounded-md border border-[#dee2e6] text-[#1b1e21]">
-                                    <div>
-                                        <UserMenu :show-border="false" :show-menu="false" :show-name="false" />
+                        <div
+                            class="p-4 lg:p-8 bg-white w-full shadow-[0px_1px_2px_0px_rgba(25,31,40,0.15)] lg:rounded-[8px]">
+                            <div>
+                                <div class="mb-5">
+                                    <div class="flex mb-4 items-center gap-2 ">
+                                        <div
+                                            class="flex shrink-0 justify-center items-center w-7 h-7 mx-0.5 border border-[rgb(58,175,255)] rounded-full text-sm font-bold bg-[rgb(230,244,255)] text-[rgb(0,151,255)]">
+                                            1
+                                        </div>
+                                        <h1 style="letter-spacing: 0.2px; line-height: 1.2"
+                                            class="text-base lg:text-lg text-[rgb(76,87,108)]  font-bold">Informações do
+                                            participante
+                                        </h1>
                                     </div>
-                                    <div>
-                                        <div class="font-bold max-w-full lg:w-full truncate">{{ form.firstName }} {{
-                                            form.lastName }}</div>
-                                        <div class="max-w-full lg:w-full truncate">{{ form.email }}</div>
+
+                                    <div
+                                        class="bg-[rgb(245,247,248)] gap-3 text-sm py-4 px-3 flex items-center text-[rgb(25,31,40)]">
+                                        <div
+                                            class="h-10 w-10 border shrink-0 border-[rgb(221,224,228)] rounded-[1000vw] flex items-center justify-center">
+                                            <svg width="24" height="24" viewBox="0 0 24 24"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" fill="rgb(0, 151, 255)" clip-rule="evenodd"
+                                                    d="M12 12C12.7911 12 13.5645 11.7654 14.2223 11.3259C14.8801 10.8864 15.3928 10.2616 15.6955 9.53074C15.9983 8.79983 16.0775 7.99556 15.9231 7.21964C15.7688 6.44372 15.3878 5.73098 14.8284 5.17157C14.269 4.61216 13.5563 4.2312 12.7804 4.07686C12.0044 3.92252 11.2002 4.00173 10.4693 4.30448C9.73836 4.60723 9.11365 5.11992 8.67412 5.77772C8.2346 6.43552 8 7.20888 8 8C8 9.06087 8.42143 10.0783 9.17157 10.8284C9.92172 11.5786 10.9391 12 12 12ZM12 10C12.3956 10 12.7822 9.8827 13.1111 9.66294C13.44 9.44318 13.6964 9.13082 13.8478 8.76537C13.9991 8.39992 14.0387 7.99778 13.9616 7.60982C13.8844 7.22186 13.6939 6.86549 13.4142 6.58579C13.1345 6.30608 12.7781 6.1156 12.3902 6.03843C12.0022 5.96126 11.6001 6.00087 11.2346 6.15224C10.8692 6.30362 10.5568 6.55996 10.3371 6.88886C10.1173 7.21776 10 7.60444 10 8C10 8.53044 10.2107 9.03914 10.5858 9.41422C10.9609 9.78929 11.4696 10 12 10ZM9 15C7.93913 15 6.92172 15.4214 6.17157 16.1716C5.42143 16.9217 5 17.9391 5 19V20C5 20.2652 4.89464 20.5196 4.70711 20.7071C4.51957 20.8946 4.26522 21 4 21C3.73478 21 3.48043 20.8946 3.29289 20.7071C3.10536 20.5196 3 20.2652 3 20V19C3 17.4087 3.63214 15.8826 4.75736 14.7574C5.88258 13.6321 7.4087 13 9 13H15C16.5913 13 18.1174 13.6321 19.2426 14.7574C20.3679 15.8826 21 17.4087 21 19V20C21 20.2652 20.8946 20.5196 20.7071 20.7071C20.5196 20.8946 20.2652 21 20 21C19.7348 21 19.4804 20.8946 19.2929 20.7071C19.1054 20.5196 19 20.2652 19 20V19C19 17.9391 18.5786 16.9217 17.8284 16.1716C17.0783 15.4214 16.0609 15 15 15H9Z">
+                                                </path>
+                                            </svg>
+                                        </div>
+                                        <div class="flex w-full items-center justify-between">
+                                            <div class="flex-1">
+                                                <div
+                                                    class="font-bold text-sm text-[rgb(25,31,40)] max-w-full lg:w-full truncate">
+                                                    {{ user.first_name }} {{
+                                                        user.last_name }}</div>
+                                                <div
+                                                    class="max-w-full mt-1 text-xs text-[rgb(76,87,108)] lg:w-full truncate">
+                                                    {{ user.email || `+244 ${user.phone}` }}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <button
+                                                    class="rounded-lg outline-none border font-semibold text-sm leading-4 font-sans inline-flex items-center justify-center min-w-fit w-max cursor-pointer transition-all duration-200 ease-in no-underline text-[rgb(0,151,255)] bg-transparent border-transparent px-4 py-3">
+                                                    Sair
+                                                </button>
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
-                            </div>
-                            <!--start name costumer group-->
-                            <div class="flex gap-4 flex-col lg:flex-row item-center">
-                                <div class="flex flex-1 flex-col mb-4">
-                                    <label class="text-xs text-gray-500 mb-2 font-bold" for="firstName">Primeiro nome
-                                        <span class="text-brand-danger">*</span></label>
-                                    <input
-                                        class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
-                                        id="firstName" @input="validatePhone" autocomplete="off" oncontextmenu="false"
-                                        v-model="form.firstName"
-                                        :class="{ '!border-brand-danger': errors.firstName.show }">
-                                    <span class="text-brand-danger text-xs font-medium my-1"
-                                        v-if="errors.firstName.show">
-                                        {{ errors.firstName.message }}
-                                    </span>
+                                <!--start name costumer group-->
+                                <div class="flex gap-4 flex-col lg:flex-row item-center">
+                                    <div class="flex flex-1 flex-col mb-4">
+                                        <label class="text-xs text-gray-500 mb-2 font-bold" for="firstName">Primeiro
+                                            nome
+                                            <span class="text-brand-danger">*</span></label>
+                                        <input
+                                            class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
+                                            id="firstName" @input="validatePhone" autocomplete="off"
+                                            oncontextmenu="false" v-model="form.firstName"
+                                            :class="{ '!border-brand-danger': errors.firstName.show }">
+                                        <span class="text-brand-danger text-xs font-medium my-1"
+                                            v-if="errors.firstName.show">
+                                            {{ errors.firstName.message }}
+                                        </span>
 
+                                    </div>
+                                    <div class="flex flex-1 flex-col mb-4">
+                                        <label class="text-xs text-gray-500 mb-2 font-bold" for="lastName">Último nome
+                                            <span class="text-brand-danger">*</span></label>
+                                        <input
+                                            class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
+                                            id="lastName" @input="validatePhone" autocomplete="off"
+                                            oncontextmenu="false" v-model="form.lastName"
+                                            :class="{ '!border-brand-danger': errors.lastName.show }">
+                                        <span class="text-brand-danger text-xs font-medium my-1"
+                                            v-if="errors.lastName.show">
+                                            {{ errors.lastName.message }}
+                                        </span>
+
+                                    </div>
                                 </div>
-                                <div class="flex flex-1 flex-col mb-4">
-                                    <label class="text-xs text-gray-500 mb-2 font-bold" for="lastName">Último nome <span
-                                            class="text-brand-danger">*</span></label>
+                                <!--end name costumer group-->
+
+                                <!--start number phone group-->
+                                <div class="flex flex-col my-4">
+                                    <label class="text-xs text-gray-500 mb-2 font-bold" for="phone">Número de telefone <span class="text-brand-danger">*</span></label>
                                     <input
                                         class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
-                                        id="lastName" @input="validatePhone" autocomplete="off" oncontextmenu="false"
-                                        v-model="form.lastName"
-                                        :class="{ '!border-brand-danger': errors.lastName.show }">
-                                    <span class="text-brand-danger text-xs font-medium my-1"
-                                        v-if="errors.lastName.show">
-                                        {{ errors.lastName.message }}
-                                    </span>
-
-                                </div>
-                            </div>
-                            <!--end name costumer group-->
-
-
-                            <!--start number phone group-->
-                            <div class="flex flex-col mb-4">
-                                <label class="text-xs text-gray-500 mb-2 font-bold" for="phone">Telefone <span
-                                        class="text-brand-danger">*</span></label>
-                                <input
-                                    class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
-                                    @input="validatePhone" type="tel" ref="inputPhone" autocomplete="off"
-                                    oncontextmenu="false" v-model="form.phone"
-                                    :class="{ '!border-brand-danger': errors.phone.show }">
-                                <span class="text-brand-danger text-xs font-medium my-1" v-if="errors.phone.show">
-                                    {{ errors.phone.message }}
-                                </span>
-                                <span class="text-gray-500 text-xs font-medium my-1"
-                                    v-else-if="form.paymentMethod == 'mul'">
-                                    Por favor, informe o número de telefone associado à sua conta Multicaixa Express
-                                    para
-                                    continuarmos.
-                                </span>
-                            </div>
-                            <!--end number phone group-->
-
-                            <!--start e-mail form-->
-                            <div class="flex gap-4 flex-col lg:flex-row item-center">
-                                <div class="flex flex-1 flex-col mb-4">
-                                    <label class="text-xs text-gray-500 mb-2 font-bold" for="email">E-mail <span
-                                            class="text-brand-danger">*</span></label>
-                                    <input
-                                        class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
-                                        id="email" @input="validatePhone" autocomplete="off" oncontextmenu="false"
-                                        v-model="form.email" :class="{ '!border-brand-danger': errors.email.show }">
-                                    <span class="text-brand-danger text-xs font-medium my-1" v-if="errors.email.show">
-                                        {{ errors.phone.message }}
-                                    </span>
-
-                                </div>
-                                <div class="flex flex-1 flex-col mb-4">
-                                    <label class="text-xs text-gray-500 mb-2 font-bold" for="email">Confirmação do
-                                        e-mail <span class="text-brand-danger">*</span></label>
-                                    <input
-                                        class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
-                                        @input="validatePhone" autocomplete="off" oncontextmenu="false"
-                                        v-model="form.email" :class="{ '!border-brand-danger': errors.phone.show }">
+                                        @input="validatePhone" type="tel" ref="inputPhone" autocomplete="off"
+                                        oncontextmenu="false" v-model="form.phone"
+                                        :class="{ '!border-brand-danger': errors.phone.show }">
                                     <span class="text-brand-danger text-xs font-medium my-1" v-if="errors.phone.show">
                                         {{ errors.phone.message }}
                                     </span>
+                                </div>
+                                <!--end number phone group-->
 
+                                <!--start e-mail form-->
+                                <div class="flex gap-4 flex-col lg:flex-row item-center">
+                                    <div class="flex flex-1 flex-col mb-4">
+                                        <label class="text-xs text-gray-500 mb-2 font-bold" for="email">E-mail <span
+                                                class="text-brand-danger">*</span></label>
+                                        <input
+                                            class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
+                                            id="email" @input="validatePhone" autocomplete="off" oncontextmenu="false"
+                                            v-model="form.email" :class="{ '!border-brand-danger': errors.email.show }">
+                                        <span class="text-brand-danger text-xs font-medium my-1"
+                                            v-if="errors.email.show">
+                                            {{ errors.phone.message }}
+                                        </span>
+
+                                    </div>
+                                    <div class="flex flex-1 flex-col mb-4">
+                                        <label class="text-xs text-gray-500 mb-2 font-bold" for="email">Confirmação do
+                                            e-mail <span class="text-brand-danger">*</span></label>
+                                        <input
+                                            class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
+                                            @input="validatePhone" autocomplete="off" oncontextmenu="false"
+                                            v-model="form.email" :class="{ '!border-brand-danger': errors.phone.show }">
+                                        <span class="text-brand-danger text-xs font-medium my-1"
+                                            v-if="errors.phone.show">
+                                            {{ errors.phone.message }}
+                                        </span>
+
+                                    </div>
+                                </div>
+                                <!--end e-mail form-->
+                                <div
+                                    class="after:content-[''] after:block after:w-3.5 after:h-3.5 after:absolute after:rotate-45 after:bg-white after:border-t after:border-l after:border-gray-300 after:-top-2 after:left-5 leading-6 border border-gray-300 p-2.5 rounded-md bg-white text-xs relative my-[10px] mb-[25px]">
+                                    Os ingressos serão enviados por
+                                    e-mail assim que recebermos a confirmação do pagamento.
                                 </div>
                             </div>
-                            <!--end e-mail form-->
-
                         </div>
                         <!--end form-->
 
-                        <div class="mt-7 block mb-4">
-                            <hr />
-                        </div>
-
                         <!--start payment methods-->
-                        <div>
-                            <h1 class="text-lg text-[#191f28] mb-4 font-bold">Informações de pagamento</h1>
+                        <div
+                            class="p-4 lg:p-8 bg-white w-full shadow-[0px_1px_2px_0px_rgba(25,31,40,0.15)] lg:rounded-[8px]">
+
+                            <div class="mb-3">
+                                <div class="flex mb-4 items-center gap-2">
+                                    <div
+                                        class="flex shrink-0 justify-center items-center w-7 h-7 mx-0.5 border border-[rgb(58,175,255)] rounded-full text-sm font-bold bg-[rgb(230,244,255)] text-[rgb(0,151,255)]">
+                                        2
+                                    </div>
+                                    <h1 style="letter-spacing: 0.2px; line-height: 1.2"
+                                        class="text-base lg:text-lg text-[rgb(76,87,108)]  font-bold">Informações de
+                                        pagamento
+                                    </h1>
+                                </div>
+
+                                <div class="flex gap-2 items-center">
+                                    <div @click="changeProvidePayment('emis')"
+                                        class="w-[112px] lg:w-[144px] transition-all duration-100 ease-in items-center cursor-pointer overflow-hidden relative py-3 text-sm text-center flex flex-col h-[110px] rounded-[8px] shadow-[10px_4px_14px_rgba(219,219,219,.2)]"
+                                        :class="{ 'text-[rgb(0,151,255)] font-bold border border-[rgb(0,151,255)] bg-[rgba(230,244,255,0.61)]': form.providerPayment === 'emis' }">
+                                        <div class="h-[50px] flex items-center">
+                                            <svg class="w-[80px] lg:w-[94px]" xmlns="http://www.w3.org/2000/svg"
+                                                xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 229 42">
+                                                <defs>
+                                                    <path id="a" d="M0 0h41.48v41.197H0z" />
+                                                </defs>
+                                                <g fill="none" fill-rule="evenodd">
+                                                    <path
+                                                        d="M120.589 21.737v-1.378h-7.172v-5.563h-1.39v14.833c0 2.119 1.73 3.84 3.865 3.84h11.738v-1.59h-12.143c-1.119 0-2.07-.757-2.07-2.01v-8.132h7.172zm34.433 11.732v-3.266h-14.758c-.555 0-.931-.328-.931-.887v-10.52c0-.552.331-.925.893-.925h11.68v4.84h3.116v-7.917h-14.649c-2.316.133-4.152 2.043-4.152 4.375v9.916c0 2.42 1.976 4.384 4.415 4.384h14.386zM92.927 14.796v14.833c0 2.119 1.73 3.84 3.864 3.84h11.74v-1.59H96.39c-1.122 0-2.071-.757-2.071-2.01V14.795h-1.39zm-5.095 0v17.29H77.48c-1.121 0-2.069-.755-2.069-2.01v-15.28H73.83v14.833c0 2.121 1.728 3.84 3.865 3.84H89.43V14.796h-1.599zM59.45 33.469h1.599V18.23c0-1.114.762-2.053 2.024-2.053h3.61c1.118 0 2.067.755 2.067 2.01V33.47h1.583V18.631c0-2.12-1.733-3.837-3.866-3.837h-3.151a3.868 3.868 0 00-3.067 1.502 3.864 3.864 0 00-3.064-1.502H54.03c-2.135 0-3.864 1.718-3.864 3.837v14.838h1.599V18.23c0-1.114.76-2.053 2.024-2.053h3.607c1.12 0 2.07.755 2.07 2.01v.087c-.01.12-.017.24-.017.358V33.47zm71.677 0h1.6V14.796h-1.6v18.673zm0-21.437h1.6V8.935h-1.6v3.097zm75.11 2.773h-3.29v3.888c0 .552-.33.925-.891.925h-10.59c-.559 0-.933-.328-.933-.887v-3.926h-3.097v3.78c.136 2.301 2.057 4.124 4.405 4.124h9.983c2.437 0 4.413-1.966 4.413-4.385v-3.52zm-18.8 18.664h3.286v-5.58c0-.55.331-.923.894-.923h10.587c.56 0 .936.326.936.885v5.618h3.097v-5.473c-.136-2.3-2.057-4.123-4.405-4.123h-9.985c-2.435 0-4.41 1.964-4.41 4.384v5.212zm-13.438-14.137v14.137h3.321V19.176c0-2.423-1.976-4.382-4.413-4.382h-9.982c-2.349 0-4.268 1.822-4.404 4.122v10.178c0 2.33 1.834 4.242 4.15 4.375h9.914v-3.086l-10.06.009c-.069 0-.136-.005-.2-.016-.44-.08-.695-.425-.695-.912v-1.617l-.011-9.075c0-.56.375-.888.931-.888h10.59c.56 0 .892.37.892.926l-.033.522zm51.212 0v14.137h3.322V19.176c0-2.423-1.975-4.382-4.412-4.382h-9.983c-2.348 0-4.266 1.822-4.403 4.122v10.178c0 2.33 1.836 4.242 4.15 4.375h9.914v-3.086l-10.064.009c-.067 0-.134-.005-.196-.016-.44-.08-.695-.425-.695-.912v-1.617l-.013-9.075c0-.56.374-.888.932-.888h10.589c.564 0 .895.37.895.926l-.036.522zm-44.394-7.3h3.12V8.935h-3.12v3.097zm0 21.437h3.12V14.805h-3.12v18.664z"
+                                                        fill="#002133" />
+                                                    <g transform="translate(.54 .417)">
+                                                        <mask id="b" fill="#fff">
+                                                            <use xlink:href="#a" />
+                                                        </mask>
+                                                        <path
+                                                            d="M14.548 20.599c0 3.396 2.772 6.15 6.191 6.15 3.42 0 6.192-2.754 6.192-6.15 0-3.398-2.772-6.152-6.192-6.152-3.419 0-6.19 2.754-6.19 6.152m-9.701-1.557c-.62-.625-1.093-1.393-1.316-2.222l-1.258-4.66c-.57-2.112.692-3.823 2.817-3.823h5.523c.006-.878.219-1.753.65-2.498l2.43-4.177c1.098-1.893 3.209-2.218 4.71-.724l3.907 3.879c.629-.617 1.402-1.086 2.236-1.31L29.24 2.26c2.125-.566 3.848.687 3.848 2.798v5.486c.884.008 1.765.217 2.513.647l4.206 2.412c1.906 1.092 2.232 3.189.73 4.682l-3.81 3.784c.637.633 1.124 1.414 1.352 2.258l1.258 4.662c.568 2.11-.694 3.82-2.818 3.82h-5.387c0 .897-.213 1.79-.652 2.549l-2.429 4.178c-1.1 1.893-3.21 2.217-4.711.724l-3.811-3.785c-.637.634-1.423 1.117-2.273 1.343l-4.693 1.25c-2.124.565-3.846-.688-3.846-2.8v-5.612c-.991.048-1.998-.16-2.838-.64l-4.206-2.413c-1.905-1.092-2.231-3.189-.728-4.68l3.904-3.88"
+                                                            fill="#FF7C00" mask="url(#b)" />
+                                                    </g>
+                                                    <path
+                                                        d="M13.339 13.156h-7.63l-.2-.764c-.132-.498.124-.79.62-.79h5.62l1.59 1.554zm7.945-.597a8.624 8.624 0 00-3.698.856l-3.79-3.765c-.355-.352-.389-.854-.131-1.295l1.622-2.767 6.002 5.96-.005 1.011zm.018-2.674l-5.386-5.368.394-.672c.26-.444.65-.471 1-.122l3.974 3.946.018 2.216zm6.043 5.16a8.565 8.565 0 00-3.223-1.994V7.726c0-.495.334-.877.829-1.006l3.116-.818v8.43l-.722.713zm1.918-1.88V5.586l.77-.198c.499-.131.795.122.795.615v5.583l-1.565 1.579zm.6 7.894a8.498 8.498 0 00-.861-3.674l3.79-3.766c.354-.351.86-.386 1.303-.129l2.786 1.612-6.001 5.96-1.018-.003zm2.693.018l5.404-5.35.676.39c.446.259.474.646.123.994l-3.973 3.948-2.23.018zm-5.194 6.002a8.51 8.51 0 002.006-3.202h5.36c.5 0 .883.332 1.013.823l.823 3.098h-8.486l-.716-.719zm1.892 1.905l7.628.012.2.753c.133.496-.125.788-.619.788h-5.62l-1.59-1.553zm-7.947.597a8.633 8.633 0 003.7-.856l3.789 3.766c.353.35.39.854.13 1.294l-1.622 2.767-6.001-5.96.004-1.011zm-.017 2.675l5.385 5.367-.394.673c-.26.444-.649.471-1 .124l-3.974-3.95-.017-2.214zm-6.043-5.16a8.568 8.568 0 003.224 1.993v5.326c0 .496-.335.876-.83 1.007l-3.118.816v-8.43l.724-.711zm-1.917 1.88v7.578l-.771.198c-.499.132-.794-.122-.794-.616v-5.581l1.565-1.58zm-.602-7.895a8.483 8.483 0 00.861 3.675L9.8 28.52c-.353.351-.86.386-1.302.13L5.71 27.037l6.002-5.96 1.016.003zm-2.692-.017l-5.403 5.351-.677-.393c-.447-.259-.475-.645-.124-.993l3.973-3.948 2.231-.017zm5.194-6.004a8.526 8.526 0 00-2.007 3.203h-5.36c-.5 0-.883-.33-1.013-.824l-.823-3.095h8.486l.717.716z"
+                                                        fill="#F00041" />
+                                                </g>
+                                            </svg>
+
+                                        </div>
+
+                                        <span
+                                            class="w-[112px] px-4 lg:px-0 text-xs lg:text-sm lg:w-[100px] mx-auto leading-4">Multicaixa</span>
+
+                                        <div v-if="form.providerPayment === 'emis'"
+                                            class=" absolute flex items-center justify-center right-[-2px] w-[22px] h-[22px] rounded-tl-[10px] rounded-tr-none rounded-br-none rounded-bl-none bg-[rgb(0,151,255,0.61)] bottom-0">
+                                            <span
+                                                class="w-[10px] h-[10px] relative rounded-[3px] after:content-[''] after:absolute after:left-0 after:-top-[3px] after:w-[7px] after:h-[12px] after:border-r-2 after:border-b-2 after:border-white after:[transform:rotate(45deg)]"></span>
+                                        </div>
+                                    </div>
+
+                                    <div @click="changeProvidePayment('paypay')"
+                                        class="w-[110px] lg:w-[144px] transition-all duration-100 ease-in items-center cursor-pointer overflow-hidden relative py-3 text-sm text-center flex flex-col h-[110px] rounded-[8px] shadow-[10px_4px_14px_rgba(219,219,219,.2)]"
+                                        :class="{ 'text-[rgb(0,151,255)] font-bold border border-[rgb(0,151,255)] bg-[rgb(230,244,255)]': form.providerPayment === 'paypay' }">
+                                        <div class="h-[50px] flex items-center">
+                                            <img class="mx-auto" src="@/assets/imgs/paypay.png" width="50px">
+                                        </div>
+
+                                        <span
+                                            class="w-[110px] px-4 lg:px-0 text-xs lg:text-sm lg:w-[100px] mx-auto leading-4">PayPay</span>
+
+                                        <div v-if="form.providerPayment === 'paypay'"
+                                            class=" absolute flex items-center justify-center right-[-2px] w-[22px] h-[22px] rounded-tl-[10px] rounded-tr-none rounded-br-none rounded-bl-none bg-[rgb(0,151,255)] bottom-0">
+                                            <span
+                                                class="w-[10px] h-[10px] relative rounded-[3px] after:content-[''] after:absolute after:left-0 after:-top-[3px] after:w-[7px] after:h-[12px] after:border-r-2 after:border-b-2 after:border-white after:[transform:rotate(45deg)]"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div v-show="form.providerPayment === 'emis'">
+                                    <div class="py-4">
+                                        <h5 class="text-sm lg:text-base text-[rgb(76,87,108)]  font-bold">Opções</h5>
+                                    </div>
+
+
+                                    <div class="flex flex-col lg:flex-row items-center gap-2">
+                                        <div @click="form.paymentMethod = 'mul'"
+                                            class="w-full lg:w-auto px-4 transition-all duration-100 ease-in items-center text-gray-400 border border-gray-300 cursor-pointer overflow-hidden relative py-3 text-sm flex flex-col rounded-[8px]"
+                                            :class="{ '!text-[rgb(0,151,255)] font-bold border border-[rgb(0,151,255)] bg-[rgba(230,244,255,0.61)]': form.paymentMethod === 'mul' }">
+
+
+                                            <span class="text-xs lg:text-sm leading-4">Multicaixa Express</span>
+                                        </div>
+
+                                        <div @click="form.paymentMethod = 'reference'"
+                                            class="w-full lg:w-auto px-4 transition-all duration-100 ease-in items-center cursor-pointer overflow-hidden relative text-gray-400 border border-gray-300 py-3 text-sm flex flex-col rounded-[8px]"
+                                            :class="{ '!text-[rgb(0,151,255)] font-bold border-[rgb(0,151,255)] bg-[rgba(230,244,255,0.61)]': form.paymentMethod === 'reference' }">
+
+
+                                            <span class="text-xs lg:text-sm leading-4">Pagamento por Referência</span>
+                                        </div>
+                                    </div>
+
+                                    <!--start multicaixa number phone group-->
+                                    <div v-show="form.paymentMethod === 'mul'" class="flex flex-col lg:mt-7 mt-4 mb-4">
+                                        <label class="text-xs text-gray-500 mb-2 font-bold" for="phone">Número do
+                                            Multicaixa Express <span class="text-brand-danger">*</span></label>
+                                        <input
+                                            class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
+                                            @input="validatePhone" type="tel" ref="inputExpressNumber" autocomplete="off"
+                                            oncontextmenu="false" v-model="form.phone"
+                                            :class="{ '!border-brand-danger': errors.phone.show }">
+                                        <span class="text-brand-danger text-xs font-medium my-1"
+                                            v-if="errors.phone.show">
+                                            {{ errors.phone.message }}
+                                        </span>
+                                    </div>
+                                    <!--end multicaixa number phone group-->
+                                </div>
+                            </div>
 
                             <div
-                                class="flex overflow-hidden rounded-md border border-[#00000020] flex-col items-center">
-                                <label
-                                    class="w-full py-3 flex gap-2.5 font-bold text-[#495057] cursor-pointer hover:bg-[#f8f9fa] items-center px-5 border-b border-[#00000020]"
-                                    for="reference_pay">
-                                    <input class="scale-[1.3]" v-model="form.paymentMethod" id="reference_pay"
-                                        type="radio" value="reference">
+                                class="flex flex-col-reverse gap-3 lg:gap-0 text-center lg:text-left lg:flex-row justify-between items-center py-3">
+                                <p class="text-xs italic mr-4 text-[rgb(76,87,108)]">Ao prosseguir, você declara estar
+                                    ciente: (I) dos <a class="text-[rgb(0,151,255)]" href="/termos-de-uso"
+                                        target="_blank" rel="noopener noreferrer">Termos de Uso</a> da Piweto; (II) da
+                                    <a class="text-[rgb(0,151,255)]" href="/politica-de-privacidade" target="_blank"
+                                        rel="noopener noreferrer">Política de Privacidade</a>; e (II) das condições de
+                                    pagamento do pedido.
+                                </p>
 
-                                    <div class="w-[20px] h-[20px] mt-[2px] overflow-hidden">
-                                        <img width="30px" class="object-cover" src="@/assets/imgs/ref.webp">
-                                    </div>
-                                    Referência
-                                </label>
-
-                                <label
-                                    class="w-full py-3 flex gap-2.5 font-bold text-[#495057] cursor-pointer hover:bg-[#f8f9fa] items-center px-5"
-                                    for="reference_mult">
-                                    <input class="scale-[1.3]" v-model="form.paymentMethod" id="reference_mult"
-                                        type="radio" value="mul">
-                                    <div class="w-[20px] h-[20px] mt-[2px] overflow-hidden">
-                                        <img width="30px" class="object-cover" src="@/assets/imgs/express_logo.webp">
-                                    </div>
-
-                                    Multicaixa Express
-                                </label>
+                                <button
+                                    class="rounded-[8px] w-full lg:w-max shrink-0 outline-none border border-transparent border-solid text-sm font-semibold font-sans leading-4 inline-flex items-center justify-center min-w-fit cursor-pointer transition-all duration-200 ease-in no-underline bg-[rgb(81,168,0)] text-white px-6 py-4  hover:bg-[rgb(98,190,39)] hover:border-[rgb(98,190,39)] disabled:bg-gray-400 disabled:cursor-default disabled:hover:bg-gray-400 disabled:hover:border-gray-400"
+                                    :disabled="!form.paymentMethod || loadingOrder" @click="finishPurchase"
+                                    type="submit">
+                                    {{ loadingOrder ? 'Carregando..' : 'Pagar Agora' }}
+                                </button>
                             </div>
                         </div>
                         <!--end payment methods-->
-
-
-                        <div
-                            class="flex flex-col-reverse gap-3 lg:gap-0 text-center lg:text-left lg:flex-row justify-between items-center py-3">
-                            <p class="text-xs mb-0">Ao prosseguir, você declara estar ciente dos nossos <a
-                                    class="text-[#2887a7]" href="/termos-de-uso/" target="_blank">Termos e
-                                    Políticas.</a></p>
-                            <button
-                                class="text-base disabled:bg-gray-300 disabled:text-gray-500 w-full lg:w-auto font-bold py-[15px] px-[45px] text-white uppercase bg-[#28a745] transition-colors hover:bg-[#218838]"
-                                :disabled="!form.paymentMethod || loadingOrder" @click="finishPurchase" type="submit">
-                                {{ loadingOrder ? 'Carregando..' : 'Pagar Agora' }}
-                            </button>
-                        </div>
                     </div>
                     <div class="hidden lg:block w-full">
                         <div class="sticky flex flex-col gap-4 top-20">

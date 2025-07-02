@@ -17,7 +17,7 @@
                 </div>
                 <div>
                     <div @click="toggleShowMore()" class="flex gap-1 items-center">
-                        <span class="text-[rgb(0,151,255)] text-sm font-bold">{{ isShowMore ? 'Ver menos' : 'Ver nais' }}</span>
+                        <span class="text-[rgb(0,151,255)] text-sm font-bold">{{ isShowMore ? 'Ver menos' : 'Ver mais' }}</span>
                         <div
                             class="bg-[rgb(0,151,255)] shrink-0 w-3.5 h-3.5 leading-none rounded-full transition-all duration-200 transform-none">
                             <svg :class="{ 'transform rotate-180': isShowMore }" width="14" fill="#fff" height="14"
