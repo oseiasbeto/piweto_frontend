@@ -1,7 +1,7 @@
 <template>
 
     <div v-if="cart">
-        <Header/>
+        <Header />
         <!--data start-->
         <Container>
             <div class="mt-16 mb-10 lg:mt-8">
@@ -26,7 +26,8 @@
 
                                     <div class="border border-[rgb(0,151,255)] bg-[#e6f4ff] rounded-[8px] gap-3 text-sm py-3 px-3 flex justify-between items-center flex-col lg:flex-row"
                                         v-if="true">
-                                        <div class="text-xs lg:text-sm text-[#848c9b]">Compra mais rápida e mais segura</div>
+                                        <div class="text-xs lg:text-sm text-[#848c9b]">Compra mais rápida e mais segura
+                                        </div>
                                         <div class="outline-none" ref="googleButtonRef"></div>
                                         <div>
                                             <button
@@ -76,7 +77,7 @@
                                             <span class="text-brand-danger">*</span></label>
                                         <input
                                             class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
-                                            id="firstName" @input="validatePhone" autocomplete="off"
+                                            id="firstName" @input="validateFirstName" autocomplete="off"
                                             oncontextmenu="false" v-model="form.firstName"
                                             :class="{ '!border-brand-danger': errors.firstName.show }">
                                         <span class="text-brand-danger text-xs font-medium my-1"
@@ -90,7 +91,7 @@
                                             <span class="text-brand-danger">*</span></label>
                                         <input
                                             class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
-                                            id="lastName" maxLength="9" type="tel" @input="validatePhone"
+                                            id="lastName" maxLength="9" type="tel" @input="validateLastName"
                                             autocomplete="off" oncontextmenu="false" v-model="form.lastName"
                                             :class="{ '!border-brand-danger': errors.lastName.show }">
                                         <span class="text-brand-danger text-xs font-medium my-1"
@@ -124,11 +125,11 @@
                                                 class="text-brand-danger">*</span></label>
                                         <input
                                             class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
-                                            id="email" @input="validatePhone" autocomplete="off" oncontextmenu="false"
+                                            id="email" @input="validateEmail" autocomplete="off" oncontextmenu="false"
                                             v-model="form.email" :class="{ '!border-brand-danger': errors.email.show }">
                                         <span class="text-brand-danger text-xs font-medium my-1"
                                             v-if="errors.email.show">
-                                            {{ errors.phone.message }}
+                                            {{ errors.email.message }}
                                         </span>
 
                                     </div>
@@ -137,11 +138,12 @@
                                             e-mail <span class="text-brand-danger">*</span></label>
                                         <input
                                             class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
-                                            @input="validatePhone" autocomplete="off" oncontextmenu="false"
-                                            v-model="form.email" :class="{ '!border-brand-danger': errors.phone.show }">
+                                            @input="validateConfirmEmail" autocomplete="off" oncontextmenu="false"
+                                            v-model="form.confirmEmail"
+                                            :class="{ '!border-brand-danger': errors.confirmEmail.show }">
                                         <span class="text-brand-danger text-xs font-medium my-1"
-                                            v-if="errors.phone.show">
-                                            {{ errors.phone.message }}
+                                            v-if="errors.confirmEmail.show">
+                                            {{ errors.confirmEmail.message }}
                                         </span>
 
                                     </div>
@@ -284,8 +286,8 @@
 
                                 <button
                                     class="rounded-[8px] w-full lg:w-max shrink-0 outline-none border border-transparent border-solid text-sm font-semibold font-sans leading-4 inline-flex items-center justify-center min-w-fit cursor-pointer transition-all duration-200 ease-in no-underline bg-[rgb(81,168,0)] text-white px-6 py-4  hover:bg-[rgb(98,190,39)] hover:border-[rgb(98,190,39)] disabled:bg-gray-400 disabled:cursor-default disabled:hover:bg-gray-400 disabled:hover:border-gray-400"
-                                    :disabled="!form.paymentMethod || loadingOrder" @click="finishPurchase"
-                                    type="submit">
+                                    :disabled="!formIsValid || !form.paymentMethod || loadingOrder"
+                                    @click="finishPurchase" type="submit">
                                     {{ loadingOrder ? 'Carregando..' : 'Pagar Agora' }}
                                 </button>
                             </div>
@@ -473,7 +475,7 @@ import formatAmount from "@/utils/formatAmount";
 import calculateTotalPrice from "@/utils/calculateTotalPrice";
 import getTotalTicketsSelected from "@/utils/getTotalTicketsSelected";
 import formatEventDateTime from "@/utils/formatEventDateTime";
-import { onMounted, computed, ref } from "vue";
+import { onMounted, watch, nextTick, computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import Swal from "sweetalert2"
@@ -501,11 +503,6 @@ const user = computed(() => {
     return store.getters.currentUser
 })
 
-
-const formattedDate = (date) => {
-    return moment(date).format("DD/MM/YY"); // Formata para 03/03/25
-}
-
 const intl = ref({})
 const inputPhone = ref(null);
 const googleButtonRef = ref(null)
@@ -515,8 +512,8 @@ const googleInitialized = ref(false)
 const form = ref({
     firstName: "",
     lastName: "",
-    email: "",
     phone: "",
+    confirmEmail: "",
     numberMul: "",
     providerPayment: "paypay",
     paymentMethod: ""
@@ -538,6 +535,11 @@ const errors = ref({
         message: "",
         data: ""
     },
+    confirmEmail: {
+        show: false,
+        message: "",
+        data: ""
+    },
     phone: {
         show: false,
         message: "",
@@ -555,47 +557,40 @@ const errors = ref({
     }
 })
 
+const formIsValid = computed(() => {
+    // Verifica se há erros nos campos obrigatórios
+    if (errors.value.firstName.show ||
+        errors.value.lastName.show ||
+        errors.value.email.show ||
+        errors.value.confirmEmail.show ||  // Corrigido: estava sem .show
+        errors.value.phone.show ||
+        !form.value.paymentMethod) {
+        return false
+    }
 
-function validatePhone() {
-    if (!form.value.phone) {
-        errors.value.phone.show = true
-        errors.value.phone.message = "Este campo é obrigatório."
+    // Verifica se os campos obrigatórios estão preenchidos
+    if (!form.value.firstName ||
+        !form.value.lastName ||
+        !form.value.email ||
+        !form.value.confirmEmail ||
+        !form.value.phone) {
+        return false
     }
-    else if (!intl.value.isValidNumber()) {
-        errors.value.phone = {
-            show: true,
-            message: "Por favor, digite um número de telefone válido."
+
+    // Validações específicas para Multicaixa Express
+    if (form.value.paymentMethod === 'mul') {
+        if (!form.value.numberMul || !/^[0-9]{9}$/.test(form.value.numberMul)) {
+            return false
         }
-    } else if (/[^\d\s]/.test(form.value.phone)) {
-        errors.value.phone = {
-            show: true,
-            message: "O número de telefone só pode conter dígitos."
-        }
-    } else {
-        errors.value.phone.show = false
-        errors.value.phone.message = ""
+    } 
+
+    // Verifica se os emails coincidem
+    if (form.value.email !== form.value.confirmEmail) {
+        return false
     }
-}
-function validateNumberMul() {
-    if (!form.value.numberMul) {
-        errors.value.numberMul.show = true
-        errors.value.numberMul.message = "Este campo é obrigatório."
-    }
-    else if (!intl.value.isValidNumber()) {
-        errors.value.numberMul = {
-            show: true,
-            message: "Por favor, digite um número de telefone válido."
-        }
-    } else if (/[^\d\s]/.test(form.value.numberMul)) {
-        errors.value.numberMul = {
-            show: true,
-            message: "O número de telefone só pode conter dígitos."
-        }
-    } else {
-        errors.value.numberMul.show = false
-        errors.value.numberMul.message = ""
-    }
-}
+
+    return true
+})
 
 // Substitua pelo seu ID de cliente do Google
 const CLIENT_ID = '914842748542-mc9j2ltt0no88mqlu144u1q1hu19lhq1.apps.googleusercontent.com';
@@ -622,7 +617,6 @@ const config = {
         }
     }
 };
-
 // Função para decodificar o JWT
 const parseJwt = (token) => {
     try {
@@ -709,11 +703,195 @@ const checkAndInitGoogle = () => {
     }
 }
 
+function validatePhone() {
+    const phone = form.value.phone?.toString().trim() || '';
+
+    // Reset errors
+    errors.value.phone.show = false;
+    errors.value.phone.message = "";
+
+    // Validação básica de campo obrigatório
+    if (!phone) {
+        errors.value.phone = {
+            show: true,
+            message: "Este campo é obrigatório."
+        };
+        return false;
+    }
+
+    // Verifica se há caracteres inválidos
+    if (/[^\d\s+]/.test(phone)) {
+        errors.value.phone = {
+            show: true,
+            message: "O número só pode conter dígitos e espaços."
+        };
+        return false;
+    }
+
+    // Fallback para validação manual (caso intl-tel-input não esteja pronto)
+    else {
+        const digitsOnly = phone.replace(/\D/g, '');
+
+        // Validação para números angolanos (9 dígitos, começando com 9)
+        if (!/^9[1-9]\d{7}$/.test(digitsOnly)) {
+            errors.value.phone = {
+                show: true,
+                message: "Digite um número angolano válido."
+            };
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function validateFirstName() {
+    if (!form.value.firstName) {
+        errors.value.firstName = {
+            show: true,
+            message: "Este campo é obrigatório."
+        }
+        return false
+    } else if (form.value.firstName.length < 2) {
+        errors.value.firstName = {
+            show: true,
+            message: "O nome deve ter pelo menos 2 caracteres."
+        }
+        return false
+    } else {
+        errors.value.firstName.show = false
+        return true
+    }
+}
+
+function validateLastName() {
+    if (!form.value.lastName) {
+        errors.value.lastName = {
+            show: true,
+            message: "Este campo é obrigatório."
+        }
+        return false
+    } else if (form.value.lastName.length < 2) {
+        errors.value.lastName = {
+            show: true,
+            message: "O sobrenome deve ter pelo menos 2 caracteres."
+        }
+        return false
+    } else {
+        errors.value.lastName.show = false
+        return true
+    }
+}
+
+function validateEmail() {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!form.value.email) {
+        errors.value.email = {
+            show: true,
+            message: "Este campo é obrigatório."
+        }
+        return false
+    } else if (!emailRegex.test(form.value.email)) {
+        errors.value.email = {
+            show: true,
+            message: "Por favor, insira um e-mail válido."
+        }
+        return false
+    } else {
+        errors.value.email.show = false
+        return true
+    }
+}
+function validateConfirmEmail() {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // Primeiro verifica se o campo está vazio
+    if (!form.value.confirmEmail) {
+        errors.value.confirmEmail = {
+            show: true,
+            message: "Por favor, confirme seu e-mail."
+        };
+        return false;
+    }
+
+    // Depois verifica se é um e-mail válido
+    if (!emailRegex.test(form.value.confirmEmail)) {
+        errors.value.confirmEmail = {
+            show: true,
+            message: "Por favor, insira um e-mail válido."
+        };
+        return false;
+    }
+
+    // Por último verifica se os e-mails coincidem
+    if (form.value.confirmEmail !== form.value.email) {
+        errors.value.confirmEmail = {
+            show: true,
+            message: "Os e-mails não coincidem."
+        };
+        return false;
+    }
+
+    // Se tudo estiver correto
+    errors.value.confirmEmail.show = false;
+    return true;
+}
+
+function validateNumberMul() {
+    if (!form.value.numberMul) {
+        errors.value.numberMul = {
+            show: true,
+            message: "Este campo é obrigatório."
+        }
+        return false
+    } else if (!/^[0-9]{9}$/.test(form.value.numberMul)) {
+        errors.value.numberMul = {
+            show: true,
+            message: "O número do Multicaixa deve ter exatamente 9 dígitos."
+        }
+        return false
+    } else {
+        errors.value.numberMul.show = false
+        return true
+    }
+}
+
+function validatePaymentMethod() {
+    if (!form.value.paymentMethod) {
+        errors.value.paymentMethod = {
+            show: true,
+            message: "Por favor, selecione um método de pagamento."
+        }
+        return false
+    } else {
+        errors.value.paymentMethod.show = false
+        return true
+    }
+}
+
+function validateAllFields() {
+    const validations = [
+        validateFirstName(),
+        validateLastName(),
+        validateEmail(),
+        validateConfirmEmail(),
+        validatePhone(),
+        validatePaymentMethod()
+    ]
+
+    // Se o método de pagamento for Multicaixa Express, valida também o número
+    if (form.value.paymentMethod === 'mul') {
+        validations.push(validateNumberMul())
+    }
+
+    return validations.every(validation => validation === true)
+}
 
 function changeProvidePayment(name) {
     if (name === 'paypay') {
         form.value.providerPayment = name
-        form.paymentMethod = name
+        form.value.paymentMethod = name
+
     } else if (name === 'emis') {
         form.value.providerPayment = name
         form.value.paymentMethod = 'mul'
@@ -722,8 +900,9 @@ function changeProvidePayment(name) {
 
 // tem como finalidade finalizar a compra, criando um novo pedido.
 async function finishPurchase() {
-    validatePhone()
-    validateNumberMul()
+    if (!validateAllFields()) {
+        return
+    }
 
     // isto impede do usuario fazer uma requesicao enquanto ja tiver uma em andamento.
     if (loadingOrder.value || errors.value.phone.show || !form.value.paymentMethod) return
@@ -770,25 +949,50 @@ async function finishPurchase() {
     })
 }
 
+// Adicione um watcher para observar mudanças no email principal
+watch(() => form.value.email, (newEmail) => {
+    if (form.value.confirmEmail && newEmail !== form.value.confirmEmail) {
+        errors.value.confirmEmail = {
+            show: true,
+            message: "Os e-mails não coincidem."
+        };
+    } else if (errors.value.confirmEmail.show && newEmail === form.value.confirmEmail) {
+        errors.value.confirmEmail.show = false;
+    }
+});
+
+
 // quando montar a tela, faca a requisicao para api buscando um carrinho com base no id passado na routa desta pagina e seta o formulario de pagamento do usuario com os dados do corrente usuario.
 onMounted(async () => {
+
     if (cart?.value) {
         form.value = {
             firstName: user.value.first_name,
             lastName: user.value.last_name,
             providerPayment: "emis",
             paymentMethod: 'mul',
-            phone: user.value.phone,
+            phone: user.value.phone?.toString() || '',
             numberMul: user.value.phone,
-            email: user.value.email
+            email: user.value.email,
+            confirmEmail: user.value.confirmEmail
         }
 
         const input = inputPhone.value;
         intl.value = intlTelInput(input, {
             loadUtilsOnInit: () => import("intl-tel-input/utils"),
             initialCountry: "ao",
-            onlyCountries: ["ao"]
+            onlyCountries: ["ao"],
+            countrySearch: false,   // Desativa a pesquisa de países
+            customPlaceholder: function (selectedCountryPlaceholder, selectedCountryData) {
+                return "9xx xxx xxx";  // Placeholder específico para Angola
+            }
         });
+
+
+        // Aguarde a próxima tick do Vue para garantir a inicialização
+        await nextTick();
+
+        validateAllFields()
 
         if (user.value?._id) {
             try {

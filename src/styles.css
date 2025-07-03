@@ -122,6 +122,9 @@ button.ql-active .ql-stroke,
     cursor: pointer;
     user-select: none;
 }
+.iti__dropdown-content.iti--flexible-dropdown-width {
+ top: 50px !important;  /* Desloca 50px para baixo */
+}
 
 .page-item:not(.active):not(.disabled) .page-link {
     border-radius: 5px;
