@@ -1,198 +1,18 @@
-<script setup>
-import UserMenu from "@/components/UserMenu.vue";
-import { useOrders } from "@/repositories/orders-repository";
-import Container from "@/use-cases/marketplace/components/ui/Container.vue";
-import formatAmount from "@/utils/formatAmount";
-import calculateTotalPrice from "@/utils/calculateTotalPrice";
-import getTotalTicketsSelected from "@/utils/getTotalTicketsSelected";
-import formatEventDateTime from "@/utils/formatEventDateTime";
-import { onMounted, computed, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useStore } from "vuex";
-import Swal from "sweetalert2"
-import moment from "moment";
-import intlTelInput from 'intl-tel-input';
-import OrderSumary from "../components/drawers/OrderSumary.vue";
-
-const { newOrder, loading: loadingOrder, error: errorOrder } = useOrders()
-
-const route = useRoute()
-const router = useRouter()
-const store = useStore()
-
-const form = ref({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    providerPayment: "paypay",
-    paymentMethod: ""
-})
-
-const formattedDate = (date) => {
-    return moment(date).format("DD/MM/YY"); // Formata para 03/03/25
-}
-
-const intl = ref({})
-const inputPhone = ref(null);
-
-const errors = ref({
-    firstName: {
-        show: false,
-        message: "",
-        data: ""
-    },
-    lastName: {
-        show: false,
-        message: "",
-        data: ""
-    },
-    email: {
-        show: false,
-        message: "",
-        data: ""
-    },
-    phone: {
-        show: false,
-        message: "",
-        data: ""
-    },
-    paymentMethod: {
-        show: false,
-        message: "",
-        data: ""
-    }
-})
-
-function validatePhone() {
-    if (!form.value.phone) {
-        errors.value.phone.show = true
-        errors.value.phone.message = "Este campo é obrigatório."
-    }
-    else if (!intl.value.isValidNumber()) {
-        errors.value.phone = {
-            show: true,
-            message: "Por favor, digite um número de telefone válido."
-        }
-    } else if (/[^\d\s]/.test(form.value.phone)) {
-        errors.value.phone = {
-            show: true,
-            message: "O número de telefone só pode conter dígitos."
-        }
-    } else {
-        errors.value.phone.show = false
-        errors.value.phone.message = ""
-    }
-}
-
-// busque os dados do corrente carrinho
-const cart = computed(() => {
-    return store.getters.cart
-})
-
-// busque os dados do currente usuario
-const user = computed(() => {
-    return store.getters.currentUser
-})
-
-function changeProvidePayment(name) {
-    if (name === 'paypay') {
-        form.value.providerPayment = name
-        form.paymentMethod = name
-    } else if(name === 'emis') {
-        form.value.providerPayment = name
-        form.value.paymentMethod = 'mul'
-    }
-}
-
-// tem como finalidade finalizar a compra, criando um novo pedido.
-async function finishPurchase() {
-    validatePhone()
-
-    // isto impede do usuario fazer uma requesicao enquanto ja tiver uma em andamento.
-    if (loadingOrder.value || errors.value.phone.show || !form.value.paymentMethod) return
-
-    // isto deve criar um novo pedido e redirecionar para a pagina de obrigado caso tenha prosseguido com exito.
-    await newOrder({
-        cart: cart?.value,
-        eventId: cart?.value.event?._id,
-        paymentMethod: form.value.paymentMethod,
-        data: {
-            fullName: user.value.full_name,
-            email: form.value.email ?? user.value.email,
-            phone: form.value.phone ?? user.value.phone
-        }
-    }).then(res => {
-        switch (form.value.paymentMethod) {
-            case 'reference':
-                const newOrder = res.data.newOrder
-                router.replace(`/checkout/detalhes-do-pedido/${newOrder.id}`)
-                break;
-            case 'mul':
-                Swal.fire({
-                    icon: "success",
-                    title: "Notificação enviada com sucesso",
-                    text: "Enviamos uma notificação para o seu Multicaixa Express. Finalize o pagamento em até 15 minutos para concluir a operação.",
-                    confirmButtonText: "Entendi"
-                }).then(() => {
-                    router.replace('/meus-ingressos')
-                })
-        }
-    }).catch(err => {
-        if (err.response.status === 400) {
-            if (form.value.paymentMethod === 'mul') {
-                Swal.fire({
-                    icon: "error",
-                    title: "Número não reconhecido",
-                    text: "O número informado não está associado a uma conta Multicaixa Express. Verifique os dados e tente novamente.",
-                    confirmButtonText: "OK"
-                }).then(() => {
-                    form.value.phone = ''
-                });
-            }
-        }
-    })
-}
-
-// quando montar a tela, faca a requisicao para api buscando um carrinho com base no id passado na routa desta pagina e seta o formulario de pagamento do usuario com os dados do corrente usuario.
-onMounted(async () => {
-    if (cart?.value) {
-        form.value = {
-            firstName: user.value.first_name,
-            lastName: user.value.last_name,
-            providerPayment: "emis",
-            paymentMethod: 'mul',
-            phone: user.value.phone,
-            email: user.value.email
-        }
-
-        const input = inputPhone.value;
-        intl.value = intlTelInput(input, {
-            loadUtilsOnInit: () => import("intl-tel-input/utils"),
-            initialCountry: "ao",
-            onlyCountries: ["ao"]
-        });
-    } else {
-        const slug = route.params.slug
-        router.replace(`/evento/${slug}`)
-    }
-})
-</script>
-
 <template>
 
     <div v-if="cart">
+        <Header/>
         <!--data start-->
         <Container>
-            <div class="mt-5 mb-10 lg:mt-8">
+            <div class="mt-16 mb-10 lg:mt-8">
 
                 <div class="flex gap-4 lg:gap-8 px-0 lg:px-4 lg:flex-row justify-between">
-                    <div class="flex-shrink-0 flex flex-col gap-5 w-full lg:w-2/3">
+                    <div class="flex-shrink-0 flex flex-col gap-2 lg:gap-5 w-full lg:w-2/3">
                         <!--start forn-->
                         <div
                             class="p-4 lg:p-8 bg-white w-full shadow-[0px_1px_2px_0px_rgba(25,31,40,0.15)] lg:rounded-[8px]">
                             <div>
-                                <div class="mb-5">
+                                <div class="mb-6">
                                     <div class="flex mb-4 items-center gap-2 ">
                                         <div
                                             class="flex shrink-0 justify-center items-center w-7 h-7 mx-0.5 border border-[rgb(58,175,255)] rounded-full text-sm font-bold bg-[rgb(230,244,255)] text-[rgb(0,151,255)]">
@@ -204,7 +24,19 @@ onMounted(async () => {
                                         </h1>
                                     </div>
 
-                                    <div
+                                    <div class="border border-[rgb(0,151,255)] bg-[#e6f4ff] rounded-[8px] gap-3 text-sm py-3 px-3 flex justify-between items-center flex-col lg:flex-row"
+                                        v-if="true">
+                                        <div class="text-xs lg:text-sm text-[#848c9b]">Compra mais rápida e mais segura</div>
+                                        <div class="outline-none" ref="googleButtonRef"></div>
+                                        <div>
+                                            <button
+                                                class="rounded-lg outline-none border font-semibold text-xs lg:text-sm leading-4 font-sans inline-flex items-center justify-center min-w-fit w-max cursor-pointer no-underline text-[rgb(0,151,255)] bg-transparent border-transparent px-4">
+                                                Acessar de outro jeito
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div v-else
                                         class="bg-[rgb(245,247,248)] gap-3 text-sm py-4 px-3 flex items-center text-[rgb(25,31,40)]">
                                         <div
                                             class="h-10 w-10 border shrink-0 border-[rgb(221,224,228)] rounded-[1000vw] flex items-center justify-center">
@@ -258,8 +90,8 @@ onMounted(async () => {
                                             <span class="text-brand-danger">*</span></label>
                                         <input
                                             class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
-                                            id="lastName" @input="validatePhone" autocomplete="off"
-                                            oncontextmenu="false" v-model="form.lastName"
+                                            id="lastName" maxLength="9" type="tel" @input="validatePhone"
+                                            autocomplete="off" oncontextmenu="false" v-model="form.lastName"
                                             :class="{ '!border-brand-danger': errors.lastName.show }">
                                         <span class="text-brand-danger text-xs font-medium my-1"
                                             v-if="errors.lastName.show">
@@ -272,7 +104,8 @@ onMounted(async () => {
 
                                 <!--start number phone group-->
                                 <div class="flex flex-col my-4">
-                                    <label class="text-xs text-gray-500 mb-2 font-bold" for="phone">Número de telefone <span class="text-brand-danger">*</span></label>
+                                    <label class="text-xs text-gray-500 mb-2 font-bold" for="phone">Número de telefone
+                                        <span class="text-brand-danger">*</span></label>
                                     <input
                                         class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
                                         @input="validatePhone" type="tel" ref="inputPhone" autocomplete="off"
@@ -406,7 +239,7 @@ onMounted(async () => {
                                     <div class="flex flex-col lg:flex-row items-center gap-2">
                                         <div @click="form.paymentMethod = 'mul'"
                                             class="w-full lg:w-auto px-4 transition-all duration-100 ease-in items-center text-gray-400 border border-gray-300 cursor-pointer overflow-hidden relative py-3 text-sm flex flex-col rounded-[8px]"
-                                            :class="{ '!text-[rgb(0,151,255)] font-bold border border-[rgb(0,151,255)] bg-[rgba(230,244,255,0.61)]': form.paymentMethod === 'mul' }">
+                                            :class="{ '!text-[rgb(0,151,255)] font-bold !border-[rgb(0,151,255)] bg-[rgba(230,244,255,0.61)]': form.paymentMethod === 'mul' }">
 
 
                                             <span class="text-xs lg:text-sm leading-4">Multicaixa Express</span>
@@ -414,7 +247,7 @@ onMounted(async () => {
 
                                         <div @click="form.paymentMethod = 'reference'"
                                             class="w-full lg:w-auto px-4 transition-all duration-100 ease-in items-center cursor-pointer overflow-hidden relative text-gray-400 border border-gray-300 py-3 text-sm flex flex-col rounded-[8px]"
-                                            :class="{ '!text-[rgb(0,151,255)] font-bold border-[rgb(0,151,255)] bg-[rgba(230,244,255,0.61)]': form.paymentMethod === 'reference' }">
+                                            :class="{ '!text-[rgb(0,151,255)] font-bold !border-[rgb(0,151,255)] bg-[rgba(230,244,255,0.61)]': form.paymentMethod === 'reference' }">
 
 
                                             <span class="text-xs lg:text-sm leading-4">Pagamento por Referência</span>
@@ -427,12 +260,12 @@ onMounted(async () => {
                                             Multicaixa Express <span class="text-brand-danger">*</span></label>
                                         <input
                                             class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
-                                            @input="validatePhone" type="tel" ref="inputExpressNumber" autocomplete="off"
-                                            oncontextmenu="false" v-model="form.phone"
-                                            :class="{ '!border-brand-danger': errors.phone.show }">
+                                            @input="validateNumberMul" type="tel" ref="inputExpressNumber"
+                                            autocomplete="off" oncontextmenu="false" v-model="form.numberMul"
+                                            :class="{ '!border-brand-danger': errors.numberMul.show }">
                                         <span class="text-brand-danger text-xs font-medium my-1"
-                                            v-if="errors.phone.show">
-                                            {{ errors.phone.message }}
+                                            v-if="errors.numberMul.show">
+                                            {{ errors.numberMul.message }}
                                         </span>
                                     </div>
                                     <!--end multicaixa number phone group-->
@@ -631,6 +464,346 @@ onMounted(async () => {
         <!--end drawers-->
     </div>
 </template>
+
+<script setup>
+import Header from "../components/ui/Header";
+import { useOrders } from "@/repositories/orders-repository";
+import Container from "@/use-cases/marketplace/components/ui/Container.vue";
+import formatAmount from "@/utils/formatAmount";
+import calculateTotalPrice from "@/utils/calculateTotalPrice";
+import getTotalTicketsSelected from "@/utils/getTotalTicketsSelected";
+import formatEventDateTime from "@/utils/formatEventDateTime";
+import { onMounted, computed, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useStore } from "vuex";
+import Swal from "sweetalert2"
+import { toast } from "vue3-toastify"
+import moment from "moment";
+import intlTelInput from 'intl-tel-input';
+import OrderSumary from "../components/drawers/OrderSumary.vue";
+import { useUsers } from "@/repositories/users-repository.js";
+
+const { newOrder, loading: loadingOrder, error: errorOrder } = useOrders()
+const { googleAuth, loading: loadingAuthGoogle } = useUsers()
+
+const route = useRoute()
+const router = useRouter()
+const store = useStore()
+
+
+// busque os dados do corrente carrinho
+const cart = computed(() => {
+    return store.getters.cart
+})
+
+// busque os dados do currente usuario
+const user = computed(() => {
+    return store.getters.currentUser
+})
+
+
+const formattedDate = (date) => {
+    return moment(date).format("DD/MM/YY"); // Formata para 03/03/25
+}
+
+const intl = ref({})
+const inputPhone = ref(null);
+const googleButtonRef = ref(null)
+const googleApiReady = ref(false)
+const googleInitialized = ref(false)
+
+const form = ref({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    numberMul: "",
+    providerPayment: "paypay",
+    paymentMethod: ""
+})
+
+const errors = ref({
+    firstName: {
+        show: false,
+        message: "",
+        data: ""
+    },
+    lastName: {
+        show: false,
+        message: "",
+        data: ""
+    },
+    email: {
+        show: false,
+        message: "",
+        data: ""
+    },
+    phone: {
+        show: false,
+        message: "",
+        data: ""
+    },
+    numberMul: {
+        show: false,
+        message: "",
+        data: ""
+    },
+    paymentMethod: {
+        show: false,
+        message: "",
+        data: ""
+    }
+})
+
+
+function validatePhone() {
+    if (!form.value.phone) {
+        errors.value.phone.show = true
+        errors.value.phone.message = "Este campo é obrigatório."
+    }
+    else if (!intl.value.isValidNumber()) {
+        errors.value.phone = {
+            show: true,
+            message: "Por favor, digite um número de telefone válido."
+        }
+    } else if (/[^\d\s]/.test(form.value.phone)) {
+        errors.value.phone = {
+            show: true,
+            message: "O número de telefone só pode conter dígitos."
+        }
+    } else {
+        errors.value.phone.show = false
+        errors.value.phone.message = ""
+    }
+}
+function validateNumberMul() {
+    if (!form.value.numberMul) {
+        errors.value.numberMul.show = true
+        errors.value.numberMul.message = "Este campo é obrigatório."
+    }
+    else if (!intl.value.isValidNumber()) {
+        errors.value.numberMul = {
+            show: true,
+            message: "Por favor, digite um número de telefone válido."
+        }
+    } else if (/[^\d\s]/.test(form.value.numberMul)) {
+        errors.value.numberMul = {
+            show: true,
+            message: "O número de telefone só pode conter dígitos."
+        }
+    } else {
+        errors.value.numberMul.show = false
+        errors.value.numberMul.message = ""
+    }
+}
+
+// Substitua pelo seu ID de cliente do Google
+const CLIENT_ID = '914842748542-mc9j2ltt0no88mqlu144u1q1hu19lhq1.apps.googleusercontent.com';
+
+// Configurações (substitua pelo seu Client ID)
+const config = {
+    client_id: CLIENT_ID,
+    callback: async (response) => {
+        // Aqui você processa o token JWT
+        const userData = parseJwt(response.credential);
+
+        if (userData && !loadingAuthGoogle.value) {
+            try {
+                await googleAuth(userData)
+            } catch (err) {
+                toast(err?.response?.data?.message || 'Algo deu errado!', {
+                    theme: "colored",
+                    autoClose: 2000,
+                    position: "top-right",
+                    transition: "bounce",
+                    type: 'error'
+                })
+            }
+        }
+    }
+};
+
+// Função para decodificar o JWT
+const parseJwt = (token) => {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+            atob(base64)
+                .split('')
+                .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                .join('')
+        );
+        return JSON.parse(jsonPayload);
+    } catch (e) {
+        console.error('Erro ao decodificar JWT:', e);
+        return null;
+    }
+};
+
+// Modifique esta função para ser reutilizável
+const initGoogleButton = () => {
+    if (!window.google?.accounts?.id || googleInitialized.value) return;
+
+    try {
+        // Limpa qualquer botão existente
+        if (googleButtonRef.value.firstChild) {
+            googleButtonRef.value.removeChild(googleButtonRef.value.firstChild);
+        }
+
+        window.google.accounts.id.initialize({
+            client_id: CLIENT_ID,
+            callback: (response) => {
+                if (!loadingAuthGoogle.value) {
+                    config.callback(response);
+                } else {
+                    toast("Por favor aguarde...", {
+                        theme: "colored",
+                        autoClose: 1000,
+                        position: "top-right",
+                        transition: "bounce",
+                        type: 'info'
+                    });
+                }
+            }
+        });
+
+        // Adiciona um atributo para controle de estado
+        const buttonConfig = {
+            type: 'standard',
+            size: 'large',
+            theme: 'outline',
+            text: 'sign_in_with',
+            shape: 'rectangular',
+            width: '100%',
+        };
+
+        // Se estiver carregando, desativa o botão
+        if (loadingAuthGoogle.value) {
+            buttonConfig.attributes = {
+                'data-login_pending': 'true'
+            };
+        }
+
+        window.google.accounts.id.renderButton(
+            googleButtonRef.value,
+            buttonConfig
+        );
+
+        googleInitialized.value = true;
+    } catch (e) {
+        console.error('Erro no botão Google:', e);
+        return false;
+    }
+};
+
+// Função para verificar e inicializar a API do Google
+const checkAndInitGoogle = () => {
+    if (window.google?.accounts?.id) {
+        if (initGoogleButton()) {
+            googleApiReady.value = true
+        }
+    } else {
+        // Tenta novamente após um pequeno delay
+        setTimeout(checkAndInitGoogle, 300)
+    }
+}
+
+
+function changeProvidePayment(name) {
+    if (name === 'paypay') {
+        form.value.providerPayment = name
+        form.paymentMethod = name
+    } else if (name === 'emis') {
+        form.value.providerPayment = name
+        form.value.paymentMethod = 'mul'
+    }
+}
+
+// tem como finalidade finalizar a compra, criando um novo pedido.
+async function finishPurchase() {
+    validatePhone()
+    validateNumberMul()
+
+    // isto impede do usuario fazer uma requesicao enquanto ja tiver uma em andamento.
+    if (loadingOrder.value || errors.value.phone.show || !form.value.paymentMethod) return
+
+    // isto deve criar um novo pedido e redirecionar para a pagina de obrigado caso tenha prosseguido com exito.
+    await newOrder({
+        cart: cart?.value,
+        eventId: cart?.value.event?._id,
+        paymentMethod: form.value.paymentMethod,
+        data: {
+            fullName: user.value.full_name,
+            email: form.value.email ?? user.value.email,
+            phone: form.value.phone ?? user.value.phone
+        }
+    }).then(res => {
+        switch (form.value.paymentMethod) {
+            case 'reference':
+                const newOrder = res.data.newOrder
+                router.replace(`/checkout/detalhes-do-pedido/${newOrder.id}`)
+                break;
+            case 'mul':
+                Swal.fire({
+                    icon: "success",
+                    title: "Notificação enviada com sucesso",
+                    text: "Enviamos uma notificação para o seu Multicaixa Express. Finalize o pagamento em até 15 minutos para concluir a operação.",
+                    confirmButtonText: "Entendi"
+                }).then(() => {
+                    router.replace('/meus-ingressos')
+                })
+        }
+    }).catch(err => {
+        if (err.response.status === 400) {
+            if (form.value.paymentMethod === 'mul') {
+                Swal.fire({
+                    icon: "error",
+                    title: "Número não reconhecido",
+                    text: "O número informado não está associado a uma conta Multicaixa Express. Verifique os dados e tente novamente.",
+                    confirmButtonText: "OK"
+                }).then(() => {
+                    form.value.phone = ''
+                });
+            }
+        }
+    })
+}
+
+// quando montar a tela, faca a requisicao para api buscando um carrinho com base no id passado na routa desta pagina e seta o formulario de pagamento do usuario com os dados do corrente usuario.
+onMounted(async () => {
+    if (cart?.value) {
+        form.value = {
+            firstName: user.value.first_name,
+            lastName: user.value.last_name,
+            providerPayment: "emis",
+            paymentMethod: 'mul',
+            phone: user.value.phone,
+            numberMul: user.value.phone,
+            email: user.value.email
+        }
+
+        const input = inputPhone.value;
+        intl.value = intlTelInput(input, {
+            loadUtilsOnInit: () => import("intl-tel-input/utils"),
+            initialCountry: "ao",
+            onlyCountries: ["ao"]
+        });
+
+        if (user.value?._id) {
+            try {
+                // Verifica se a API do Google já está carregada
+                checkAndInitGoogle()
+            } catch (e) {
+                console.error('Erro na autenticação Google:', e);
+            }
+        }
+    } else {
+        const slug = route.params.slug
+        router.replace(`/evento/${slug}`)
+    }
+})
+</script>
 
 <style scoped>
 .st0 {
