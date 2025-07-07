@@ -55,7 +55,7 @@
                         </a>
                         </MenuItem>
                         <MenuItem v-slot="{ active }">
-                        <a href="#" class="menu-item" :class="{ 'bg-gray-700': active }">
+                        <a href="/conta/login" class="menu-item" :class="{ 'bg-gray-700': active }">
                             Login
                         </a>
                         </MenuItem>

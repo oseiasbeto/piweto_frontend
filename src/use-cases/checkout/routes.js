@@ -3,7 +3,7 @@ export default [
         name: 'Cart',
         path: '/checkout/carrinho/:slug',
         meta: {
-            requiresAuth: true,
+            requiresAuth: false,
             rootPage: 'checkout',
             title: 'Detalhes da compra'
         },
@@ -13,7 +13,7 @@ export default [
         name: 'Order',
         path: '/checkout/detalhes-do-pedido/:id',
         meta: {
-            requiresAuth: true,
+            requiresAuth: false,
             rootPage: 'checkout',
             title: 'Detalhes do pedido'
         },

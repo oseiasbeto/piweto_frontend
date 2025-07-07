@@ -116,7 +116,6 @@ const isShowMore = ref(false)
 const toggleShowMore = () => {
     isShowMore.value = !isShowMore.value
     if (isShowMore.value) {
-        console.log("aki")
         document.body.classList.add('overflow-hidden');
     } else {
         document.body.classList.remove('overflow-hidden');

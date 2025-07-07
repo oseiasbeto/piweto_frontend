@@ -16,7 +16,7 @@ const store = useStore()
 </script>
 
 <template>
-    <div class="relative min-h-screen bg-[#f5f7f8]">
+    <div class="relative min-h-screen bg-[#f5f7f8]" :class="{ 'bg-white': route.name === 'Order' }">
         <!--start navbar-->
         <Navbar />
         <!--end navbar-->

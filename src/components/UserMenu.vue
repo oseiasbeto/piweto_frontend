@@ -68,6 +68,12 @@ async function handlelogout() {
         }
     }).catch(err => {
         console.log(err)
+        toast("Houve um erro.", {
+            theme: "colored",
+            position: "top-right",
+            autoClose: 2517,
+            type: "erro"
+        })
     })
 }
 </script>
@@ -81,7 +87,7 @@ async function handlelogout() {
                     :name="user.full_name" />
                 <p v-if="showName" class="w-[130px] text-gray-900 font-normal text-base uppercase truncate">{{
                     user.full_name
-                }}</p>
+                    }}</p>
             </MenuButton>
         </div>
 
