@@ -1,29 +1,45 @@
 <script setup>
 import { useOrders } from "../../../repositories/orders-repository";
 import { useStore } from "vuex";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { onMounted, computed, ref } from "vue";
 import Container from "../../marketplace/components/ui/Container";
 import QrcodeVue from 'qrcode.vue'
 import SplashScreen from "../components/ui/SplashScreen.vue";
 import copyToClipboard from "../../../utils/copyToClipboard"
 import formatAmount from "@/utils/formatAmount";
+import moment from "moment";
 
 const { getOrderById, loading } = useOrders()
 loading.value = true
 
-const route = useRoute()
 const store = useStore()
+const router = useRouter()
+const route = useRoute()
 
 // busque os dados do currente pedido
 const order = computed(() => {
     return store.getters.order
 })
 
+const hasLogged = computed(() => {
+    return store.getters.hasLogged
+})
+const formattedExpiresDate = computed(() => {
+    return moment(order.value.expires_at).add("1", "h").format("YYYY/MM/DD HH:mm")
+})
+
 // quando montar a tela, faca a requisicao para api buscando um pedido com base no id passado na routa desta pagina.
 onMounted(async () => {
+
+    if (order?.value?.id) {
+        loading.value = false
+        return
+    }
+
     const id = route.params.id
     await getOrderById(id)
+
 })
 </script>
 
@@ -33,11 +49,11 @@ onMounted(async () => {
         <Container>
             <div class="mt-7 mb-20 lg:mt-10 px-4">
                 <div class="mb-5 lg:mb-10">
-                    <h1 class="text-[22px] text-center lg:text-left lg:text-[2.625rem] font-bold my-2 lg:my-4">Seu
+                    <h1 class="text-lg text-center lg:text-left lg:text-[2.625rem] font-bold my-2 lg:my-4">Seu
                         pedido foi iniciado
                     </h1>
 
-                    <div class="block lg:hidden text-[#00a832] w-[50px] h-[50px] mx-auto">
+                    <div class="block lg:hidden text-[#00a832] w-[40px] h-[40px] mx-auto">
                         <svg fill="currentColor" viewBox="0 0 24 24" width="100%" height="100%">
                             <path fill-rule="evenodd" clip-rule="currentColor"
                                 d="M2.1001 12.09C2.1001 6.59998 6.6001 2.09998 12.0901 2.09998C17.5801 2.09998 22.0801 6.59998 22.0801 12.09C22.0801 17.58 17.5801 22.08 12.0901 22.08C6.6001 22.08 2.1001 17.61 2.1001 12.09ZM4.1101 12.09C4.1101 16.5 7.6801 20.1 12.0901 20.1C16.5001 20.1 20.1001 16.5 20.1001 12.09C20.1001 7.67998 16.5001 4.10998 12.0901 4.10998C7.6801 4.10998 4.1101 7.67998 4.1101 12.09ZM9.6001 11.13C9.3001 10.77 8.7601 10.71 8.4001 11.01C8.0401 11.31 7.9801 11.85 8.2801 12.21L10.3801 14.79C10.7401 15.21 11.4001 15.21 11.7001 14.73L15.9001 10.44C16.1701 10.05 16.0801 9.50997 15.6901 9.23997C15.3001 8.96997 14.7901 9.05998 14.5201 9.44998L11.0101 12.84L9.6001 11.13Z">
@@ -67,26 +83,29 @@ onMounted(async () => {
                 </div>
 
                 <div class="!bg-[#f5f7f8] mb-8 border-[#dde0e4] border rounded-[16px]">
-                    <h1 class="p-4 py-6  text-lg text-center font-bold mx-auto text-[#4c576c]">Agora só falta confirmar
+                    <h1 class="p-4 py-6 text-base lg:text-lg text-center font-bold mx-auto text-[#4c576c]">Agora só
+                        falta confirmar
                         seu pagamento!</h1>
 
                     <div class="bg-white rounded-lg p-5 m-4 mt-0">
-                        <!--start paypay method-->
-                        <div v-if="order?.data?.payment_method === 'paypay'" class="flex items-center gap-8">
+                        <!--start paypay-->
+                        <div v-if="order?.data?.payment_method === 'paypay'"
+                            class="flex flex-col lg:flex-row items-center gap-8">
                             <!--start qrCode box-->
                             <div
-                                class="p-4 shrink-0 w-80 h-80 border rounded-lg flex items-center justify-center border-[#dde0e4]">
+                                class="p-4 shrink-0 w-full min-h-80 lg:w-80 lg:h-80 border rounded-lg flex items-center justify-center border-[#dde0e4]">
                                 <div>
-                                    <img src="@/assets/imgs/paypay.png" class="w-[100px] mx-auto my-2.5">
+                                    <img src="@/assets/imgs/paypay.png"
+                                        class="w-[120px] lg:w-[112px] mb-3 mx-auto my-2.5">
 
-                                    <div class="flex justify-center w-full">
+                                    <div class="flex shadow-md rounded-lg justify-center w-full">
                                         <qrcode-vue :value="order?.biz_content?.dynamic_link" :size="156" level="M"
                                             :margin="4" />
                                     </div>
 
-                                    <div class="hidden mt-3">
+                                    <div class="block lg:hidden mt-10">
                                         <a :href="order?.biz_content?.dynamic_link"
-                                            class="flex py-2 px-4 justify-center items-center gap-2 rounded-lg h-10 font-bold normal-case text-sm mt-1 bg-blue-500 text-white">Abrir
+                                            class="flex py-2 px-4 justify-center items-center gap-2 rounded-lg h-10 font-bold normal-case text-sm mt-1 bg-[#574ef0] text-white">Abrir
                                             no App</a>
                                     </div>
 
@@ -95,8 +114,8 @@ onMounted(async () => {
                             </div>
                             <!--start qrCode box-->
 
-                            <!--start steps-->
-                            <div class="flex-1 text-[#4c576c]">
+                            <!--start steps disktop-->
+                            <div class="hidden lg:block flex-1 text-[#4c576c]">
                                 <div class="mb-3">
                                     <strong class="text-base">Como pagar?</strong>
                                 </div>
@@ -108,8 +127,8 @@ onMounted(async () => {
                                         </path>
                                     </svg>
                                     <p>
-                                        Abra o app da carteira digital <b>PayPay</b> e clique em
-                                        <b>Scanear</b>
+                                        Abra o app da carteira digital <b>"PayPay"</b> e clique em
+                                        <b>"Scanear"</b>
                                     </p>
                                 </div>
                                 <div class="flex text-xs py-3 items-center gap-1.5">
@@ -119,7 +138,7 @@ onMounted(async () => {
                                         </path>
                                     </svg>
                                     <p>
-                                        Scaneie o <b>QR Code</b>
+                                        Scaneie o <b>"QR Code"</b>
                                     </p>
                                 </div>
                                 <div class="flex text-xs py-3 items-center gap-1.5">
@@ -129,19 +148,70 @@ onMounted(async () => {
                                         </path>
                                     </svg>
                                     <p>
-                                        Confirme as informações e clique em <b>Pagar agora</b>
+                                        Confirme as informações e clique em <b>"Pagar agora"</b>
                                     </p>
                                 </div>
 
                                 <div class="h-[1px] mt-5 my-5 bg-[#dde0e4]"></div>
                                 <div>
-                                    <p class="text-sm">Este código expira em <strong
-                                            class="text-[#ff6a00]">15:00</strong> minutos e não será mais válido.</p>
+                                    <p class="text-xs">Pagamento válido até:
+                                        <strong>{{ formattedExpiresDate }}</strong>
+                                    </p>
                                 </div>
                             </div>
-                            <!--end steps-->
+                            <!--end steps disktop-->
+
+                            <!--start steps mobile-->
+                            <div class="block lg:hidden flex-1 text-[#4c576c]">
+                                <div class="mb-3">
+                                    <strong class="text-base">Como pagar?</strong>
+                                </div>
+
+                                <div class="flex text-xs py-3 items-center gap-1.5">
+                                    <svg class="w-4 h-4 lg:w-5 lg:h-5 shrink-0" xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24" fill="none">
+                                        <path
+                                            d="M9 3.5V2M5.06066 5.06066L4 4M5.06066 13L4 14.0607M13 5.06066L14.0607 4M3.5 9H2M15.8645 16.1896L13.3727 20.817C13.0881 21.3457 12.9457 21.61 12.7745 21.6769C12.6259 21.7349 12.4585 21.7185 12.324 21.6328C12.1689 21.534 12.0806 21.2471 11.9038 20.6733L8.44519 9.44525C8.3008 8.97651 8.2286 8.74213 8.28669 8.58383C8.33729 8.44595 8.44595 8.33729 8.58383 8.2867C8.74213 8.22861 8.9765 8.3008 9.44525 8.44519L20.6732 11.9038C21.247 12.0806 21.5339 12.169 21.6327 12.324C21.7185 12.4586 21.7348 12.6259 21.6768 12.7745C21.61 12.9458 21.3456 13.0881 20.817 13.3728L16.1896 15.8645C16.111 15.9068 16.0717 15.9279 16.0374 15.9551C16.0068 15.9792 15.9792 16.0068 15.9551 16.0374C15.9279 16.0717 15.9068 16.111 15.8645 16.1896Z"
+                                            stroke="#848c9b" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                    </svg>
+                                    <p>
+                                        Clique no botão <b>"Abrir no App"</b>
+                                    </p>
+                                </div>
+                                <div class="flex text-xs py-3 items-center gap-1.5">
+                                    <svg class="w-4 h-4 lg:w-5 lg:h-5 shrink-0" xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24" fill="none">
+                                        <path
+                                            d="M9 3.5V2M5.06066 5.06066L4 4M5.06066 13L4 14.0607M13 5.06066L14.0607 4M3.5 9H2M15.8645 16.1896L13.3727 20.817C13.0881 21.3457 12.9457 21.61 12.7745 21.6769C12.6259 21.7349 12.4585 21.7185 12.324 21.6328C12.1689 21.534 12.0806 21.2471 11.9038 20.6733L8.44519 9.44525C8.3008 8.97651 8.2286 8.74213 8.28669 8.58383C8.33729 8.44595 8.44595 8.33729 8.58383 8.2867C8.74213 8.22861 8.9765 8.3008 9.44525 8.44519L20.6732 11.9038C21.247 12.0806 21.5339 12.169 21.6327 12.324C21.7185 12.4586 21.7348 12.6259 21.6768 12.7745C21.61 12.9458 21.3456 13.0881 20.817 13.3728L16.1896 15.8645C16.111 15.9068 16.0717 15.9279 16.0374 15.9551C16.0068 15.9792 15.9792 16.0068 15.9551 16.0374C15.9279 16.0717 15.9068 16.111 15.8645 16.1896Z"
+                                            stroke="#848c9b" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                    </svg>
+                                    <p>
+                                        Selecione <b>"Abrir PAYPAY"</b> para continuar.
+                                    </p>
+                                </div>
+                                <div class="flex text-xs py-3 items-center gap-1.5">
+                                    <svg class="w-4 h-4 lg:w-5 lg:h-5 shrink-0" fill="#848c9b" viewBox="0 0 24 24">
+                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                            d="M2.1001 12.09C2.1001 6.59998 6.6001 2.09998 12.0901 2.09998C17.5801 2.09998 22.0801 6.59998 22.0801 12.09C22.0801 17.58 17.5801 22.08 12.0901 22.08C6.6001 22.08 2.1001 17.61 2.1001 12.09ZM4.1101 12.09C4.1101 16.5 7.6801 20.1 12.0901 20.1C16.5001 20.1 20.1001 16.5 20.1001 12.09C20.1001 7.67998 16.5001 4.10998 12.0901 4.10998C7.6801 4.10998 4.1101 7.67998 4.1101 12.09ZM9.6001 11.13C9.3001 10.77 8.7601 10.71 8.4001 11.01C8.0401 11.31 7.9801 11.85 8.2801 12.21L10.3801 14.79C10.7401 15.21 11.4001 15.21 11.7001 14.73L15.9001 10.44C16.1701 10.05 16.0801 9.50997 15.6901 9.23997C15.3001 8.96997 14.7901 9.05998 14.5201 9.44998L11.0101 12.84L9.6001 11.13Z">
+                                        </path>
+                                    </svg>
+                                    <p>
+                                        Confirme as informações e clique em <b>"Pagar agora"</b>
+                                    </p>
+                                </div>
+
+                                <div class="h-[1px] mt-5 my-5 bg-[#dde0e4]"></div>
+                                <div>
+                                    <p class="text-xs">Pagamento válido até:
+                                        <strong>{{ formattedExpiresDate }}</strong>
+                                    </p>
+                                </div>
+                            </div>
+                            <!--end steps mobile-->
                         </div>
-                        <!--end paypay method-->
+                        <!--end paypay-->
 
                         <!--start reference pay-->
                         <div v-if="order?.data?.payment_method === 'reference'"
@@ -182,36 +252,20 @@ onMounted(async () => {
                                             stroke-linejoin="round" />
                                     </svg>
                                     <p>
-                                        Introduza o seu cartão <b>Multicaixa</b> no <b>ATM</b>
+                                        Introduza o seu cartão <b>"Multicaixa"</b> no <b>"ATM"</b>
                                     </p>
                                 </div>
                                 <div class="flex text-xs py-3 items-center gap-1.5">
                                     <svg class="w-4 h-4 lg:w-5 lg:h-5 shrink-0" xmlns="http://www.w3.org/2000/svg"
                                         viewBox="0 0 24 24" fill="none">
                                         <path
-                                            d="M8 14.5714L6.17716 12.8354C5.53522 12.224 4.51329 12.2705 3.92953 12.9377V12.9377C3.40196 13.5406 3.41749 14.4453 3.96544 15.0298L9.90739 21.3679C10.2855 21.7712 10.8127 22 11.3655 22C12.4505 22 14.2343 22 16 22C18.4 22 20 20 20 18C20 18 20 18 20 18C20 18 20 11.1429 20 9.42859"
-                                            stroke="#848c9b" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round" />
-                                        <path
-                                            d="M17 9.99995C17 9.99995 17 9.87483 17 9.42852C17 7.1428 20 7.1428 20 9.42852"
-                                            stroke="#848c9b" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round" />
-                                        <path
-                                            d="M14 9.99998C14 9.99998 14 9.17832 14 8.2857C14 5.99998 17 5.99998 17 8.2857C17 8.50885 17 9.2054 17 9.42855C17 9.87487 17 9.99998 17 9.99998"
-                                            stroke="#848c9b" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round" />
-                                        <path
-                                            d="M11 10.0001C11 10.0001 11 8.61584 11 7.50005C11 5.21434 14 5.21434 14 7.50005C14 7.50005 14 7.50005 14 7.50005C14 7.50005 14 8.06261 14 8.28577C14 9.17839 14 10.0001 14 10.0001"
-                                            stroke="#848c9b" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round" />
-                                        <path
-                                            d="M8 14.5714V3.5C8 2.67157 8.67157 2 9.5 2V2C10.3284 2 11 2.67056 11 3.49899C11 4.68968 11 6.34156 11 7.5C11 8.61578 11 10 11 10"
+                                            d="M9 3.5V2M5.06066 5.06066L4 4M5.06066 13L4 14.0607M13 5.06066L14.0607 4M3.5 9H2M15.8645 16.1896L13.3727 20.817C13.0881 21.3457 12.9457 21.61 12.7745 21.6769C12.6259 21.7349 12.4585 21.7185 12.324 21.6328C12.1689 21.534 12.0806 21.2471 11.9038 20.6733L8.44519 9.44525C8.3008 8.97651 8.2286 8.74213 8.28669 8.58383C8.33729 8.44595 8.44595 8.33729 8.58383 8.2867C8.74213 8.22861 8.9765 8.3008 9.44525 8.44519L20.6732 11.9038C21.247 12.0806 21.5339 12.169 21.6327 12.324C21.7185 12.4586 21.7348 12.6259 21.6768 12.7745C21.61 12.9458 21.3456 13.0881 20.817 13.3728L16.1896 15.8645C16.111 15.9068 16.0717 15.9279 16.0374 15.9551C16.0068 15.9792 15.9792 16.0068 15.9551 16.0374C15.9279 16.0717 15.9068 16.111 15.8645 16.1896Z"
                                             stroke="#848c9b" stroke-width="2" stroke-linecap="round"
                                             stroke-linejoin="round" />
                                     </svg>
                                     <p>
-                                        Digite o seu <b>PIN</b> e selecione <b>Pagamentos</b> >> <b>Pagamentos de
-                                            serviços</b> >> <b>Pagamento Por Referência</b>
+                                        Digite o seu <b>"PIN"</b> e selecione <b>"Pagamentos"</b> >> <b>"Pagamentos de
+                                            serviços"</b> >> <b>"Pagamento Por Referência"</b>
                                     </p>
                                 </div>
                                 <div class="flex text-xs py-3 items-center gap-1.5">
@@ -221,7 +275,7 @@ onMounted(async () => {
                                         </path>
                                     </svg>
                                     <p>
-                                        Informe a <b>entidade</b>, <b>referência</b> e o <b>montante</b> indicados
+                                        Informe a <b>"entidade"</b>, <b>"referência"</b> e o <b>"montante"</b> indicados
                                         abaixo.
                                     </p>
                                 </div>
@@ -229,9 +283,9 @@ onMounted(async () => {
                                     <p>
                                         ID da entidade: <b class="text-[#f0861f]">{{
                                             order?.biz_content?.entity_id }}</b>
+                                    </p>
                                     <p>
                                         Montante: <b class="text-[#f0861f]">{{ formatAmount(order?.amount) }}</b>
-                                    </p>
                                     </p>
                                     <div>
                                         <p>Referência:</p>
@@ -245,15 +299,16 @@ onMounted(async () => {
 
                                 </div>
                                 <div class="mt-2">
-                                    <p class="text-xs">Este código expira em <strong
-                                            class="text-[#ff6a00]">15:00</strong> minutos e não será mais válido.</p>
+                                    <p class="text-xs">Pagamento válido até:
+                                        <strong>{{ formattedExpiresDate }}</strong>
+                                    </p>
                                 </div>
                             </div>
                             <!--end steps-->
                         </div>
                         <!--end reference pay-->
 
-                         <!--start express pay-->
+                        <!--start express pay-->
                         <div v-if="order?.data?.payment_method === 'mul'"
                             class="flex flex-col lg:flex-row items-center gap-8">
                             <!--start icon emis box-->
@@ -261,7 +316,8 @@ onMounted(async () => {
                                 class="p-4 shrink-0 w-full h-40 lg:w-80 lg:h-80 border rounded-lg flex items-center justify-center border-[#dde0e4]">
                                 <div>
                                     <div class="flex justify-center w-full">
-                                        <img src="@/assets/imgs/multicaixa_logo.png" class="w-[100px] mx-auto my-2.5">
+                                        <img src="@/assets/imgs/express.webp"
+                                            class="w-[100px] rounded-3xl mx-auto my-2.5">
                                     </div>
                                 </div>
 
@@ -275,24 +331,13 @@ onMounted(async () => {
                                 </div>
 
                                 <div class="flex text-xs py-3 items-center gap-1.5">
-
-                                    <svg class="w-4 h-4 lg:w-5 lg:h-5 shrink-0" xmlns="http://www.w3.org/2000/svg"
-                                        width="800px" height="800px" viewBox="0 0 24 24" fill="none">
-                                        <path d="M3.92969 15.8792L15.8797 3.9292" stroke="#848c9b" stroke-width="2"
-                                            stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M11.1013 18.2791L12.3013 17.0791" stroke="#848c9b" stroke-width="2"
-                                            stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M13.793 15.5887L16.183 13.1987" stroke="#848c9b" stroke-width="2"
-                                            stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path
-                                            d="M3.60127 10.239L10.2413 3.599C12.3613 1.479 13.4213 1.469 15.5213 3.569L20.4313 8.479C22.5313 10.579 22.5213 11.639 20.4013 13.759L13.7613 20.399C11.6413 22.519 10.5813 22.529 8.48127 20.429L3.57127 15.519C1.47127 13.419 1.47127 12.369 3.60127 10.239Z"
-                                            stroke="#848c9b" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round" />
-                                        <path d="M2 21.9985H22" stroke="#848c9b" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round" />
+                                    <svg class="w-4 h-4 lg:w-5 lg:h-5 shrink-0" fill="#848c9b" viewBox="0 0 24 24">
+                                        <path fill-rule="evenodd" clip-rule="currentColor"
+                                            d="M9 4H15C16.1046 4 17 4.89543 17 6V18C17 19.1046 16.1046 20 15 20H9C7.89543 20 7 19.1046 7 18V6C7 4.89543 7.89543 4 9 4ZM5 6C5 3.79086 6.79086 2 9 2H15C17.2091 2 19 3.79086 19 6V18C19 20.2091 17.2091 22 15 22H9C6.79086 22 5 20.2091 5 18V6ZM11 17C10.4477 17 10 17.4477 10 18C10 18.5523 10.4477 19 11 19H13C13.5523 19 14 18.5523 14 18C14 17.4477 13.5523 17 13 17H11Z">
+                                        </path>
                                     </svg>
                                     <p>
-                                        Introduza o seu cartão <b>Multicaixa</b> no <b>ATM</b>
+                                        Abra o app do seu <b>"Multicaixa Express"</b> através do pop-up.
                                     </p>
                                 </div>
                                 <div class="flex text-xs py-3 items-center gap-1.5">
@@ -320,8 +365,7 @@ onMounted(async () => {
                                             stroke-linejoin="round" />
                                     </svg>
                                     <p>
-                                        Digite o seu <b>PIN</b> e selecione <b>Pagamentos</b> >> <b>Pagamentos de
-                                            serviços</b> >> <b>Pagamento Por Referência</b>
+                                        Digite o seu <b>"PIN"</b> de acesso.
                                     </p>
                                 </div>
                                 <div class="flex text-xs py-3 items-center gap-1.5">
@@ -331,37 +375,29 @@ onMounted(async () => {
                                         </path>
                                     </svg>
                                     <p>
-                                        Informe a <b>entidade</b>, <b>referência</b> e o <b>montante</b> indicados
-                                        abaixo.
+                                        Verifique os detalhes da compra e clique em <b>"Confirmar"</b>
                                     </p>
                                 </div>
-                                <div class="flex flex-col text-xs py-3 gap-1.5">
-                                    <p>
-                                        ID da entidade: <b class="text-[#f0861f]">{{
-                                            order?.biz_content?.entity_id }}</b>
-                                    <p>
-                                        Montante: <b class="text-[#f0861f]">{{ formatAmount(order?.amount) }}</b>
+                                <div class="h-[1px] mt-5 my-5 bg-[#dde0e4]"></div>
+                                <div>
+                                    <p class="text-xs">Pagamento válido até:
+                                        <strong>{{ formattedExpiresDate }}</strong>
                                     </p>
-                                    </p>
-                                    <div>
-                                        <p>Referência:</p>
-                                        <div
-                                            class="w-full flex items-center justify-between mt-2 p-2 border border-dotted border-[#f0861f] rounded-lg bg-[#f0861f]/5">
-                                            <b class="text-sm text-[#f0861f]">{{ order?.biz_content?.reference_id }}</b>
-                                            <button @click="copyToClipboard(order?.biz_content?.reference_id)"
-                                                class="text-xs font-semibold outline-none bg-[#f0861f] text-white py-1.5 px-2 rounded-lg">Copiar</button>
-                                        </div>
-                                    </div>
-
-                                </div>
-                                <div class="mt-2">
-                                    <p class="text-xs">Este código expira em <strong
-                                            class="text-[#ff6a00]">15:00</strong> minutos e não será mais válido.</p>
                                 </div>
                             </div>
                             <!--end steps-->
                         </div>
                         <!--end express pay-->
+                    </div>
+                </div>
+
+                <div class="!bg-[#f5f7f8] mb-8 border-[#dde0e4] border rounded-[16px]">
+                    <h1 class="p-4 py-4 w-60 lg:w-full text-sm text-center font-bold mx-auto text-[#4c576c]">Número de
+                        telefone utilizado no pedido
+                    </h1>
+
+                    <div class="bg-white text-[#4c576c] font-semibold text-sm text-center rounded-lg p-2 m-4 mt-0">
+                        <p>+244 {{ order?.data?.phone }}</p>
                     </div>
                 </div>
 
@@ -400,10 +436,18 @@ onMounted(async () => {
                                         d="M9 8.19922C9.79113 8.19922 10.5645 7.96462 11.2223 7.5251C11.8801 7.08557 12.3928 6.46086 12.6955 5.72995C12.9983 4.99905 13.0775 4.19478 12.9231 3.41886C12.7688 2.64294 12.3878 1.9302 11.8284 1.37079C11.269 0.811383 10.5563 0.43042 9.78036 0.276079C9.00444 0.121739 8.20017 0.200952 7.46927 0.503702C6.73836 0.806453 6.11365 1.31914 5.67412 1.97694C5.2346 2.63474 5 3.4081 5 4.19922C5 5.26009 5.42143 6.2775 6.17157 7.02765C6.92172 7.77779 7.93913 8.19922 9 8.19922ZM9 6.19922C9.39556 6.19922 9.78224 6.08192 10.1111 5.86216C10.44 5.6424 10.6964 5.33004 10.8478 4.96459C10.9991 4.59914 11.0387 4.197 10.9616 3.80904C10.8844 3.42108 10.6939 3.06471 10.4142 2.78501C10.1345 2.5053 9.77814 2.31482 9.39018 2.23765C9.00222 2.16048 8.60009 2.20009 8.23463 2.35146C7.86918 2.50284 7.55682 2.75918 7.33706 3.08808C7.1173 3.41698 7 3.80366 7 4.19922C7 4.72965 7.21071 5.23836 7.58579 5.61343C7.96086 5.98851 8.46957 6.19922 9 6.19922ZM6 11.1992C4.93913 11.1992 3.92172 11.6206 3.17157 12.3708C2.42143 13.1209 2 14.1384 2 15.1992V16.1992C2 16.4644 1.89464 16.7188 1.70711 16.9063C1.51957 17.0939 1.26522 17.1992 1 17.1992C0.734784 17.1992 0.48043 17.0939 0.292893 16.9063C0.105357 16.7188 0 16.4644 0 16.1992V15.1992C0 13.6079 0.632141 12.0818 1.75736 10.9566C2.88258 9.83136 4.4087 9.19922 6 9.19922H12C13.5913 9.19922 15.1174 9.83136 16.2426 10.9566C17.3679 12.0818 18 13.6079 18 15.1992V16.1992C18 16.4644 17.8946 16.7188 17.7071 16.9063C17.5196 17.0939 17.2652 17.1992 17 17.1992C16.7348 17.1992 16.4804 17.0939 16.2929 16.9063C16.1054 16.7188 16 16.4644 16 16.1992V15.1992C16 14.1384 15.5786 13.1209 14.8284 12.3708C14.0783 11.6206 13.0609 11.1992 12 11.1992H6Z"
                                         fill="#848C9B" />
                                 </svg>
-                                <p>
-                                    <a href="/conta/registrar-se" class="text-[#0096ff] font-bold">Cadastre-se</a>
-                                    ou <a href="/conta/login" class="text-[#0096ff] font-bold">acesse sua conta</a>
+                                <p v-if="!hasLogged">
+                                    <a href="/conta/registrar-se?r=/meus-ingressos"
+                                        class="text-[#0096ff] font-bold">Cadastre-se</a> ou <a
+                                        href="/conta/login?r=/meus-ingressos" class="text-[#0096ff] font-bold">acesse
+                                        sua
+                                        conta</a>
                                     com o número de telefone utilizado no pedido.
+                                </p>
+                                <p v-else>
+                                    Se a conta logada estiver associada ou número de telefone indicado, aceda a <a
+                                        href="/meus-ingressos" class="text-[#0096ff] font-bold">Meus ingressos</a> para
+                                    visualizar os seus bilhetes.
                                 </p>
                             </div>
 
@@ -450,26 +494,10 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.img-blur-event {
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    right: 0px;
-    width: 120%;
-    height: 120%;
-    margin-top: -5%;
-    margin-left: -10%;
-    background-position: 0px 0px, 50% 50%;
-    background-size: auto, cover;
-    background-repeat: repeat, no-repeat;
-    opacity: 1;
-    -webkit-filter: blur(24px);
-    filter: blur(24px);
-}
-
-.img-event {
-    z-index: 90;
-    object-fit: cover;
-    box-shadow: 0 30px 80px 10px rgba(0, 0, 0, .12), 0 11px 30px -7px rgba(0, 0, 0, .3);
+.cls-1 {
+    fill: none;
+    stroke: #848c9b;
+    stroke-miterlimit: 10;
+    stroke-width: 1.91px;
 }
 </style>

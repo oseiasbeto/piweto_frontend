@@ -30,9 +30,9 @@
                         </a>
                         </MenuItem>
                         <MenuItem v-slot="{ active }">
-                        <a href="/minha-conta" class="menu-item" :class="{ 'bg-gray-700': active }">
+                        <button @click="openModal('my-account')" class="menu-item" :class="{ 'bg-gray-700': active }">
                             Minha conta
-                        </a>
+                        </button>
                         </MenuItem>
                         <MenuItem v-slot="{ active }">
                         <a href="https://api.whatsapp.com/send/?phone=948360831&text&type=phone_number&app_absent=0"
@@ -41,10 +41,9 @@
                         </a>
                         </MenuItem>
                         <MenuItem v-slot="{ active }">
-                        <a href="https://api.whatsapp.com/send/?phone=948360831&text&type=phone_number&app_absent=0"
-                            target="_blank" class="menu-item" :class="{ 'bg-gray-700': active }">
+                        <button @click="handleLogout()" class="menu-item" :class="{ 'bg-gray-700': active }">
                             Sair
-                        </a>
+                        </button>
                         </MenuItem>
                     </template>
                     <template v-else>
@@ -55,9 +54,9 @@
                         </a>
                         </MenuItem>
                         <MenuItem v-slot="{ active }">
-                        <a href="/conta/login" class="menu-item" :class="{ 'bg-gray-700': active }">
+                        <button @click="goToLogin()" class="menu-item" :class="{ 'bg-gray-700': active }">
                             Login
-                        </a>
+                        </button>
                         </MenuItem>
                     </template>
                 </div>
@@ -69,14 +68,66 @@
 <script setup>
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useStore } from "vuex";
+import { useUsers } from "@/repositories/users-repository.js";
+import Cookies from "js-cookie";
+import { toast } from "vue3-toastify";
 
 const store = useStore()
+const router = useRouter()
+const route = useRoute()
+const { logout, loading: logoutLoading } = useUsers()
 
 // Defina isso como uma prop ou usando estado global (ex: Pinia)
 const isLoggedIn = computed(() => {
     return store.getters.hasLogged
 }) // Altere para true/false conforme necessário
+
+const goToLogin = () => {
+    if (!isLoggedIn.value) {
+        router.push({
+            name: 'Auth user',
+            query: {
+                r: route.fullPath
+            }
+        })
+    } else {
+        toast("Voce ja esta logado!", {
+            theme: "colored",
+            autoClose: 2000,
+            position: "top-right",
+            transition: "bounce",
+            type: 'info',
+        })
+    }
+}
+
+async function handleLogout() {
+    if (logoutLoading.value) {
+        return
+    }
+
+    const session_id = Cookies.get("session_id")
+    await logout(session_id).catch(err => {
+        console.log(err)
+        toast("Houve um erro.", {
+            theme: "colored",
+            position: "top-right",
+            autoClose: 2517,
+            type: "erro"
+        })
+    })
+}
+
+const openModal = (name) => {
+    store.dispatch("setModal", {
+        name,
+        show: true,
+        data: {
+        }
+    })
+}
 </script>
 
 <style scoped>

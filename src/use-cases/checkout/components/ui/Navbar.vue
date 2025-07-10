@@ -25,7 +25,7 @@ const hasLogged = computed(() => {
                    <NavToggle/>
                 </div>
                 <Logo :is-white="true"
-                    size="lg:w-[100px] ml-6 lg:ml-0 hover:opacity-80 transition-opacity w-[80px] h-12 lg:h-16" />
+                    size="lg:w-[100px] ml-6 lg:ml-14 hover:opacity-80 transition-opacity w-[80px] h-12 lg:h-16" />
 
                 <div class="mr-3 lg:mr-0">
                     <LocaleSelector />

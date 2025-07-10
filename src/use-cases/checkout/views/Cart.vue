@@ -32,10 +32,15 @@
                                             </div>
                                             <div class="outline-none" ref="googleButtonRef"></div>
                                             <div>
-                                                <button @click="goToLogin()"
-                                                    class="rounded-lg outline-none border font-semibold text-xs lg:text-sm leading-4 font-sans inline-flex items-center justify-center min-w-fit w-max cursor-pointer no-underline text-[rgb(0,151,255)] bg-transparent border-transparent px-4">
-                                                    Acessar de outro jeito
-                                                </button>
+                                                <router-link
+                                                    class="rounded-lg outline-none border font-semibold text-xs lg:text-sm leading-4 font-sans inline-flex items-center justify-center min-w-fit w-max cursor-pointer no-underline text-[rgb(0,151,255)] bg-transparent border-transparent px-4"
+                                                    :to="{
+                                                        path: '/conta/login',
+                                                        query: {
+                                                            r: route.fullPath
+                                                        }
+                                                    }">Acessar de outro jeito
+                                                </router-link>
                                             </div>
                                         </div>
 
@@ -102,7 +107,7 @@
                                         <input
                                             class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
                                             @input="validatePhone" type="tel" ref="inputPhone" autocomplete="off"
-                                            oncontextmenu="false" v-model="form.phone"
+                                            id="phone" oncontextmenu="false" v-model="form.phone"
                                             :class="{ '!border-brand-danger': errors.phone.show }">
                                         <span class="text-brand-danger text-xs font-medium my-1"
                                             v-if="errors.phone.show">
@@ -128,13 +133,14 @@
 
                                         </div>
                                         <div class="flex flex-1 flex-col mb-4">
-                                            <label class="text-xs text-gray-500 mb-2 font-bold" for="email">Confirmação
+                                            <label class="text-xs text-gray-500 mb-2 font-bold"
+                                                for="confirmEmail">Confirmação
                                                 do
                                                 e-mail <span class="text-brand-danger">*</span></label>
                                             <input
                                                 class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
                                                 @input="validateConfirmEmail" autocomplete="off" oncontextmenu="false"
-                                                v-model="form.confirmEmail"
+                                                id="confirmEmail" v-model="form.confirmEmail"
                                                 :class="{ '!border-brand-danger': errors.confirmEmail.show }">
                                             <span class="text-brand-danger text-xs font-medium my-1"
                                                 v-if="errors.confirmEmail.show">
@@ -171,7 +177,7 @@
 
                                     <div class="flex gap-2 items-center">
                                         <div @click="changeProvidePayment('emis')"
-                                            class="w-[112px] lg:w-[144px] transition-all duration-100 ease-in items-center cursor-pointer overflow-hidden relative py-3 text-sm text-center flex flex-col h-[110px] rounded-[8px] shadow-[10px_4px_14px_rgba(219,219,219,.2)]"
+                                            class="w-[112px] lg:w-[130px] transition-all duration-100 ease-in items-center cursor-pointer overflow-hidden relative py-3 text-sm text-center flex flex-col h-[110px] rounded-[8px] shadow-[10px_4px_14px_rgba(219,219,219,.2)]"
                                             :class="{ 'text-[rgb(0,151,255)] font-bold border border-[rgb(0,151,255)] bg-[rgba(230,244,255,0.61)]': form.providerPayment === 'emis' }">
                                             <div class="h-[50px] flex items-center">
                                                 <svg class="w-[80px] lg:w-[94px]" xmlns="http://www.w3.org/2000/svg"
@@ -210,7 +216,7 @@
                                         </div>
 
                                         <div @click="changeProvidePayment('paypay')"
-                                            class="w-[110px] lg:w-[144px] transition-all duration-100 ease-in items-center cursor-pointer overflow-hidden relative py-3 text-sm text-center flex flex-col h-[110px] rounded-[8px] shadow-[10px_4px_14px_rgba(219,219,219,.2)]"
+                                            class="w-[110px] lg:w-[130px] transition-all duration-100 ease-in items-center cursor-pointer overflow-hidden relative py-3 text-sm text-center flex flex-col h-[110px] rounded-[8px] shadow-[10px_4px_14px_rgba(219,219,219,.2)]"
                                             :class="{ 'text-[rgb(0,151,255)] font-bold border border-[rgb(0,151,255)] bg-[rgb(230,244,255)]': form.providerPayment === 'paypay' }">
                                             <div class="h-[50px] flex items-center">
                                                 <img class="mx-auto" src="@/assets/imgs/paypay.png" width="50px">
@@ -256,12 +262,14 @@
                                         <!--start multicaixa number phone group-->
                                         <div v-show="form.paymentMethod === 'mul'"
                                             class="flex flex-col lg:mt-7 mt-4 mb-4">
-                                            <label class="text-xs text-gray-500 mb-2 font-bold" for="phone">Número do
+                                            <label class="text-xs text-gray-500 mb-2 font-bold"
+                                                for="inputExpressNumber">Número do
                                                 Multicaixa Express <span class="text-brand-danger">*</span></label>
                                             <input
                                                 class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
                                                 @input="validateNumberMul" type="tel" ref="inputExpressNumber"
-                                                autocomplete="off" oncontextmenu="false" v-model="form.numberMul"
+                                                id="inputExpressNumber" autocomplete="off" oncontextmenu="false"
+                                                v-model="form.numberMul"
                                                 :class="{ '!border-brand-danger': errors.numberMul.show }">
                                             <span class="text-brand-danger text-xs font-medium my-1"
                                                 v-if="errors.numberMul.show">
@@ -404,6 +412,10 @@
             <!--start drawers-->
             <OrderSumary :cart="cart" />
             <!--end drawers-->
+
+            <!--start processing payment modal-->
+            <ProcessingModalPayment :is-open="openPPM" />
+            <!--end processing payment modal-->
         </div>
     </div>
     <SplashScreen :visible="isLoading" />
@@ -412,6 +424,7 @@
 
 <script setup>
 import SplashScreen from "../components/ui/SplashScreen.vue";
+import ProcessingModalPayment from "../components/modals/ProcessingPaymentModal.vue";
 import Header from "../components/ui/Header";
 import { useOrders } from "@/repositories/orders-repository";
 import Container from "@/use-cases/marketplace/components/ui/Container.vue";
@@ -444,6 +457,7 @@ const googleButtonRef = ref(null)
 const googleApiReady = ref(false)
 const googleInitialized = ref(false)
 const isLoading = ref(true)
+const openPPM = ref(false)
 
 const form = ref({
     fullName: "",
@@ -850,32 +864,41 @@ async function finishPurchase() {
     if (loadingOrder.value || errors.value.phone.show || !form.value.paymentMethod) return
 
     // isto deve criar um novo pedido e redirecionar para a pagina de obrigado caso tenha prosseguido com exito.
-    await newOrder({
-        cart: cart?.value,
-        eventId: cart?.value.event?._id,
-        paymentMethod: form.value.paymentMethod,
-        data: {
-            fullName: form.value.fullName,
-            email: form.value.email,
-            phone: form.value.phone
-        }
-    }).then(res => {
-        const { newOrder } = res.data
-        router.replace(`/checkout/detalhes-do-pedido/${newOrder.id}`)
-    }).catch(err => {
-        if (err.response.status === 400) {
-            if (form.value.paymentMethod === 'mul') {
-                Swal.fire({
-                    icon: "error",
-                    title: "Número não reconhecido",
-                    text: "O número informado não está associado a uma conta Multicaixa Express. Verifique os dados e tente novamente.",
-                    confirmButtonText: "OK"
-                }).then(() => {
-                    form.value.phone = ''
-                });
+
+    loadingOrder.value = true
+    setTimeout(async () => {
+        openPPM.value = true
+        await newOrder({
+            cart: cart?.value,
+            eventId: cart?.value.event?._id,
+            paymentMethod: form.value.paymentMethod,
+            data: {
+                fullName: form.value.fullName,
+                email: form.value.email,
+                phone: form.value.phone
             }
-        }
-    })
+        }).then(res => {
+            const { newOrder } = res.data
+            router.replace(`/checkout/detalhes-do-pedido/${newOrder.id}`)
+        })
+            .finally(() => {
+                openPPM.value = false
+            })
+            .catch(err => {
+                if (err.response.status === 400) {
+                    if (form.value.paymentMethod === 'mul') {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Número não reconhecido",
+                            text: "O número informado não está associado a uma conta Multicaixa Express. Verifique os dados e tente novamente.",
+                            confirmButtonText: "OK"
+                        }).then(() => {
+                            form.value.phone = ''
+                        });
+                    }
+                }
+            })
+    }, 500)
 }
 
 function resetForm() {
@@ -892,11 +915,7 @@ function resetForm() {
 
 async function handleLogout() {
     const session_id = Cookies.get("session_id")
-    await logout(session_id).then(() => {
-        resetForm()
-        validateAllFields()
-        checkAndInitGoogle()
-    }).catch(err => {
+    await logout(session_id).catch(err => {
         console.log(err)
         toast("Houve um erro.", {
             theme: "colored",
@@ -919,31 +938,32 @@ watch(() => form.value.email, (newEmail) => {
     }
 });
 
-/* 
-onBeforeRouteLeave((to, from, next) => {
+watch(() => hasLogged.value, async (newValue) => {
+    if (!newValue) {
+        resetForm()
+        validateAllFields()
 
-    if (!isLoading.value && validateAllFields()) {
-        Swal.fire({
-            title: 'Tem certeza que deseja sair?',
-            text: "Você tem alterações não salvas no formulário.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#0097ff',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sim, sair',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                next();
-            } else {
-                next(false);
-            }
-        });
-    } else {
-        next()
+        await nextTick()
+        checkAndInitGoogle()
+
+        if (window.scrollY > 0) {
+            // Scroll suave para o topo da página
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            })
+        }
     }
+});
 
-});*/
+
+onBeforeRouteLeave((to, from, next) => {
+    if (!loadingOrder.value) {
+        next();
+    } else {
+        next(false);
+    }
+});
 
 // quando montar a tela, faca a requisicao para api buscando um carrinho com base no id passado na routa desta pagina e seta o formulario de pagamento do usuario com os dados do corrente usuario.
 onMounted(async () => {
