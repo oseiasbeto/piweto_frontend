@@ -79,7 +79,7 @@ const cleaveConfigPurchaseMinMax = {
     numeralDecimalMark: '', // Sem ponto decimal, pois não queremos casas decimais
 };
 function calcularValorComTaxa(valor) {
-    const taxa = 0.04; // 4% de taxa
+    const taxa = 0.01; // 1% de taxa
     const valorComTaxa = valor * (1 - taxa);
     return parseFloat(valorComTaxa.toFixed(2));
 }
@@ -446,7 +446,7 @@ onMounted(() => {
                    <p v-if="errors.price.show" class="text-xs leading-[15px] mt-2 text-brand-danger">{{ errors.price.message
                 }}</p>
             <p v-else class="text-xs leading-[15px] text-gray-500">
-                {{ `Será deduzida uma taxa de 4% sobre o valor de cada venda. O valor líquido a receber será: `}} <b>{{ formatAmount(calcularValorComTaxa(form.price)) }}</b>
+                {{ `Será deduzida uma taxa de 1% sobre o valor de cada venda. O valor líquido a receber será: `}} <b>{{ formatAmount(calcularValorComTaxa(form.price)) }}</b>
             </p>  
                 </div>
            
