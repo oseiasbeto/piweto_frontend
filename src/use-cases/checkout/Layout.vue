@@ -8,6 +8,7 @@ import Navbar from "./components/ui/Navbar.vue";
 import Footer from "./components/ui/Footer.vue";
 import { useStore } from "vuex";
 import Modal from "./components/ui/Modal.vue";
+import NavbarEventMobile from "./components/ui/NavbarEventMobile.vue";
 
 const route = useRoute()
 const router = useRouter()
@@ -19,6 +20,7 @@ const store = useStore()
     <div class="relative min-h-screen bg-[#f5f7f8]" :class="{ 'bg-white': route.name === 'Order' }">
         <!--start navbar-->
         <Navbar />
+        <NavbarEventMobile v-show="route.name === 'Details event'"/>
         <!--end navbar-->
 
         <!--start main-->

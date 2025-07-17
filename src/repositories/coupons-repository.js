@@ -29,7 +29,9 @@ export function useCoupons() {
     const applyCoupon = async (data) => {
         try {
             loading.value = true
-            const response = await api.get(`/coupons/verify/${data.couponName}`)
+            const response = await api.post('/coupons/validate', {
+                code: data.couponName
+            })
             const coupon = response.data.coupon;
             return coupon
         } catch (err) {
@@ -40,7 +42,6 @@ export function useCoupons() {
             loading.value = false;
         }
     }
-
     const getCoupons = async (filter) => {
         try {
             loading.value = true

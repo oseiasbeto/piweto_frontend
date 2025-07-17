@@ -7,7 +7,7 @@
   >
     <div
       v-if="isVisible"
-      class="fixed inset-0 z-[9999] flex items-center justify-center bg-white"
+      class="fixed inset-0 z-[9998] flex items-center justify-center bg-white"
       @wheel.prevent
       @touchmove.prevent
     >

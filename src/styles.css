@@ -8,6 +8,7 @@ body {
     touch-action: pan-x pan-y;
     -webkit-user-select: none;
     user-select: none;
+  
     font-family: "Open sans";
 }
 

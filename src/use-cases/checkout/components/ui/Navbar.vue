@@ -4,7 +4,6 @@ import Logo from '@/components/Logo.vue';
 import { useStore } from "vuex";
 import { computed } from "vue";
 import Container from '@/use-cases/marketplace/components/ui/Container.vue';
-import UserMenu from "@/components/UserMenu.vue";
 import LocaleSelector from "./LocaleSelector.vue";
 import NavToggle from "./NavToggle.vue";
 
@@ -18,7 +17,7 @@ const hasLogged = computed(() => {
 </script>
 
 <template>
-    <div class="bg-[#191f28] sticky border-b border-b-[rgb(76,87,108)] z-[9999] top-0 h-12 lg:h-16 w-full">
+    <div class="bg-[#191f28] sticky border-b border-b-[rgb(76,87,108)] z-[9997] top-0 h-12 lg:h-16 w-full" :class="{'hidden lg:block': route.name === 'Details event' }">
         <Container>
             <div class="flex relative justify-between lg:px-4 items-center">
                 <div>

@@ -15,6 +15,7 @@ import Finance from "./views/Finance.vue";
 import Spinner from "../checkout/components/ui/Spinner.vue";
 import AlertConfirmEmail from "@/components/AlertConfirmEmail.vue";
 import Staffs from "./views/Staffs.vue";
+import SplashScreen from "../checkout/components/ui/SplashScreen.vue";
 
 const { getStaffById, loading: loadingStaff } = useStaffs()
 loadingStaff.value = true
@@ -58,7 +59,7 @@ onMounted(async () => {
 
 <template>
     <div v-if="loadingStaff" class="flex justify-center items-center h-[500px]">
-        <Spinner />
+        <SplashScreen />
     </div>
     <div v-else class="relative">
 

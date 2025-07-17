@@ -10,7 +10,7 @@
                         <h2 class="text-sm text-[rgb(76,87,108)] lg:text-base font-semibold">Total </h2>
                         <h2 class="text-[rgb(25,31,40)] flex justify-end leading-5 text-base lg:text-lg font-bold">
                             {{
-                                formatAmount(cart?.amount) }}
+                                formatAmount(cart?.amount_after_discount ? cart?.amount_after_discount : cart?.amount) }}
                         </h2>
                     </div>
                     <p class="text-[10px] mt-1">(selecione a forma de pagamento)</p>

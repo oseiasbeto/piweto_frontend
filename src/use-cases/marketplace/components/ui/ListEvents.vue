@@ -64,8 +64,8 @@ const loadMoreEvents = () => {
             <!-- end body list area-->
 
             <!-- start pagination area -->
-            <div v-if="props.showBtnLoadMore && props.metadata.totalPages > props.metadata.currentPage" class="my-6 text-center">
-                <button @click="loadMoreEvents" :disabled="isLoading"
+            <div v-if="props.showBtnLoadMore && props.metadata.hasNextPage" class="my-6 text-center">
+                <button @click="loadMoreEvents" :disabled="btnLoadingMore"
                     class="bg-[#333333] text-white px-6 py-2 rounded-md font-semibold hover:opacity-80 disabled:opacity-50">
                     {{ btnLoadingMore ? 'Carregando...' : 'Ver mais' }}
                 </button>

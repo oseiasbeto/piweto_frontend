@@ -2,8 +2,11 @@
 import formatAmount from '@/utils/formatAmount';
 import moment from 'moment';
 import QrcodeVue from 'qrcode.vue'
-import { ref, nextTick, computed } from "vue";
+import { ref, computed } from "vue";
 import { useStore } from 'vuex';
+import { useTicketGenerator } from "@/utils/useTicketGenerator";
+const { generateTicket, isLoading: loadingGenerateTicket } = useTicketGenerator();
+
 const props = defineProps({
     event: {
         type: Object,
@@ -22,6 +25,11 @@ const props = defineProps({
         default: false
     }
 })
+
+const isEventOver = computed(() => {
+    return moment().isAfter(moment(props.event.ends_at.date, "YYYY-MM-DD HH:mm"));
+});
+
 function formatDate(date, time) {
     const day = new Intl.DateTimeFormat('pt-BR', { weekday: 'short' }).format(date);
     const dayNumber = date.getDate();
@@ -63,98 +71,9 @@ const generateStatusLegend = (status) => {
     }
 }
 
-const downloadQRCode = async () => {
-    await nextTick(); // Wait for QR Code rendering
-
-    try {
-        // Extract values
-        const qrValue = props.ticket.code;
-        const reservationNumber = props.ticket.booking_number;
-        const eventName = props.event.name;
-        const ticketType = props.ticket.batch.name;
-        const eventDate = moment(props.event.starts_at.date);
-        const price = props.ticket.price;
-        const participantName = user.value?.full_name; // Added participant name
-        const footerText = "Este ingresso foi emitido pelo Piweto";
-
-        if (!qrcodeRef.value) {
-            console.error("QR Code reference not found!");
-            return;
-        }
-
-        const qrCanvas = qrcodeRef.value.getElementsByTagName("canvas")[0];
-        if (!qrCanvas) {
-            console.error("QR Code canvas not found!");
-            return;
-        }
-
-        // Constants for layout
-        const PADDING = 20;
-        const TEXT_HEIGHT = 160; // Increased to accommodate participant name
-        const LINE_HEIGHT = 20;
-        const FOOTER_MARGIN = 10;
-        
-        const qrSize = qrCanvas.width;
-        const totalHeight = qrSize + TEXT_HEIGHT + PADDING;
-
-        // Create new canvas
-        const canvas = document.createElement('canvas');
-        canvas.width = qrSize + PADDING * 2;
-        canvas.height = totalHeight;
-        
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-            console.error("Could not get canvas context");
-            return;
-        }
-
-        // Draw white background
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Add QR Code centered
-        ctx.drawImage(qrCanvas, PADDING, TEXT_HEIGHT);
-
-        // Style and add text information
-        ctx.fillStyle = '#000';
-        ctx.textAlign = 'center';
-
-        // Draw each line of text
-        const textLines = [
-            eventName,
-            `Participante: ${participantName}`, // Added participant name line
-            `Ingresso: ${ticketType}`,
-            `Data: ${eventDate.format("DD/MM/YYYY")}`,
-            `Preço: ${formatAmount(price)}`,
-            `Código: ${qrValue}`,
-            `Reserva: ${reservationNumber}`
-        ];
-
-        ctx.font = '16px Arial';
-        textLines.forEach((text, index) => {
-            ctx.fillText(text, canvas.width / 2, 20 + (index * LINE_HEIGHT));
-        });
-
-        // Add footer
-        ctx.font = '12px Arial';
-        ctx.fillStyle = '#555';
-        ctx.fillText(footerText, canvas.width / 2, totalHeight - FOOTER_MARGIN);
-
-        // Create download link
-        const link = document.createElement('a');
-        link.href = canvas.toDataURL('image/png');
-        link.download = `${qrValue}.png`;
-        link.setAttribute('aria-label', `Download QR Code for ticket ${qrValue}`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } catch (error) {
-        console.error("Error generating QR Code download:", error);
-        // You might want to show a user-friendly error message here
-    }
+const handleGenerateTicket = async () => {
+  await generateTicket(props.ticket, props?.ticket?.order, props.event);
 };
-
-
 
 function onImageLoad(event) {
     // Adiciona a classe de transição no carregamento da imagem
@@ -163,7 +82,7 @@ function onImageLoad(event) {
 </script>
 
 <template>
-    <div class="bg-white overflow-hidden transition-all rounded-[15px] mb-3.5 md:hover:shadow-lg">
+    <div :class="{'pointer-events-none opacity-60' : props.isTicket && isEventOver}" class="bg-white overflow-hidden transition-all rounded-[15px] mb-3.5 md:hover:shadow-lg">
         <a :href="'/evento/' + props.event.slug">
             <div class="h-[150px]  overflow-hidden rounded-b-[15px]"
             :class="isBigCover ? 'lg:h-[285px]': 'lg:h-[150px]'"
@@ -206,8 +125,10 @@ function onImageLoad(event) {
                 <hr>
             </div>
             <ul class="px-0 lg:px-3">
-                <div class="text-xs py-1 px-3 w-min rounded-full border" :class="statusBgColor(ticket.status)">{{
-                    generateStatusLegend(ticket.status) }}</div>
+                <div class="text-xs py-1 px-3 w-min rounded-full border" :class="statusBgColor(isEventOver ? 'd' : ticket.status)">
+                    <p> {{ isEventOver ? 'Encerrado' : generateStatusLegend(ticket.status) }}</p>
+               
+                </div>
 
                 <!--start qr code area-->
                 <div ref="qrcodeRef" class="flex justify-center items-center">
@@ -219,12 +140,12 @@ function onImageLoad(event) {
                     <p>{{ user?.email }}</p>
                 </div>
                 <!--end qr code area-->
-                <button :disabled="ticket.status !== 'a'"
+                <button :disabled="ticket.status !== 'a' || isEventOver || loadingGenerateTicket"
                     class="w-full disabled:bg-gray-300 disabled:text-gray-500 font-medium hover:opacity-[0.8] mt-1 mb-5 py-3 flex justify-center rounded-full bg-[#333333] text-white "
-                    @click="downloadQRCode"> <svg class="mr-3" width="21" height="21" viewBox="0 0 24 24" fill="none"
+                    @click="handleGenerateTicket()"> <svg class="mr-3" width="21" height="21" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="arcs">
                         <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5"></path>
-                    </svg> Baixar QR Code</button>
+                    </svg> {{ loadingGenerateTicket ? 'Baixando...' : 'Baixar Ingresso' }} </button>
             </ul>
         </div>
     </div>

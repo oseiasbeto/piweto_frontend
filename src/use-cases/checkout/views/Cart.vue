@@ -395,7 +395,8 @@
                                                 <h2
                                                     class="text-[rgb(25,31,40)] flex justify-end leading-5 lg:leading-6 text-base lg:text-lg font-bold">
                                                     {{
-                                                        formatAmount(cart?.amount) }}</h2>
+                                                        formatAmount(cart?.amount_after_discount ?
+                                                            cart?.amount_after_discount : cart?.amount) }}</h2>
                                                 <p class="text-[10px]">(selecione a forma de pagamento)</p>
                                             </div>
                                         </div>
@@ -560,7 +561,18 @@ const config = {
 
         if (userData && !loadingAuthGoogle.value) {
             try {
-                await googleAuth(userData)
+                await googleAuth(userData).then(res => {
+                    const user = res.data.user;
+                    form.value = {
+                        fullName: `${user.first_name.replace(/\s/g, '')} ${user.last_name.replace(/\s/g, '')}`,
+                        providerPayment: "emis",
+                        paymentMethod: 'mul',
+                        phone: user.phone?.toString() || '',
+                        numberMul: user.phone,
+                        email: user.email,
+                        confirmEmail: user.confirmEmail
+                    }
+                })
             } catch (err) {
                 toast(err?.response?.data?.message || 'Algo deu errado!', {
                     theme: "colored",
@@ -656,25 +668,6 @@ const checkAndInitGoogle = () => {
     } else {
         // Tenta novamente após um pequeno delay
         setTimeout(checkAndInitGoogle, 300)
-    }
-}
-
-const goToLogin = () => {
-    if (!hasLogged.value) {
-        router.push({
-            name: 'Auth user',
-            query: {
-                r: route.fullPath
-            }
-        })
-    } else {
-        toast("Voce ja esta logado!", {
-            theme: "colored",
-            autoClose: 2000,
-            position: "top-right",
-            transition: "bounce",
-            type: 'info',
-        })
     }
 }
 

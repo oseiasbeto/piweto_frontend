@@ -6,7 +6,7 @@ import { useStore } from "vuex";
 import formatAmount from "@/utils/formatAmount";
 import { useRoute } from "vue-router";
 import BtnSpinner from "../components/spinners/BtnSpinner.vue";
-const { getTickets, loading: loadingPartakers } = useTickets()
+const { getPartakers, loading: loadingPartakers } = useTickets()
 
 const store = useStore()
 const route = useRoute()
@@ -56,12 +56,13 @@ const generateStatusLegend = (status) => {
 }
 
 const fetchPartakers = async () => {
-    await getTickets({
-        event: event.value._id,
-        populate: 'costumer'
+    await getPartakers({
+        eventId: event.value._id,
+        page: 1,
+        limit: 10
     }).then(res => {
-        const partakers = res.data.tickets;
-        const metadata = res.data.metadata;
+        const partakers = res.data.data;
+        const metadata = res.data.pagination;
 
         store.dispatch("setPartakers", {
             data: partakers,
