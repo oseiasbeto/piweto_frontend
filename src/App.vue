@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, computed, onBeforeMount, ref } from "vue";
+import { onBeforeMount, computed, ref } from "vue";
 import Cookies from "js-cookie"
 import { useUsers } from "@/repositories/users-repository.js";
 import AlertCookies from "./use-cases/marketplace/components/ui/AlertCookies.vue";
