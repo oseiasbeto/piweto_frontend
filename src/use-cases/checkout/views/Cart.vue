@@ -561,7 +561,7 @@ const config = {
 
         if (userData && !loadingAuthGoogle.value) {
             try {
-                await googleAuth(userData).then(async res => {
+                await googleAuth(userData).then(res => {
                     const user = res.data.user;
                     form.value = {
                         fullName: `${user.first_name.replace(/\s/g, '')} ${user.last_name.replace(/\s/g, '')}`,
@@ -572,7 +572,6 @@ const config = {
                         email: user.email,
                         confirmEmail: user.email
                     }
-                    await nextTick()
                     validateAllFields()
                 })
             } catch (err) {
