@@ -49,8 +49,8 @@ onMounted(async () => {
         <Container>
             <div class="mt-7 mb-20 lg:mt-10 px-4">
                 <div class="mb-5 lg:mb-10">
-                    <h1 class="text-lg text-center lg:text-left lg:text-[2.625rem] font-bold my-2 lg:my-4">Seu
-                        pedido foi iniciado
+                    <h1 class="text-lg text-center lg:text-left lg:text-[2.625rem] font-bold my-2 lg:my-4">Sua
+                        reserva foi iniciada
                     </h1>
 
 
@@ -83,7 +83,7 @@ onMounted(async () => {
 
                     <div class="hidden lg:flex items-center justify-between">
                         <div class="flex items-center gap-3">
-                            <span class="text-[#848c9b] font-semibold text-xs">Nº DO PEDIDO</span>
+                            <span class="text-[#848c9b] font-semibold text-xs">Nº DA RESERVA</span>
                             <span class="font-bold text-[22px] text-[#191f28]">{{ order.id }}</span>
                         </div>
 
@@ -421,7 +421,8 @@ onMounted(async () => {
                     </div>
                 </div>
 
-                <div class="!bg-[#f5f7f8] mb-8 border-[#dde0e4] border rounded-[16px]">
+                <div v-if="order?.data?.email?.length"
+                    class="!bg-[#f5f7f8] mb-8 border-[#dde0e4] border rounded-[16px]">
                     <h1 class="p-4 py-4 text-sm text-center font-bold mx-auto text-[#4c576c]">E-mail utilizado no pedido
                     </h1>
 
@@ -445,7 +446,7 @@ onMounted(async () => {
                                 </svg>
                                 <p>
                                     <strong>Não geramos um cadastro automático</strong>
-                                    com o e-mail ou número de telefone utilizado no pedido.
+                                    com o número de telefone utilizado no pedido.
                                 </p>
                             </div>
 
@@ -465,7 +466,7 @@ onMounted(async () => {
                                     com o número de telefone utilizado no pedido.
                                 </p>
                                 <p v-else>
-                                    Se a conta logada estiver associada ou número de telefone indicado, aceda a <a
+                                    Se a conta logada estiver associada ao número de telefone indicado, aceda a <a
                                         href="/meus-ingressos" class="text-[#0096ff] font-bold">Meus ingressos</a> para
                                     visualizar os seus bilhetes.
                                 </p>
@@ -479,9 +480,8 @@ onMounted(async () => {
                                         fill="#848C9B" />
                                 </svg>
                                 <p>
-                                    Os ingressos e a confirmação do pedido <strong>serão enviados no e-mail
-                                        informado</strong>.
-                                    Lembre-se de conferir sua Caixa de entrada e Spam.
+                                    Os ingressos e a confirmação do pedido <strong>serão enviados por SMS para o número informado</strong>.
+                                    Certifique-se de que seu aparelho está com sinal e able para receber mensagens.
                                 </p>
                             </div>
 

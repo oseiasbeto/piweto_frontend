@@ -21,7 +21,6 @@ const goToSearch = (keywords) => {
     router.push({ query: { ...route.query, s: keywords || undefined } })
     searchKeywords.value = keywords
     getEvents({
-        status: "a",
         page: 1,
         limit: 10,
         tags: keywords

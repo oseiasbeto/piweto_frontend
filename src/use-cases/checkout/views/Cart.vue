@@ -1,3 +1,522 @@
+<script setup>
+import SplashScreen from "../components/ui/SplashScreen.vue";
+import ProcessingModalPayment from "../components/modals/ProcessingPaymentModal.vue";
+import Header from "../components/ui/Header";
+import { useOrders } from "@/repositories/orders-repository";
+import Container from "@/use-cases/marketplace/components/ui/Container.vue";
+import formatAmount from "@/utils/formatAmount";
+import calculateTotalPrice from "@/utils/calculateTotalPrice";
+import getTotalTicketsSelected from "@/utils/getTotalTicketsSelected";
+import formatEventDateTime from "@/utils/formatEventDateTime";
+import { onMounted, watch, nextTick, computed, ref } from "vue";
+import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
+import { useStore } from "vuex";
+import Swal from "sweetalert2"
+import { toast } from "vue3-toastify"
+import intlTelInput from 'intl-tel-input';
+import OrderSumary from "../components/drawers/OrderSumary.vue";
+import { useUsers } from "@/repositories/users-repository.js";
+import Cookies from "js-cookie";
+
+const { newOrder, loading: loadingOrder } = useOrders()
+const { googleAuth, loading: loadingAuthGoogle } = useUsers()
+const { logout, loading: logoutLoading } = useUsers()
+
+const route = useRoute()
+const router = useRouter()
+const store = useStore()
+
+
+const intl = ref({})
+const inputPhone = ref(null);
+const googleButtonRef = ref(null)
+const googleApiReady = ref(false)
+const googleInitialized = ref(false)
+const isLoading = ref(true)
+const openPPM = ref(false)
+
+const form = ref({
+    fullName: "",
+    phone: "",
+    email: "",
+    numberMul: "",
+    providerPayment: "emis",
+    paymentMethod: "mul"
+})
+
+const errors = ref({
+    fullName: {
+        show: false,
+        message: "",
+        data: ""
+    },
+    email: {
+        show: false,
+        message: "",
+        data: ""
+    },
+    phone: {
+        show: false,
+        message: "",
+        data: ""
+    },
+    numberMul: {
+        show: false,
+        message: "",
+        data: ""
+    },
+    paymentMethod: {
+        show: false,
+        message: "",
+        data: ""
+    }
+})
+
+const formIsValid = computed(() => {
+    // Verifica se há erros nos campos obrigatórios
+    if (errors.value.fullName.show ||
+        errors.value.phone.show ||
+        errors.value.email.show ||
+        !form.value.paymentMethod) {
+        return false
+    }
+
+    // Verifica se os campos obrigatórios estão preenchidos
+    if (!form.value.fullName ||
+        !form.value.phone) {
+        return false
+    }
+
+    // Validações específicas para Multicaixa Express
+    if (form.value.paymentMethod === 'mul') {
+        if (!form.value.numberMul || !/^[0-9]{9}$/.test(form.value.numberMul)) {
+            return false
+        }
+    }
+    return true
+})
+
+// busque os dados do corrente carrinho
+const cart = computed(() => {
+    return store.getters.cart
+})
+
+// busque os dados do currente usuario
+const user = computed(() => {
+    return store.getters.currentUser
+})
+
+const hasLogged = computed(() => {
+    return store.getters.hasLogged
+})
+
+// Substitua pelo seu ID de cliente do Google
+const CLIENT_ID = '914842748542-mc9j2ltt0no88mqlu144u1q1hu19lhq1.apps.googleusercontent.com';
+
+// Configurações (substitua pelo seu Client ID)
+const config = {
+    client_id: CLIENT_ID,
+    callback: async (response) => {
+        // Aqui você processa o token JWT
+        const userData = parseJwt(response.credential);
+
+        if (userData && !loadingAuthGoogle.value) {
+            try {
+                await googleAuth(userData).then(res => {
+                    const user = res.data.user;
+                    form.value = {
+                        fullName: `${user.first_name.replace(/\s/g, '')} ${user.last_name.replace(/\s/g, '')}`,
+                        providerPayment: "emis",
+                        paymentMethod: 'mul',
+                        phone: user.phone?.toString() || '',
+                        numberMul: user.phone,
+                        email: user.email
+                    }
+                    validateAllFields()
+                })
+            } catch (err) {
+                toast(err?.response?.data?.message || 'Algo deu errado!', {
+                    theme: "colored",
+                    autoClose: 2000,
+                    position: "top-right",
+                    transition: "bounce",
+                    type: 'error'
+                })
+            }
+        }
+    }
+};
+// Função para decodificar o JWT
+const parseJwt = (token) => {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+            atob(base64)
+                .split('')
+                .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                .join('')
+        );
+        return JSON.parse(jsonPayload);
+    } catch (e) {
+        console.error('Erro ao decodificar JWT:', e);
+        return null;
+    }
+};
+
+// Modifique esta função para ser reutilizável
+const initGoogleButton = () => {
+    if (!window.google?.accounts?.id || googleInitialized.value) return;
+
+    try {
+        // Limpa qualquer botão existente
+        if (googleButtonRef.value.firstChild) {
+            googleButtonRef.value.removeChild(googleButtonRef.value.firstChild);
+        }
+
+        window.google.accounts.id.initialize({
+            client_id: CLIENT_ID,
+            callback: (response) => {
+                if (!loadingAuthGoogle.value) {
+                    config.callback(response);
+                } else {
+                    toast("Por favor aguarde...", {
+                        theme: "colored",
+                        autoClose: 1000,
+                        position: "top-right",
+                        transition: "bounce",
+                        type: 'info'
+                    });
+                }
+            }
+        });
+
+        // Adiciona um atributo para controle de estado
+        const buttonConfig = {
+            type: 'standard',
+            size: 'large',
+            theme: 'outline',
+            text: 'sign_in_with',
+            shape: 'rectangular',
+            width: '100%',
+        };
+
+        // Se estiver carregando, desativa o botão
+        if (loadingAuthGoogle.value) {
+            buttonConfig.attributes = {
+                'data-login_pending': 'true'
+            };
+        }
+
+        window.google.accounts.id.renderButton(
+            googleButtonRef.value,
+            buttonConfig
+        );
+
+        googleInitialized.value = true;
+    } catch (e) {
+        console.error('Erro no botão Google:', e);
+        return false;
+    }
+};
+
+// Função para verificar e inicializar a API do Google
+const checkAndInitGoogle = () => {
+    if (window.google?.accounts?.id) {
+        if (initGoogleButton()) {
+            googleApiReady.value = true
+        }
+    } else {
+        // Tenta novamente após um pequeno delay
+        setTimeout(checkAndInitGoogle, 300)
+    }
+}
+
+function validatePhone() {
+    const phone = form.value.phone?.toString().trim() || '';
+
+    // Reset errors
+    errors.value.phone.show = false;
+    errors.value.phone.message = "";
+
+    // Validação básica de campo obrigatório
+    if (!phone) {
+        errors.value.phone = {
+            show: true,
+            message: "Este campo é obrigatório."
+        };
+        return false;
+    }
+
+    // Verifica se há caracteres inválidos
+    if (/[^\d\s+]/.test(phone)) {
+        errors.value.phone = {
+            show: true,
+            message: "O número só pode conter dígitos e espaços."
+        };
+        return false;
+    }
+
+    // Fallback para validação manual (caso intl-tel-input não esteja pronto)
+    else {
+        const digitsOnly = phone.replace(/\D/g, '');
+
+        // Validação para números angolanos (9 dígitos, começando com 9)
+        if (!/^9[1-9]\d{7}$/.test(digitsOnly)) {
+            errors.value.phone = {
+                show: true,
+                message: "Digite um número angolano válido."
+            };
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function validateFullName() {
+    if (!form.value.fullName) {
+        errors.value.fullName = {
+            show: true,
+            message: "Este campo é obrigatório."
+        }
+        return false
+    } else if (form.value.fullName.length < 2) {
+        errors.value.fullName = {
+            show: true,
+            message: "O nome completo deve ter pelo menos 2 caracteres."
+        }
+        return false
+    } else {
+        errors.value.fullName.show = false
+        return true
+    }
+}
+
+function validateEmail() {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!form.value.email) {
+        errors.value.email = {
+            show: false,
+            message: ""
+        }
+        return true
+    } else if (!emailRegex.test(form.value.email)) {
+        errors.value.email = {
+            show: true,
+            message: "Por favor, insira um e-mail válido."
+        }
+        return false
+    } else {
+        errors.value.email.show = false
+        return true
+    }
+}
+
+function validateNumberMul() {
+    if (!form.value.numberMul) {
+        errors.value.numberMul = {
+            show: true,
+            message: "Este campo é obrigatório."
+        }
+        return false
+    } else if (!/^[0-9]{9}$/.test(form.value.numberMul)) {
+        errors.value.numberMul = {
+            show: true,
+            message: "O número do Multicaixa deve ter exatamente 9 dígitos."
+        }
+        return false
+    } else {
+        errors.value.numberMul.show = false
+        return true
+    }
+}
+
+function validatePaymentMethod() {
+    if (!form.value.paymentMethod) {
+        errors.value.paymentMethod = {
+            show: true,
+            message: "Por favor, selecione um método de pagamento."
+        }
+        return false
+    } else {
+        errors.value.paymentMethod.show = false
+        return true
+    }
+}
+
+function validateAllFields() {
+    const validations = [
+        validateFullName(),
+        validatePhone(),
+        validateEmail(),
+        validatePaymentMethod()
+    ]
+
+    // Se o método de pagamento for Multicaixa Express, valida também o número
+    if (form.value.paymentMethod === 'mul') {
+        validations.push(validateNumberMul())
+    }
+
+    return validations.every(validation => validation === true)
+}
+
+function changeProvidePayment(name) {
+    if (name === 'paypay') {
+        form.value.providerPayment = name
+        form.value.paymentMethod = name
+
+    } else if (name === 'emis') {
+        form.value.providerPayment = name
+        form.value.paymentMethod = 'mul'
+    }
+}
+
+// tem como finalidade finalizar a compra, criando um novo pedido.
+async function finishPurchase() {
+    if (!validateAllFields()) {
+        return
+    }
+
+    // isto impede do usuario fazer uma requesicao enquanto ja tiver uma em andamento.
+    if (loadingOrder.value || errors.value.phone.show || !form.value.paymentMethod) return
+
+    // isto deve criar um novo pedido e redirecionar para a pagina de obrigado caso tenha prosseguido com exito.
+
+    loadingOrder.value = true
+    setTimeout(async () => {
+        openPPM.value = true
+        await newOrder({
+            cart: cart?.value,
+            eventId: cart?.value.event?._id,
+            paymentMethod: form.value.paymentMethod,
+            data: {
+                fullName: form.value.fullName,
+                email: form.value.email,
+                phone: form.value.phone
+            }
+        }).then(res => {
+            const { newOrder } = res.data
+            router.replace(`/checkout/detalhes-do-pedido/${newOrder.id}`)
+        })
+            .finally(() => {
+                openPPM.value = false
+            })
+            .catch(err => {
+                if (err.response.status === 400) {
+                    if (form.value.paymentMethod === 'mul') {
+                        resetForm()
+                        window.scrollTo(0, 0)
+                        toast('Falha na Execução do Processo.', {
+                            theme: "colored",
+                            position: "bottom-right",
+                            autoClose: 2500,
+                            type: 'error'
+                        })
+                    }
+                }
+            })
+    }, 500)
+}
+
+function resetForm() {
+    form.value = {
+        fullName: "",
+        providerPayment: "emis",
+        paymentMethod: 'mul',
+        phone: "",
+        numberMul: "",
+        email: ""
+    }
+}
+
+async function handleLogout() {
+    const session_id = Cookies.get("session_id")
+    await logout(session_id).catch(err => {
+        console.log(err)
+        toast("Houve um erro.", {
+            theme: "colored",
+            position: "top-right",
+            autoClose: 2517,
+            type: "erro"
+        })
+    })
+}
+
+watch(() => hasLogged.value, async (newValue) => {
+    if (!newValue) {
+        resetForm()
+        validateAllFields()
+
+        await nextTick()
+        checkAndInitGoogle()
+
+        if (window.scrollY > 0) {
+            // Scroll suave para o topo da página
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            })
+        }
+    }
+});
+
+
+onBeforeRouteLeave((to, from, next) => {
+    if (!loadingOrder.value) {
+        next();
+    } else {
+        next(false);
+    }
+});
+
+// quando montar a tela, faca a requisicao para api buscando um carrinho com base no id passado na routa desta pagina e seta o formulario de pagamento do usuario com os dados do corrente usuario.
+onMounted(async () => {
+    if (cart?.value) {
+        if (hasLogged.value) {
+            form.value = {
+                fullName: `${user.value.first_name.replace(/\s/g, '')} ${user.value.last_name.replace(/\s/g, '')}`,
+                providerPayment: "emis",
+                paymentMethod: 'mul',
+                phone: user.value.phone?.toString() || '',
+                numberMul: user.value.phone,
+                email: user.value.email
+            }
+        } else {
+            try {
+                // Verifica se a API do Google já está carregada
+                checkAndInitGoogle()
+            } catch (e) {
+                console.error('Erro na autenticação Google:', e);
+            }
+        }
+
+        const input = inputPhone.value;
+        intl.value = intlTelInput(input, {
+            loadUtilsOnInit: () => import("intl-tel-input/utils"),
+            initialCountry: "ao",
+            onlyCountries: ["ao"],
+            countrySearch: false,   // Desativa a pesquisa de países
+            customPlaceholder: function (selectedCountryPlaceholder, selectedCountryData) {
+                return "9xx xxx xxx";  // Placeholder específico para Angola
+            }
+        });
+
+        // Aguarde a próxima tick do Vue para garantir a inicialização
+        await nextTick();
+
+        setTimeout(() => {
+            isLoading.value = false
+        }, 1000)
+
+        validateAllFields()
+    } else {
+        const slug = route.params.slug
+        router.replace(`/evento/${slug}`)
+    }
+})
+</script>
+
 <template>
     <div v-show="!isLoading">
         <div v-if="cart">
@@ -115,46 +634,28 @@
                                         </span>
                                     </div>
                                     <!--end number phone group-->
-
-                                    <!--start e-mail form-->
-                                    <div class="flex gap-4 flex-col lg:flex-row item-center">
-                                        <div class="flex flex-1 flex-col mb-4">
-                                            <label class="text-xs text-gray-500 mb-2 font-bold" for="email">E-mail <span
-                                                    class="text-brand-danger">*</span></label>
-                                            <input
-                                                class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
-                                                id="email" @input="validateEmail" autocomplete="off"
-                                                oncontextmenu="false" v-model="form.email"
-                                                :class="{ '!border-brand-danger': errors.email.show }">
-                                            <span class="text-brand-danger text-xs font-medium my-1"
-                                                v-if="errors.email.show">
-                                                {{ errors.email.message }}
-                                            </span>
-
-                                        </div>
-                                        <div class="flex flex-1 flex-col mb-4">
-                                            <label class="text-xs text-gray-500 mb-2 font-bold"
-                                                for="confirmEmail">Confirmação
-                                                do
-                                                e-mail <span class="text-brand-danger">*</span></label>
-                                            <input
-                                                class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
-                                                @input="validateConfirmEmail" autocomplete="off" oncontextmenu="false"
-                                                id="confirmEmail" v-model="form.confirmEmail"
-                                                :class="{ '!border-brand-danger': errors.confirmEmail.show }">
-                                            <span class="text-brand-danger text-xs font-medium my-1"
-                                                v-if="errors.confirmEmail.show">
-                                                {{ errors.confirmEmail.message }}
-                                            </span>
-
-                                        </div>
-                                    </div>
-                                    <!--end e-mail form-->
                                     <div
                                         class="after:content-[''] after:block after:w-3.5 after:h-3.5 after:absolute after:rotate-45 after:bg-white after:border-t after:border-l after:border-gray-300 after:-top-2 after:left-5 leading-6 border border-gray-300 p-2.5 rounded-md bg-white text-xs relative my-[10px] mb-[25px]">
-                                        Os ingressos serão enviados por
-                                        e-mail assim que recebermos a confirmação do pagamento.
+                                        Os ingressos serão enviados por SMS para este número assim que o pagamento for
+                                        confirmado.
                                     </div>
+
+                                    <!--start e-mail form-->
+                                    <div class="flex flex-1 flex-col mb-4">
+                                        <label class="text-xs text-gray-500 mb-2 font-bold" for="email">E-mail <span
+                                                class="text-gray-400">(Opcional)</span></label>
+                                        <input
+                                            class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
+                                            id="email" @input="validateEmail" autocomplete="off" oncontextmenu="false"
+                                            v-model="form.email" :class="{ '!border-brand-danger': errors.email.show }">
+                                        <span class="text-brand-danger text-xs font-medium my-1"
+                                            v-if="errors.email.show">
+                                            {{ errors.email.message }}
+                                        </span>
+
+                                    </div>
+                                    <!--end e-mail form-->
+
                                 </div>
                             </div>
                             <!--end form-->
@@ -422,590 +923,6 @@
     <SplashScreen :visible="isLoading" />
 
 </template>
-
-<script setup>
-import SplashScreen from "../components/ui/SplashScreen.vue";
-import ProcessingModalPayment from "../components/modals/ProcessingPaymentModal.vue";
-import Header from "../components/ui/Header";
-import { useOrders } from "@/repositories/orders-repository";
-import Container from "@/use-cases/marketplace/components/ui/Container.vue";
-import formatAmount from "@/utils/formatAmount";
-import calculateTotalPrice from "@/utils/calculateTotalPrice";
-import getTotalTicketsSelected from "@/utils/getTotalTicketsSelected";
-import formatEventDateTime from "@/utils/formatEventDateTime";
-import { onMounted, watch, nextTick, computed, ref } from "vue";
-import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
-import { useStore } from "vuex";
-import Swal from "sweetalert2"
-import { toast } from "vue3-toastify"
-import intlTelInput from 'intl-tel-input';
-import OrderSumary from "../components/drawers/OrderSumary.vue";
-import { useUsers } from "@/repositories/users-repository.js";
-import Cookies from "js-cookie";
-
-const { newOrder, loading: loadingOrder } = useOrders()
-const { googleAuth, loading: loadingAuthGoogle } = useUsers()
-const { logout, loading: logoutLoading } = useUsers()
-
-const route = useRoute()
-const router = useRouter()
-const store = useStore()
-
-
-const intl = ref({})
-const inputPhone = ref(null);
-const googleButtonRef = ref(null)
-const googleApiReady = ref(false)
-const googleInitialized = ref(false)
-const isLoading = ref(true)
-const openPPM = ref(false)
-
-const form = ref({
-    fullName: "",
-    phone: "",
-    confirmEmail: "",
-    numberMul: "",
-    providerPayment: "emis",
-    paymentMethod: "mul"
-})
-
-const errors = ref({
-    fullName: {
-        show: false,
-        message: "",
-        data: ""
-    },
-    email: {
-        show: false,
-        message: "",
-        data: ""
-    },
-    confirmEmail: {
-        show: false,
-        message: "",
-        data: ""
-    },
-    phone: {
-        show: false,
-        message: "",
-        data: ""
-    },
-    numberMul: {
-        show: false,
-        message: "",
-        data: ""
-    },
-    paymentMethod: {
-        show: false,
-        message: "",
-        data: ""
-    }
-})
-
-const formIsValid = computed(() => {
-    // Verifica se há erros nos campos obrigatórios
-    if (errors.value.fullName.show ||
-        errors.value.email.show ||
-        errors.value.confirmEmail.show ||  // Corrigido: estava sem .show
-        errors.value.phone.show ||
-        !form.value.paymentMethod) {
-        return false
-    }
-
-    // Verifica se os campos obrigatórios estão preenchidos
-    if (!form.value.fullName ||
-        !form.value.email ||
-        !form.value.confirmEmail ||
-        !form.value.phone) {
-        return false
-    }
-
-    // Validações específicas para Multicaixa Express
-    if (form.value.paymentMethod === 'mul') {
-        if (!form.value.numberMul || !/^[0-9]{9}$/.test(form.value.numberMul)) {
-            return false
-        }
-    }
-
-    // Verifica se os emails coincidem
-    if (form.value.email !== form.value.confirmEmail) {
-        return false
-    }
-
-    return true
-})
-
-// busque os dados do corrente carrinho
-const cart = computed(() => {
-    return store.getters.cart
-})
-
-// busque os dados do currente usuario
-const user = computed(() => {
-    return store.getters.currentUser
-})
-
-const hasLogged = computed(() => {
-    return store.getters.hasLogged
-})
-
-// Substitua pelo seu ID de cliente do Google
-const CLIENT_ID = '914842748542-mc9j2ltt0no88mqlu144u1q1hu19lhq1.apps.googleusercontent.com';
-
-// Configurações (substitua pelo seu Client ID)
-const config = {
-    client_id: CLIENT_ID,
-    callback: async (response) => {
-        // Aqui você processa o token JWT
-        const userData = parseJwt(response.credential);
-
-        if (userData && !loadingAuthGoogle.value) {
-            try {
-                await googleAuth(userData).then(res => {
-                    const user = res.data.user;
-                    form.value = {
-                        fullName: `${user.first_name.replace(/\s/g, '')} ${user.last_name.replace(/\s/g, '')}`,
-                        providerPayment: "emis",
-                        paymentMethod: 'mul',
-                        phone: user.phone?.toString() || '',
-                        numberMul: user.phone,
-                        email: user.email,
-                        confirmEmail: user.email
-                    }
-                    validateAllFields()
-                })
-            } catch (err) {
-                toast(err?.response?.data?.message || 'Algo deu errado!', {
-                    theme: "colored",
-                    autoClose: 2000,
-                    position: "top-right",
-                    transition: "bounce",
-                    type: 'error'
-                })
-            }
-        }
-    }
-};
-// Função para decodificar o JWT
-const parseJwt = (token) => {
-    try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(
-            atob(base64)
-                .split('')
-                .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-                .join('')
-        );
-        return JSON.parse(jsonPayload);
-    } catch (e) {
-        console.error('Erro ao decodificar JWT:', e);
-        return null;
-    }
-};
-
-// Modifique esta função para ser reutilizável
-const initGoogleButton = () => {
-    if (!window.google?.accounts?.id || googleInitialized.value) return;
-
-    try {
-        // Limpa qualquer botão existente
-        if (googleButtonRef.value.firstChild) {
-            googleButtonRef.value.removeChild(googleButtonRef.value.firstChild);
-        }
-
-        window.google.accounts.id.initialize({
-            client_id: CLIENT_ID,
-            callback: (response) => {
-                if (!loadingAuthGoogle.value) {
-                    config.callback(response);
-                } else {
-                    toast("Por favor aguarde...", {
-                        theme: "colored",
-                        autoClose: 1000,
-                        position: "top-right",
-                        transition: "bounce",
-                        type: 'info'
-                    });
-                }
-            }
-        });
-
-        // Adiciona um atributo para controle de estado
-        const buttonConfig = {
-            type: 'standard',
-            size: 'large',
-            theme: 'outline',
-            text: 'sign_in_with',
-            shape: 'rectangular',
-            width: '100%',
-        };
-
-        // Se estiver carregando, desativa o botão
-        if (loadingAuthGoogle.value) {
-            buttonConfig.attributes = {
-                'data-login_pending': 'true'
-            };
-        }
-
-        window.google.accounts.id.renderButton(
-            googleButtonRef.value,
-            buttonConfig
-        );
-
-        googleInitialized.value = true;
-    } catch (e) {
-        console.error('Erro no botão Google:', e);
-        return false;
-    }
-};
-
-// Função para verificar e inicializar a API do Google
-const checkAndInitGoogle = () => {
-    if (window.google?.accounts?.id) {
-        if (initGoogleButton()) {
-            googleApiReady.value = true
-        }
-    } else {
-        // Tenta novamente após um pequeno delay
-        setTimeout(checkAndInitGoogle, 300)
-    }
-}
-
-function validatePhone() {
-    const phone = form.value.phone?.toString().trim() || '';
-
-    // Reset errors
-    errors.value.phone.show = false;
-    errors.value.phone.message = "";
-
-    // Validação básica de campo obrigatório
-    if (!phone) {
-        errors.value.phone = {
-            show: true,
-            message: "Este campo é obrigatório."
-        };
-        return false;
-    }
-
-    // Verifica se há caracteres inválidos
-    if (/[^\d\s+]/.test(phone)) {
-        errors.value.phone = {
-            show: true,
-            message: "O número só pode conter dígitos e espaços."
-        };
-        return false;
-    }
-
-    // Fallback para validação manual (caso intl-tel-input não esteja pronto)
-    else {
-        const digitsOnly = phone.replace(/\D/g, '');
-
-        // Validação para números angolanos (9 dígitos, começando com 9)
-        if (!/^9[1-9]\d{7}$/.test(digitsOnly)) {
-            errors.value.phone = {
-                show: true,
-                message: "Digite um número angolano válido."
-            };
-            return false;
-        }
-    }
-
-    return true;
-}
-
-function validateFullName() {
-    if (!form.value.fullName) {
-        errors.value.fullName = {
-            show: true,
-            message: "Este campo é obrigatório."
-        }
-        return false
-    } else if (form.value.fullName.length < 2) {
-        errors.value.fullName = {
-            show: true,
-            message: "O nome completo deve ter pelo menos 2 caracteres."
-        }
-        return false
-    } else {
-        errors.value.fullName.show = false
-        return true
-    }
-}
-
-function validateEmail() {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!form.value.email) {
-        errors.value.email = {
-            show: true,
-            message: "Este campo é obrigatório."
-        }
-        return false
-    } else if (!emailRegex.test(form.value.email)) {
-        errors.value.email = {
-            show: true,
-            message: "Por favor, insira um e-mail válido."
-        }
-        return false
-    } else {
-        errors.value.email.show = false
-        return true
-    }
-}
-
-function validateConfirmEmail() {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    // Primeiro verifica se o campo está vazio
-    if (!form.value.confirmEmail) {
-        errors.value.confirmEmail = {
-            show: true,
-            message: "Por favor, confirme seu e-mail."
-        };
-        return false;
-    }
-
-    // Depois verifica se é um e-mail válido
-    if (!emailRegex.test(form.value.confirmEmail)) {
-        errors.value.confirmEmail = {
-            show: true,
-            message: "Por favor, insira um e-mail válido."
-        };
-        return false;
-    }
-
-    // Por último verifica se os e-mails coincidem
-    if (form.value.confirmEmail !== form.value.email) {
-        errors.value.confirmEmail = {
-            show: true,
-            message: "Os e-mails não coincidem."
-        };
-        return false;
-    }
-
-    // Se tudo estiver correto
-    errors.value.confirmEmail.show = false;
-    return true;
-}
-
-function validateNumberMul() {
-    if (!form.value.numberMul) {
-        errors.value.numberMul = {
-            show: true,
-            message: "Este campo é obrigatório."
-        }
-        return false
-    } else if (!/^[0-9]{9}$/.test(form.value.numberMul)) {
-        errors.value.numberMul = {
-            show: true,
-            message: "O número do Multicaixa deve ter exatamente 9 dígitos."
-        }
-        return false
-    } else {
-        errors.value.numberMul.show = false
-        return true
-    }
-}
-
-function validatePaymentMethod() {
-    if (!form.value.paymentMethod) {
-        errors.value.paymentMethod = {
-            show: true,
-            message: "Por favor, selecione um método de pagamento."
-        }
-        return false
-    } else {
-        errors.value.paymentMethod.show = false
-        return true
-    }
-}
-
-function validateAllFields() {
-    const validations = [
-        validateFullName(),
-        validateEmail(),
-        validateConfirmEmail(),
-        validatePhone(),
-        validatePaymentMethod()
-    ]
-
-    // Se o método de pagamento for Multicaixa Express, valida também o número
-    if (form.value.paymentMethod === 'mul') {
-        validations.push(validateNumberMul())
-    }
-
-    return validations.every(validation => validation === true)
-}
-
-function changeProvidePayment(name) {
-    if (name === 'paypay') {
-        form.value.providerPayment = name
-        form.value.paymentMethod = name
-
-    } else if (name === 'emis') {
-        form.value.providerPayment = name
-        form.value.paymentMethod = 'mul'
-    }
-}
-
-// tem como finalidade finalizar a compra, criando um novo pedido.
-async function finishPurchase() {
-    if (!validateAllFields()) {
-        return
-    }
-
-    // isto impede do usuario fazer uma requesicao enquanto ja tiver uma em andamento.
-    if (loadingOrder.value || errors.value.phone.show || !form.value.paymentMethod) return
-
-    // isto deve criar um novo pedido e redirecionar para a pagina de obrigado caso tenha prosseguido com exito.
-
-    loadingOrder.value = true
-    setTimeout(async () => {
-        openPPM.value = true
-        await newOrder({
-            cart: cart?.value,
-            eventId: cart?.value.event?._id,
-            paymentMethod: form.value.paymentMethod,
-            data: {
-                fullName: form.value.fullName,
-                email: form.value.email,
-                phone: form.value.phone
-            }
-        }).then(res => {
-            const { newOrder } = res.data
-            router.replace(`/checkout/detalhes-do-pedido/${newOrder.id}`)
-        })
-            .finally(() => {
-                openPPM.value = false
-            })
-            .catch(err => {
-                if (err.response.status === 400) {
-                    if (form.value.paymentMethod === 'mul') {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Número não reconhecido",
-                            text: "O número informado não está associado a uma conta Multicaixa Express. Verifique os dados e tente novamente.",
-                            confirmButtonText: "OK"
-                        }).then(() => {
-                            form.value.phone = ''
-                        });
-                    }
-                }
-            })
-    }, 500)
-}
-
-function resetForm() {
-    form.value = {
-        fullName: "",
-        providerPayment: "emis",
-        paymentMethod: 'mul',
-        phone: "",
-        numberMul: "",
-        email: "",
-        confirmEmail: ""
-    }
-}
-
-async function handleLogout() {
-    const session_id = Cookies.get("session_id")
-    await logout(session_id).catch(err => {
-        console.log(err)
-        toast("Houve um erro.", {
-            theme: "colored",
-            position: "top-right",
-            autoClose: 2517,
-            type: "erro"
-        })
-    })
-}
-
-// Adicione um watcher para observar mudanças no email principal
-watch(() => form.value.email, (newEmail) => {
-    if (form.value.confirmEmail && newEmail !== form.value.confirmEmail) {
-        errors.value.confirmEmail = {
-            show: true,
-            message: "Os e-mails não coincidem."
-        };
-    } else if (errors.value.confirmEmail.show && newEmail === form.value.confirmEmail) {
-        errors.value.confirmEmail.show = false;
-    }
-});
-
-watch(() => hasLogged.value, async (newValue) => {
-    if (!newValue) {
-        resetForm()
-        validateAllFields()
-
-        await nextTick()
-        checkAndInitGoogle()
-
-        if (window.scrollY > 0) {
-            // Scroll suave para o topo da página
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            })
-        }
-    }
-});
-
-
-onBeforeRouteLeave((to, from, next) => {
-    if (!loadingOrder.value) {
-        next();
-    } else {
-        next(false);
-    }
-});
-
-// quando montar a tela, faca a requisicao para api buscando um carrinho com base no id passado na routa desta pagina e seta o formulario de pagamento do usuario com os dados do corrente usuario.
-onMounted(async () => {
-    if (cart?.value) {
-        if (hasLogged.value) {
-            form.value = {
-                fullName: `${user.value.first_name.replace(/\s/g, '')} ${user.value.last_name.replace(/\s/g, '')}`,
-                providerPayment: "emis",
-                paymentMethod: 'mul',
-                phone: user.value.phone?.toString() || '',
-                numberMul: user.value.phone,
-                email: user.value.email,
-                confirmEmail: user.value.confirmEmail
-            }
-        } else {
-            try {
-                // Verifica se a API do Google já está carregada
-                checkAndInitGoogle()
-            } catch (e) {
-                console.error('Erro na autenticação Google:', e);
-            }
-        }
-
-        const input = inputPhone.value;
-        intl.value = intlTelInput(input, {
-            loadUtilsOnInit: () => import("intl-tel-input/utils"),
-            initialCountry: "ao",
-            onlyCountries: ["ao"],
-            countrySearch: false,   // Desativa a pesquisa de países
-            customPlaceholder: function (selectedCountryPlaceholder, selectedCountryData) {
-                return "9xx xxx xxx";  // Placeholder específico para Angola
-            }
-        });
-
-        // Aguarde a próxima tick do Vue para garantir a inicialização
-        await nextTick();
-
-        setTimeout(() => {
-            isLoading.value = false
-        }, 1000)
-
-        validateAllFields()
-    } else {
-        const slug = route.params.slug
-        router.replace(`/evento/${slug}`)
-    }
-})
-</script>
 
 <style scoped>
 .st0 {

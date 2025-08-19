@@ -23,6 +23,31 @@ export function useTickets() {
     }
   };
 
+  const getTicketsByOrderId = async ({ id, page, limit }) => {
+    try {
+      const response = await api.get(`/tickets/reservation/${id}`, {
+        params: {
+          page,
+          limit,
+        },
+      });
+
+      const tickets = response.data.data;
+      const metadata = response.data.pagination;
+
+      store.dispatch("setTickets", {
+        data: tickets,
+        metadata: metadata,
+        hasViewed: true
+      })
+    } catch (err) {
+      console.log(err.message);
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
   const getPartakers = async ({ page, limit, eventId, status }) => {
     try {
       loading.value = true
@@ -84,6 +109,7 @@ export function useTickets() {
     getTicketsLoadMore,
     searchUserTickets,
     getPartakers,
+    getTicketsByOrderId,
     loading,
   };
 }

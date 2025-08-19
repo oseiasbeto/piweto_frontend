@@ -73,7 +73,7 @@ const sidebar = computed(() => {
             <Sidebar :isView="sidebar.show" />
 
             <!--start footer-->
-            <Footer />
+            <Footer/>
             <!--end footer-->
         </div>
         <!--end views marketplace-->
