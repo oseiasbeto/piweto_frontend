@@ -4,11 +4,10 @@ import Cart from "./views/Cart.vue";
 import Order from "./views/Order.vue";
 import { computed } from "vue";
 import DetailsEvent from "./views/DetailsEvent.vue";
-import Navbar from "./components/ui/Navbar.vue";
 import Footer from "./components/ui/Footer.vue";
 import { useStore } from "vuex";
 import Modal from "./components/ui/Modal.vue";
-import NavbarEventMobile from "./components/ui/NavbarEventMobile.vue";
+import Navbar from "../marketplace/components/ui/Navbar.vue";
 
 const route = useRoute()
 const router = useRouter()
@@ -17,10 +16,9 @@ const store = useStore()
 </script>
 
 <template>
-    <div class="relative min-h-screen bg-[#f5f7f8]" :class="{ 'bg-white': route.name === 'Order' }">
+    <div class="relative min-h-screen bg-[rgba(82,31,142,.077)]" :class="{ 'bg-white': route.name === 'Order' }">
         <!--start navbar-->
         <Navbar />
-        <NavbarEventMobile v-show="route.name === 'Details event'"/>
         <!--end navbar-->
 
         <!--start main-->

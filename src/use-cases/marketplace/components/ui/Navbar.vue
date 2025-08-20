@@ -50,32 +50,15 @@ const hasLogged = computed(() => {
 </script>
 
 <template>
-    <div style="box-shadow: 0 4px 13px -3px rgba(0,0,0,0.10196)" class="sticky top-0 z-[90] border-[#dfdfdf]">
-        <div class="overflow-hidden transition-all w-full bg-brand-primary px-4 xl:px-0 relative"
-            :class="openSearch ? 'h-[66px]' : 'h-0'">
-            <Container>
-                <div class="flex justify-between items-center">
-                    <input v-model="searchInputKeywords" ref="searchInputRef" @keyup.enter="goToSearch"
-                        class="flex h-[66px] text-lg pr-[28px] lg:pr-[38px] lg:text-3xl placeholder:text-white font-light outline-none flex-1 bg-transparent text-white"
-                        type="text" placeholder="digite o título do evento">
-                    <button @click="toggleOpenSearch">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 1024 1024">
-                            <path fill="#fff"
-                                d="M195.2 195.2a64 64 0 0 1 90.496 0L512 421.504 738.304 195.2a64 64 0 0 1 90.496 90.496L602.496 512 828.8 738.304a64 64 0 0 1-90.496 90.496L512 602.496 285.696 828.8a64 64 0 0 1-90.496-90.496L421.504 512 195.2 285.696a64 64 0 0 1 0-90.496z" />
-                        </svg>
-                    </button>
-                </div>
-
-            </Container>
-        </div>
-        <div class="px-4 xl:px-0 relative bg-white border-b-[1px] h-[66px] py-3">
+    <div class="sticky top-0 z-[90]">
+        <div class="px-4 xl:px-0 relative bg-white h-[64px] py-3">
             <Container>
                 <div class="flex justify-between">
                     <div>
                         <Logo size="w-[112px]" />
                     </div>
                     <div class="flex items-center">
-                        <ul class="hidden md:flex items-center gap-2">
+                        <ul class="hidden lg:flex items-center gap-2">
                             <li v-if="hasLogged">
                                 <router-link
                                     class="py-2.5 px-3 flex items-center border border-white text-gray-500 hover:text-brand-primary  font-semibold text-sm"

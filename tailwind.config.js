@@ -4,30 +4,21 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        brand: {
-          primary: "#32ba78",
-          secondary: "#ffcd36",
-          success: "#3bbf63",
-          info: "#0096ff",
-          danger: "#f33e5c",
-        },
-      },
-      borderRadius: {
-        'custom': '.16rem',
-      },
-      boxShadow: {
-        'custom': '0 1px 15px 1px rgba(81,77,92,.5)',
-        'custom-secondary': '0 1px 15px 1px rgba(81, 77, 92, .16);',
-        'custom-google': '0px 2px 8px 0px rgba(60, 64, 67, 0.25)',
-        'sidebar': '0 -.05333rem .16rem #dbdbdb80'
+        "black-text": "#272c2f",
+        "primary": "#632291",
+        "secondary": "#ffd300",
+        "success": "#3bbf63",
+        "info": "#0096ff",
+        "danger": "#f33e5c",
+        "border-color": "rgb(221,224,228)",
+        "btn-pay-color": "#09d13c",
+        "muted-bg": "rgba(0,0,0,.12)",
+        "muted-color": "rgba(0,0,0,.26)"
       },
       fontFamily: {
-        primary: ['Poppins', 'sans-serif'], // Fonte principal
+        primary: ['Inter', 'sans-serif'], // Fonte principal
         secondary: ['Raleway', 'serif'],     // Fonte secundária
-      },
-      screens: {
-        'zoom-110': { max: '1745px' }, // Tamanho aproximado para 110% no zoom
-      },
+      }
     },
   }
 }

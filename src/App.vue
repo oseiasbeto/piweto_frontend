@@ -36,7 +36,7 @@ onBeforeMount(async () => {
 
 <template>
     <!-- start main app area-->
-    <div class="app text-[#212529]">
+    <div class="app font-primary text-black-text">
         <div v-if="!loading">
             <router-view></router-view>
             <AlertCookies />

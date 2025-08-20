@@ -18,6 +18,7 @@ import formatEventDates from "@/utils/formatEventDates";
 import formatEventTime from "@/utils/formatEventTime";
 import { useCoupons } from "@/repositories/coupons-repository";
 import SplashScreen from "../components/ui/SplashScreen.vue";
+import createRippleAnimation from "@/utils/createRippleAnimation";
 
 const { getEvent, loading: loadingEvent, error: errorEvent } = useEvents();
 const { getBatches, loading: loadingBatches, error: errorBatches } = useBatches()
@@ -145,9 +146,9 @@ function canReleaseSales(targetDate) {
 
 
 // Esta função tem como finalidade fazer uma requesição REST a api para criar um carrinho de compras com os ingressos selecionados pelo corrente usuário. 
-function sendToCart() {
+function sendToCart(e) {
     if (batchesSelected.value.length) {
-
+        createRippleAnimation(e)
         const id = `RES-${Date.now()}`
         store.dispatch("setCart", {
             id,
@@ -172,8 +173,9 @@ function sendToCart() {
 }
 
 // Esta função tem como finalidade fazer uma requesição REST a api e aplicar um cupom de desconto para o carrinho de compras. 
-async function _applyCoupon(code) {
+async function _applyCoupon(code, event) {
     if (loadingCoupon.value || code !== "") {
+        createRippleAnimation(event)
         await applyCoupon({
             couponName: code
         })
@@ -269,13 +271,13 @@ onMounted(async () => {
                         :style="`background-image: url(${event.cover.medium || 'https://i.ibb.co/RpzZJGzc/5f282a0c6a2d9.png'})`">
 
                         <Container>
-                            <div class="flex h-full w-full relative items-center lg:px-8">
-                                <section class="hidden lg:block min-w-[320px]">
+                            <div class="flex h-full gap-9 w-full relative items-center lg:px-4 xl:px-0">
+                                <section class="block flex-1">
                                     <div class="pr-8">
                                         <h1
-                                            class="font-bold text-[28px] text-white mt-2 mb-4 break-words leading-[40px] tracking-[-0.05rem]">
+                                            class="font-bold text-[30px] text-white mt-2 mb-4 line-clamp-2 break-words leading-[40px] tracking-[-0.05rem]">
                                             {{ event?.name }}</h1>
-                                        <div class="flex text-sm mb-2 gap-2 text-white">
+                                        <div class="flex text-base mb-2 gap-2 text-white" style="text-shadow: 1px 1px 2px rgba(0,0,0,.7);">
                                             <svg width="16" fill="#fff" height="16" viewBox="0 0 24 24"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" clip-rule="evenodd"
@@ -290,7 +292,7 @@ onMounted(async () => {
                                                     formatDate(event.ends_at.date) }} às {{ formatTime(event.ends_at.hm) }}
                                             </p>
                                         </div>
-                                        <div class="flex items-center text-sm gap-2 text-white">
+                                        <div class="flex items-center text-base gap-2 text-white" style="text-shadow: 1px 1px 2px rgba(0,0,0,.7);">
                                             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" clip-rule="evenodd"
@@ -298,27 +300,15 @@ onMounted(async () => {
                                                 </path>
                                             </svg>
 
-                                            <p>Evento presencial em <a
-                                                    :href="`https://www.google.com/maps/search/${event.address.location}`"
-                                                    target="_blank" class="text-[rgb(58,175,255)]"><b>{{
-                                                        event.address.location }}</b></a> </p>
+                                            <p>Evento presencial em {{
+                                                        event.address.location }}</p>
                                         </div>
                                     </div>
                                 </section>
 
                                 <section
-                                    class="relative lg:mb-3.5 flex items-end justify-center h-full w-full lg:max-w-[540px] max-h-[280px] mx-auto lg:rounded-xl bg-center bg-cover bg-no-repeat lg:shadow-[0_20px_36px_0_rgba(25,31,40,0.2)]"
-                                    :style="`background-image: url(${event.cover.medium || 'https://i.ibb.co/RpzZJGzc/5f282a0c6a2d9.png'})`">
-                                    <button @click="copyToClipboard('https://piweto.it.ao/' + route.fullPath)"
-                                        class="-mb-[21px] bg-white text-[rgb(0,151,255)] lg:rounded-full outline-none border-transparent shadow-[0_1px_4px_0_rgba(0,0,0,0.15),0_0_4px_0_rgba(0,0,0,0.12)] lg:shadow-none border font-semibold font-sans text-sm leading-4 inline-flex items-center justify-center min-w-fit absolute lg:relative w-full lg:w-max cursor-pointer transition-[0.2s] ease-in no-underline px-4 py-2 flex-row uppercase">
-                                        <svg viewBox="0 0 24 24" class="w-6 h-6 mr-2"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path fill="#0097ff" fill-rule="evenodd" clip-rule="evenodd"
-                                                d="M15.26 10.5c.318-.038.64.007.936.131a.7.7 0 0 1 .298.298c.124.295.17.618.13.936v4.27c.04.318-.006.64-.13.936a.7.7 0 0 1-.298.298c-.295.124-.618.17-.936.131H5.74a1.846 1.846 0 0 1-.936-.131.7.7 0 0 1-.298-.298 1.846 1.846 0 0 1-.131-.936v-4.27c-.038-.318.007-.64.131-.936a.7.7 0 0 1 .298-.298c.295-.124.618-.17.936-.131a.875.875 0 0 0 0-1.75 3.36 3.36 0 0 0-1.75.341 2.371 2.371 0 0 0-1.024 1.015 3.36 3.36 0 0 0-.341 1.75v4.27a3.36 3.36 0 0 0 .341 1.75c.225.435.58.79 1.015 1.015a3.36 3.36 0 0 0 1.75.342h9.529a3.36 3.36 0 0 0 1.75-.342c.435-.225.79-.58 1.015-1.015a3.36 3.36 0 0 0 .341-1.75v-4.261a3.36 3.36 0 0 0-.341-1.75A2.372 2.372 0 0 0 17.01 9.1a3.36 3.36 0 0 0-1.75-.341.875.875 0 1 0 0 1.75V10.5ZM9.625 4.742V14a.875.875 0 0 0 1.75 0V4.734l2.004 2.012a.875.875 0 1 0 1.242-1.234l-3.5-3.5a.875.875 0 0 0-1.33.088L6.38 5.512A.879.879 0 1 0 7.62 6.755l2.004-2.013Z">
-                                            </path>
-                                        </svg>
-                                        Compartilhar
-                                    </button>
+                                    class="relative shrink-0 w-[518px] h-[280px] overflow-hidden max-h-[280px] lg:rounded-xl bg-center bg-cover bg-no-repeat lg:shadow-[0_20px_36px_0_rgba(25,31,40,0.2)]"
+                                    :style="`background-image: url(${event.cover.medium || 'https://i.ibb.co/RpzZJGzc/5f282a0c6a2d9.png'}); background-size: cover`">
                                 </section>
                             </div>
                         </Container>
@@ -330,9 +320,9 @@ onMounted(async () => {
                 <!--data start-->
                 <Container>
                     <div class="lg:mt-5">
-                        <div class="flex flex-col lg:flex-row">
-                            <div class="w-full lg:w-2/3">
-                                <div class="bg-white pb-10 block mb-5 lg:mb-0 lg:hidden mt-7 lg:mt-0 pt-3 lg:pt-4 px-4">
+                        <div class="flex flex-col-reverse lg:flex-row">
+                            <div class="w-full flex-1">
+                                <div class="bg-white pb-10 block mb-5 lg:mb-0 lg:hidden mt-4 lg:mt-0 pt-3 lg:pt-2 px-3">
                                     <h3 style="letter-spacing: 0.2px;"
                                         class="text-[#4c576c] mb-1 font-bold text-[28px] lg:text-3xl">{{
                                             event.name
@@ -377,104 +367,9 @@ onMounted(async () => {
 
                                     </div>
 
-                                    <!--cart start-->
-                                    <div
-                                        class="border rounded-[12px] w-full bg-white shadow-[0px_6px_24px_rgb(221,224,228)] overflow-hidden lg:block select-none">
-                                        <div
-                                            class="bg-[rgb(76,87,108)] text-white flex rounded-t-xl justify-between p-3 text-base font-semibold leading-6">
-                                            <span>Ingressos</span>
 
-                                        </div>
-                                        <div v-if="!loadingBatches">
-                                            <div class="max-h-[345px] overflow-y-auto">
-                                                <ul v-if="batches.data.length">
-                                                    <li class="border-t py-2 px-4 text-[13px] text-[#50525f] border-[rgb(221,224,228)]"
-                                                        v-for="(batch, index) in batches.data" :index="index">
-
-
-                                                        <div class="flex justify-between mb-0.5 items-center">
-                                                            <div class="flex-1">
-                                                                <div
-                                                                    class="flex text-sm text-[rgb(25,31,40)] items-center gap-1">
-                                                                    <div class="font-bold">{{ batch.name }}</div>
-                                                                    <!--
-                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                                                data-testid="question-mark-icon" width="16" height="16">
-                                                                <path fill="currentColor"
-                                                                    d="M18.927 7.984A7.83 7.83 0 0 1 20 12c0 1.451-.358 2.79-1.073 4.016a7.967 7.967 0 0 1-2.911 2.911A7.825 7.825 0 0 1 12 20a7.83 7.83 0 0 1-4.016-1.073 7.965 7.965 0 0 1-2.911-2.911A7.826 7.826 0 0 1 4 12c0-1.451.358-2.79 1.073-4.016a7.96 7.96 0 0 1 2.912-2.91A7.824 7.824 0 0 1 12 4a7.83 7.83 0 0 1 4.016 1.073 7.966 7.966 0 0 1 2.911 2.911zm-3.057 2.86a2.797 2.797 0 0 0-.448-2.542 3.945 3.945 0 0 0-1.442-1.208 3.952 3.952 0 0 0-1.771-.428c-1.688 0-2.976.74-3.865 2.22-.104.166-.076.312.083.437l1.375 1.042a.297.297 0 0 0 .198.062.307.307 0 0 0 .26-.125c.369-.472.667-.792.897-.959.236-.166.534-.25.896-.25.333 0 .63.09.89.271.26.181.39.386.39.615 0 .264-.069.476-.208.635-.138.16-.374.316-.708.47a3.566 3.566 0 0 0-1.203.9c-.365.406-.547.842-.547 1.307v.376c0 .097.031.177.094.24A.324.324 0 0 0 11 14h2a.326.326 0 0 0 .24-.094.325.325 0 0 0 .094-.24c0-.131.075-.303.224-.515.149-.212.338-.383.567-.516.222-.125.392-.223.51-.296.119-.073.279-.195.48-.365a2.43 2.43 0 0 0 .463-.5c.108-.163.205-.373.292-.63zM13.334 17v-2a.322.322 0 0 0-.333-.333H11a.327.327 0 0 0-.24.093.325.325 0 0 0-.093.24v2c0 .097.031.177.093.24a.325.325 0 0 0 .24.093h2a.32.32 0 0 0 .334-.333z">
-                                                                </path>
-                                                            </svg>-->
-                                                                </div>
-                                                                <p>{{ formatAmount(batch.price) }}</p>
-                                                                <p class="text-[rgb(132,140,155)] italic text-xs">Vendas
-                                                                    até
-                                                                    {{
-                                                                        formattedDate(batch.ends_at.date) }}</p>
-                                                            </div>
-                                                            <div>
-                                                                <div v-if="batch.quantity > 0 && !isDatePassed(batch.ends_at.date) && canReleaseSales(batch?.starts_at?.date)"
-                                                                    class="flex items-center">
-                                                                    <button
-                                                                        class="w-[32px] h-[32px] m-1 flex justify-center items-center text-[#fff] bg-[rgb(0,151,255)] rounded-[8px]"
-                                                                        @click="reduceBatch(index)" :class="{
-                                                                            'cursor-not-allowed text-[#848C9B] bg-[rgb(221,224,228)]': batch.quantitySelected <= 0
-                                                                        }">
-                                                                        <svg viewBox="0 0 16 16" fill="none"
-                                                                            xmlns="http://www.w3.org/2000/svg"
-                                                                            width="13">
-                                                                            <path
-                                                                                d="M3.294 7.637h9.412c.347 0 .628.298.628.667 0 .368-.281.666-.628.666H3.294c-.346 0-.627-.298-.627-.666 0-.369.28-.667.627-.667Z"
-                                                                                fill="currentColor"></path>
-                                                                        </svg>
-                                                                    </button>
-                                                                    <p
-                                                                        class="text-base font-semibold text-[rgb(76,87,108)] w-[26px] text-center">
-                                                                        {{ batch.quantitySelected }}</p>
-                                                                    <button
-                                                                        class=" w-[32px] h-[32px] m-1 flex justify-center items-center text-[#fff] bg-[rgb(0,151,255)] rounded-[8px]"
-                                                                        @click="addBatch(index)" :class="{
-                                                                            'cursor-not-allowed text-[#848C9B] bg-[rgb(221,224,228)]': batch.quantitySelected >= batch.quantity_for_purchase.max
-                                                                        }">
-                                                                        <svg viewBox="0 0 13 13" fill="none"
-                                                                            xmlns="http://www.w3.org/2000/svg"
-                                                                            width="13">
-                                                                            <path
-                                                                                d="M.667 6.99H11.98a.667.667 0 0 0 0-1.333H6.99V.667a.667.667 0 0 0-1.333 0v4.99H.667a.667.667 0 0 0 0 1.333Z"
-                                                                                fill="#fff"></path>
-                                                                            <path
-                                                                                d="M5.657 11.98V6.04a.667.667 0 0 1 1.333 0v5.94a.667.667 0 0 1-1.333 0Z"
-                                                                                fill="#fff"></path>
-                                                                        </svg>
-                                                                    </button>
-                                                                </div>
-
-                                                                <div class="italic"
-                                                                    v-else-if="isDatePassed(batch.ends_at.date)">
-                                                                    <p>Encerrado</p>
-                                                                </div>
-                                                                <div class="italic"
-                                                                    v-else-if="!canReleaseSales(batch?.starts_at?.date)">
-                                                                    <p>Em breve</p>
-                                                                </div>
-
-                                                                <div class="italic lmax"
-                                                                    v-else-if="batch.quantity == 0">
-                                                                    <p>Esgotado</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div v-else class="flex justify-center items-center py-5">
-                                            <BtnSpinner />
-                                        </div>
-
-                                    </div>
-                                    <!--end start-->
                                 </div>
-                                <div class="px-4 lg:mt-4 mb-5">
+                                <div class="px-4 md:px-4 lg:px-4 xl:px-0 lg:mt-4 mb-5">
                                     <div class="mb-5">
                                         <h3 class="text-[rgb(25,31,40)] font-bold text-lg lg:text-[20px]">Descrição do
                                             evento</h3>
@@ -483,7 +378,7 @@ onMounted(async () => {
                                     </div>
                                 </div>
                                 <hr>
-                                <div class="px-4 mt-4 mb-8">
+                                <div class="px-4 md:px-4 lg:px-4 xl:px-0 mt-4 mb-8">
                                     <div class="mb-3">
                                         <h3 class="text-[#6c757d] mb-3 font-bold text-lg">Sobre o organizador</h3>
                                         <div class="text-[#495057] mb-4 text-[15px]">
@@ -535,7 +430,7 @@ onMounted(async () => {
                                     </div>
                                 </div>
                                 <hr />
-                                <div class="px-4 mt-4">
+                                <div class="px-4 md:px-4 lg:px-4 xl:px-0 mt-4">
                                     <div class="mb-3">
                                         <h3 class="text-[#6c757d] mb-1 font-bold text-lg">Local</h3>
                                         <div class="text-[#495057] mb-4 text-[15px]">
@@ -560,11 +455,12 @@ onMounted(async () => {
                                     </div>
                                 </div>
                             </div>
-                            <div class="px-4 hidden shrink-0 lg:block w-[335px]">
-                                <div class="sticky top-0 w-full">
+                            <div class="shrink-0 lg:block w-full lg:w-[380px]">
+                                <div class="relative lg:sticky top-[90px] w-full lg:w-[360px]">
+
                                     <!--cart start-->
                                     <div
-                                        class="border rounded-[12px] w-[335px] bg-white shadow-[0px_6px_24px_rgb(221,224,228)] overflow-hidden lg:block select-none">
+                                        class="border rounded-[12px] flex-1 bg-white shadow-[0px_6px_24px_rgb(221,224,228)] overflow-hidden lg:block select-none">
                                         <div
                                             class="bg-[rgb(76,87,108)] text-white flex rounded-t-xl justify-between p-3 text-base font-semibold leading-6">
                                             <span>Ingressos</span>
@@ -598,13 +494,13 @@ onMounted(async () => {
                                                                 <div v-if="batch.quantity > 0 && !isDatePassed(batch.ends_at.date) && canReleaseSales(batch?.starts_at?.date)"
                                                                     class="flex items-center">
                                                                     <button
-                                                                        class="w-[32px] h-[32px] m-1 flex justify-center items-center text-[#fff] bg-[rgb(0,151,255)] rounded-[8px]"
+                                                                        class="w-[32px] h-[32px] m-1 flex justify-center items-center text-black-text bg-muted-bg/5 rounded-[8px]"
                                                                         @click="reduceBatch(index)" :class="{
-                                                                            'cursor-not-allowed text-[#848C9B] bg-[rgb(221,224,228)]': batch.quantitySelected <= 0
+                                                                            'cursor-default !text-muted-color !bg-muted-bg': batch.quantitySelected <= 0
                                                                         }">
                                                                         <svg viewBox="0 0 16 16" fill="none"
                                                                             xmlns="http://www.w3.org/2000/svg"
-                                                                            width="13">
+                                                                            width="16">
                                                                             <path
                                                                                 d="M3.294 7.637h9.412c.347 0 .628.298.628.667 0 .368-.281.666-.628.666H3.294c-.346 0-.627-.298-.627-.666 0-.369.28-.667.627-.667Z"
                                                                                 fill="currentColor"></path>
@@ -614,19 +510,19 @@ onMounted(async () => {
                                                                         class="text-base font-semibold text-[rgb(76,87,108)] w-[26px] text-center">
                                                                         {{ batch.quantitySelected }}</p>
                                                                     <button
-                                                                        class=" w-[32px] h-[32px] m-1 flex justify-center items-center text-[#fff] bg-[rgb(0,151,255)] rounded-[8px]"
+                                                                        class="hover:opacity-70 transition-opacity w-[32px] h-[32px] m-1 flex justify-center items-center text-[#fff] bg-primary rounded-[8px]"
                                                                         @click="addBatch(index)" :class="{
-                                                                            'cursor-not-allowed text-[#848C9B] bg-[rgb(221,224,228)]': batch.quantitySelected >= batch.quantity_for_purchase.max
+                                                                            'cursor-default !text-muted-color !bg-muted-bg': batch.quantitySelected >= batch.quantity_for_purchase.max
                                                                         }">
                                                                         <svg viewBox="0 0 13 13" fill="none"
                                                                             xmlns="http://www.w3.org/2000/svg"
-                                                                            width="13">
+                                                                            width="14">
                                                                             <path
                                                                                 d="M.667 6.99H11.98a.667.667 0 0 0 0-1.333H6.99V.667a.667.667 0 0 0-1.333 0v4.99H.667a.667.667 0 0 0 0 1.333Z"
-                                                                                fill="#fff"></path>
+                                                                                fill="currentColor"></path>
                                                                             <path
                                                                                 d="M5.657 11.98V6.04a.667.667 0 0 1 1.333 0v5.94a.667.667 0 0 1-1.333 0Z"
-                                                                                fill="#fff"></path>
+                                                                                fill="currentColor"></path>
                                                                         </svg>
                                                                     </button>
                                                                 </div>
@@ -649,7 +545,7 @@ onMounted(async () => {
                                                     </li>
                                                 </ul>
                                             </div>
-                                            <div class="p-4">
+                                            <div class="p-4 hidden lg:block">
                                                 <div v-if="amount > 0"
                                                     class="flex mb-2 text-[rgb(25,31,40)] justify-between gap-1 items-center flex-row">
                                                     <div class="flex items-center gap-1">
@@ -668,20 +564,14 @@ onMounted(async () => {
                                                 <div class="mb-4">
                                                     <button v-if="!showCouponInput"
                                                         @click="showCouponInput = !showCouponInput"
-                                                        class="flex mx-auto items-center text-sm font-semibold gap-2 p-3 text-[rgb(0,151,255)]">
-                                                        <svg width="16" height="16" fill="currentColor"
-                                                            viewBox="0 0 22 20" xmlns="http://www.w3.org/2000/svg">
-                                                            <path
-                                                                d="M21 9C21.2652 9 21.5196 8.89464 21.7071 8.70711C21.8946 8.51957 22 8.26522 22 8V4.67C22.0093 4.32771 21.9509 3.98695 21.8281 3.6673C21.7054 3.34764 21.5207 3.05537 21.2847 2.80728C21.0487 2.55919 20.766 2.36017 20.4529 2.22163C20.1397 2.08309 19.8023 2.00778 19.46 2L2.53998 2C2.19766 2.00778 1.86024 2.08309 1.5471 2.22163C1.23396 2.36017 0.951268 2.55919 0.715258 2.80728C0.479249 3.05537 0.294568 3.34764 0.171821 3.6673C0.0490736 3.98695 -0.00932306 4.32771 -1.58838e-05 4.67V8C-1.58838e-05 8.26522 0.105341 8.51957 0.292877 8.70711C0.480414 8.89464 0.734768 9 0.999984 9C1.37244 9.02566 1.71951 9.19798 1.96509 9.47918C2.21066 9.76037 2.3347 10.1275 2.30998 10.5C2.3347 10.8725 2.21066 11.2396 1.96509 11.5208C1.71951 11.802 1.37244 11.9743 0.999984 12C0.734768 12 0.480414 12.1054 0.292877 12.2929C0.105341 12.4804 -1.58838e-05 12.7348 -1.58838e-05 13V16.33C-0.00932306 16.6723 0.0490736 17.013 0.171821 17.3327C0.294568 17.6524 0.479249 17.9446 0.715258 18.1927C0.951268 18.4408 1.23396 18.6398 1.5471 18.7784C1.86024 18.9169 2.19766 18.9922 2.53998 19H19.46C19.8023 18.9922 20.1397 18.9169 20.4529 18.7784C20.766 18.6398 21.0487 18.4408 21.2847 18.1927C21.5207 17.9446 21.7054 17.6524 21.8281 17.3327C21.9509 17.013 22.0093 16.6723 22 16.33V13C22 12.7348 21.8946 12.4804 21.7071 12.2929C21.5196 12.1054 21.2652 12 21 12C20.6275 11.9743 20.2805 11.802 20.0349 11.5208C19.7893 11.2396 19.6653 10.8725 19.69 10.5C19.6653 10.1275 19.7893 9.76037 20.0349 9.47918C20.2805 9.19798 20.6275 9.02566 21 9ZM20 7.16C19.3213 7.41617 18.7368 7.87301 18.3242 8.46969C17.9117 9.06638 17.6907 9.77458 17.6907 10.5C17.6907 11.2254 17.9117 11.9336 18.3242 12.5303C18.7368 13.127 19.3213 13.5838 20 13.84V16.33C20.0168 16.4904 19.9695 16.6509 19.8683 16.7764C19.7671 16.902 19.6203 16.9824 19.46 17H2.53998C2.37969 16.9824 2.2329 16.902 2.13171 16.7764C2.03052 16.6509 1.98316 16.4904 1.99998 16.33V13.84C2.67867 13.5838 3.26321 13.127 3.67576 12.5303C4.08832 11.9336 4.30931 11.2254 4.30931 10.5C4.30931 9.77458 4.08832 9.06638 3.67576 8.46969C3.26321 7.87301 2.67867 7.41617 1.99998 7.16V4.67C1.98316 4.50962 2.03052 4.34911 2.13171 4.22356C2.2329 4.098 2.37969 4.01762 2.53998 4H12V14C12 14.2652 12.1053 14.5196 12.2929 14.7071C12.4804 14.8946 12.7348 15 13 15C13.2652 15 13.5196 14.8946 13.7071 14.7071C13.8946 14.5196 14 14.2652 14 14V4H19.46C19.6203 4.01762 19.7671 4.098 19.8683 4.22356C19.9695 4.34911 20.0168 4.50962 20 4.67V7.16Z">
-                                                            </path>
-                                                        </svg>
+                                                        class="flex border border-border-color hover:border-primary transition-colors border-dashed w-full justify-center items-center text-sm gap-2 py-2.5 px-3 text-primary">
                                                         <span>Inserir código promocional</span>
                                                     </button>
                                                     <div class="flex relative gap-3 items-center justify-between"
                                                         v-else>
                                                         <div class="relative flex-1">
                                                             <input
-                                                                class="flex flex-row items-center w-full text-[rgb(25,31,40)] border border-[rgb(221,224,228)] rounded-[4px] py-2 pr-12 p-4 text-base transition-[border-color] focus:border-[rgb(0,151,255)] focus:ring-1 focus:ring-[rgb(0,151,255)] duration-300 outline-none gap-4"
+                                                                class="flex flex-row items-center w-full text-[rgb(25,31,40)] border border-border-color rounded-[4px] py-2 pr-12 p-4 text-base transition-[border-color] focus:border-primary duration-300 outline-none gap-4"
                                                                 v-model="form.couponName" type="text"
                                                                 placeholder="Código" :readonly="coupon._id">
                                                             <button
@@ -700,35 +590,42 @@ onMounted(async () => {
                                                             </button>
                                                         </div>
 
-
-
                                                         <button :disabled="form.couponName == '' || loadingCoupon"
-                                                            class="rounded-lg outline-none border text-sm font-semibold font-sans leading-4 inline-flex items-center justify-center min-w-fit w-max cursor-pointer transition-all ease-in duration-200 no-underline hover:bg-[rgb(0,151,255)] text-[rgb(0,151,255)] hover:text-white border-[rgb(0,151,255)] py-3 px-4"
+                                                            class="rounded-lg outline-none overflow-hidden relative border text-sm font-semibold font-sans leading-4 inline-flex items-center justify-center min-w-fit w-max cursor-pointer transition-all ease-in duration-200 no-underline hover:bg-primary text-primary hover:text-white border-primary py-3 px-4"
                                                             v-if="form.couponName == '' || !coupon._id"
-                                                            @click="_applyCoupon(form.couponName)">Aplicar</button>
+                                                           @click="(event) => _applyCoupon(form.couponName, event)">Aplicar</button>
                                                         <button
-                                                            class="rounded-lg outline-none border text-sm font-semibold font-sans leading-4 inline-flex items-center justify-center min-w-fit w-max cursor-pointer transition-all ease-in duration-200 no-underline hover:bg-[rgb(0,151,255)] text-[rgb(0,151,255)] hover:text-white border-[rgb(0,151,255)] py-3 px-4"
+                                                            class="rounded-lg outline-none border text-sm font-semibold font-sans leading-4 inline-flex items-center justify-center min-w-fit w-max cursor-pointer transition-all ease-in duration-200 no-underline hover:bg-primary text-primary hover:text-white border-primary py-3 px-4"
                                                             v-else @click="removeCoupon()">Remover</button>
                                                     </div>
-
                                                 </div>
 
                                                 <button style="letter-spacing: 0.5px;"
-                                                    class=" bg-[rgb(23,178,106)] hover:bg-[rgb(7,148,85)] h-[48px]  rounded-[8px] disabled:bg-gray-400 disabled:cursor-default disabled:hover:bg-gray-400 disabled:hover:border-gray-400 transition-colors w-full font-semibold text-[14px] py-2.5 px-3 text-[#fff] btn-submit mb-1"
-                                                    @click="sendToCart"
-                                                    :disabled="isEventOver || loadingCart || amount == 0">
+                                                    class="bg-btn-pay-color relative overflow-hidden h-[48px] rounded-[8px] disabled:bg-muted-bg disabled:text-muted-color disabled:cursor-default w-full font-semibold text-[14px] py-2.5 px-3 text-[#fff] mb-1"
+                                                    :class="{ 'pointer-events-none cursor-default': loadingCart }"
+                                                    @click="sendToCart" :disabled="isEventOver || amount == 0">
                                                     <span v-if="!loadingCart">{{ amount == 0 ? 'Selecione um Ingresso' :
                                                         'Comprar ingressos' }}</span>
-                                                    <span v-else>Carregando...</span>
+                                                    <span v-else>
+
+                                                        <svg aria-hidden="true"
+                                                            class="inline w-5 h-5 text-transparent animate-spin fill-white"
+                                                            viewBox="0 0 100 101" fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg">
+                                                            <path
+                                                                d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                                                                fill="currentColor" />
+                                                            <path
+                                                                d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                                                                fill="currentFill" />
+                                                        </svg>
+                                                    </span>
                                                 </button>
-
-
                                             </div>
                                         </div>
                                         <div v-else class="flex justify-center items-center py-5">
                                             <BtnSpinner />
                                         </div>
-
                                     </div>
                                     <!--end start-->
                                 </div>
@@ -747,3 +644,8 @@ onMounted(async () => {
     </div>
 
 </template>
+
+
+<style>
+
+</style>
