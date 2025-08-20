@@ -51,11 +51,11 @@ const hasLogged = computed(() => {
 
 <template>
     <div class="sticky top-0 z-[90]">
-        <div class="px-4 xl:px-0 relative bg-white h-[64px] py-3">
+        <div class="px-4 xl:px-0 relative bg-white h-[56px] lg:h-[64px] py-3">
             <Container>
                 <div class="flex justify-between">
                     <div>
-                        <Logo size="w-[112px]" />
+                        <Logo size="w-[94px] lg:w-[112px]" />
                     </div>
                     <div class="flex items-center">
                         <ul class="hidden lg:flex items-center gap-2">
@@ -93,8 +93,8 @@ const hasLogged = computed(() => {
                                 <div class="absolute top-0 w-[1px] h-full bg-[#dee2e6]"></div>
                             </div>
                             <button @click="toggleSidebar"
-                                class="bg-transparent opacity-80 relative w-[38px] h-[38px] flex justify-center items-center lg:hidden">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24"
+                                class="bg-transparent text-primary relative w-[38px] flex justify-center items-center lg:hidden">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22px" height="22px" viewBox="0 0 24 24"
                                     fill="none">
                                     <g clip-path="url(#clip0_429_11066)">
                                         <path d="M3 6.00092H21M3 12.0009H21M3 18.0009H21" stroke="currentColor"
@@ -108,15 +108,7 @@ const hasLogged = computed(() => {
                                     </defs>
                                 </svg>
                             </button>
-                            <button @click="toggleOpenSearch"
-                                class="bg-transparent relative w-[38px] h-[38px] flex justify-center items-center">
-                                <svg class="absolute left-[30%]" xmlns="http://www.w3.org/2000/svg" fill="#32ba78"
-                                    width="28px" height="28px" viewBox="0 0 32 32" version="1.1">
-                                    <title>search</title>
-                                    <path
-                                        d="M16.906 20.188l5.5 5.5-2.25 2.281-5.75-5.781c-1.406 0.781-3.031 1.219-4.719 1.219-5.344 0-9.688-4.344-9.688-9.688s4.344-9.688 9.688-9.688 9.719 4.344 9.719 9.688c0 2.5-0.969 4.781-2.5 6.469zM3.219 13.719c0 3.594 2.875 6.469 6.469 6.469s6.469-2.875 6.469-6.469-2.875-6.469-6.469-6.469-6.469 2.875-6.469 6.469z" />
-                                </svg>
-                            </button>
+                          
                         </div>
                     </div>
                 </div>

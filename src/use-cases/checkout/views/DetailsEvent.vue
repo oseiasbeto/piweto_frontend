@@ -267,19 +267,21 @@ onMounted(async () => {
             <section>
                 <!--start header-->
                 <div>
-                    <div class="flex z-50 justify-center w-full min-w-[320px] bg-white relative h-[180px] max-h-[280px] min-h-[180px] event-background lg:h-[64vh] lg:max-h-[336px] lg:min-h-[336px] bg-[position:50%_50%] bg-[size:120%] before:absolute before:w-full before:h-full before:backdrop-blur-[24px] before:bg-[rgba(0,0,0,0.7)] before:content-['']"
+                    <div class="flex z-50  justify-center w-full min-w-[320px] bg-white relative h-auto min-h-[180px] event-background lg:h-[64vh] lg:max-h-[336px] lg:min-h-[336px] bg-[position:50%_50%] bg-[size:120%] before:absolute before:w-full before:h-full before:backdrop-blur-[24px] before:bg-[rgba(0,0,0,0.7)] before:content-['']"
                         :style="`background-image: url(${event.cover.medium || 'https://i.ibb.co/RpzZJGzc/5f282a0c6a2d9.png'})`">
 
                         <Container>
-                            <div class="flex h-full gap-9 w-full relative items-center lg:px-4 xl:px-0">
-                                <section class="block flex-1">
+                            <div
+                                class="flex p-4 py-5 pb-7 lg:py-0 lg:flex-row flex-col-reverse h-full gap-4 lg:gap-9 w-full relative items-center lg:px-4 xl:px-0">
+                                <section class="block w-full flex-1">
                                     <div class="pr-8">
                                         <h1
-                                            class="font-bold text-[30px] text-white mt-2 mb-4 line-clamp-2 break-words leading-[40px] tracking-[-0.05rem]">
+                                            class="font-bold text-2xl lg:text-[30px] text-white mt-2 mb-4 line-clamp-2 break-words leading-8 lg:leading-[40px] tracking-[-0.05rem]">
                                             {{ event?.name }}</h1>
-                                        <div class="flex text-base mb-2 gap-2 text-white" style="text-shadow: 1px 1px 2px rgba(0,0,0,.7);">
-                                            <svg width="16" fill="#fff" height="16" viewBox="0 0 24 24"
-                                                xmlns="http://www.w3.org/2000/svg">
+                                        <div class="flex text-sm lg:text-base mb-2 gap-2 text-white"
+                                            style="text-shadow: 1px 1px 2px rgba(0,0,0,.7);">
+                                            <svg class=" shrink-0" width="16" fill="#fff" height="16"
+                                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" clip-rule="evenodd"
                                                     d="M7 16C7 15.8022 7.05865 15.6089 7.16853 15.4444C7.27841 15.28 7.43459 15.1518 7.61732 15.0761C7.80004 15.0004 8.00111 14.9806 8.19509 15.0192C8.38907 15.0578 8.56725 15.153 8.70711 15.2929C8.84696 15.4327 8.9422 15.6109 8.98079 15.8049C9.01937 15.9989 8.99957 16.2 8.92388 16.3827C8.84819 16.5654 8.72002 16.7216 8.55557 16.8315C8.39112 16.9414 8.19778 17 8 17C7.73478 17 7.48043 16.8946 7.29289 16.7071C7.10536 16.5196 7 16.2652 7 16ZM12 15H16C16.2652 15 16.5196 15.1054 16.7071 15.2929C16.8946 15.4804 17 15.7348 17 16C17 16.2652 16.8946 16.5196 16.7071 16.7071C16.5196 16.8946 16.2652 17 16 17H12C11.7348 17 11.4804 16.8946 11.2929 16.7071C11.1054 16.5196 11 16.2652 11 16C11 15.7348 11.1054 15.4804 11.2929 15.2929C11.4804 15.1054 11.7348 15 12 15ZM18 20H6C5.73478 20 5.48043 19.8946 5.29289 19.7071C5.10536 19.5196 5 19.2652 5 19V13H19V19C19 19.2652 18.8946 19.5196 18.7071 19.7071C18.5196 19.8946 18.2652 20 18 20ZM6 6H7V7C7 7.26522 7.10536 7.51957 7.29289 7.70711C7.48043 7.89464 7.73478 8 8 8C8.26522 8 8.51957 7.89464 8.70711 7.70711C8.89464 7.51957 9 7.26522 9 7V6H15V7C15 7.26522 15.1054 7.51957 15.2929 7.70711C15.4804 7.89464 15.7348 8 16 8C16.2652 8 16.5196 7.89464 16.7071 7.70711C16.8946 7.51957 17 7.26522 17 7V6H18C18.2652 6 18.5196 6.10536 18.7071 6.29289C18.8946 6.48043 19 6.73478 19 7V11H5V7C5 6.73478 5.10536 6.48043 5.29289 6.29289C5.48043 6.10536 5.73478 6 6 6ZM18 4H17V3C17 2.73478 16.8946 2.48043 16.7071 2.29289C16.5196 2.10536 16.2652 2 16 2C15.7348 2 15.4804 2.10536 15.2929 2.29289C15.1054 2.48043 15 2.73478 15 3V4H9V3C9 2.73478 8.89464 2.48043 8.70711 2.29289C8.51957 2.10536 8.26522 2 8 2C7.73478 2 7.48043 2.10536 7.29289 2.29289C7.10536 2.48043 7 2.73478 7 3V4H6C5.20435 4 4.44129 4.31607 3.87868 4.87868C3.31607 5.44129 3 6.20435 3 7L3 19C3 19.7956 3.31607 20.5587 3.87868 21.1213C4.44129 21.6839 5.20435 22 6 22H18C18.7956 22 19.5587 21.6839 20.1213 21.1213C20.6839 20.5587 21 19.7956 21 19V7C21 6.20435 20.6839 5.44129 20.1213 4.87868C19.5587 4.31607 18.7956 4 18 4Z">
                                                 </path>
@@ -287,32 +289,32 @@ onMounted(async () => {
 
                                             <p>{{ formatDate(event.starts_at.date) }} às {{
                                                 formatTime(event.starts_at.hm)
-                                                }}
+                                            }}
                                                 > {{
                                                     formatDate(event.ends_at.date) }} às {{ formatTime(event.ends_at.hm) }}
                                             </p>
                                         </div>
-                                        <div class="flex items-center text-base gap-2 text-white" style="text-shadow: 1px 1px 2px rgba(0,0,0,.7);">
-                                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"
-                                                xmlns="http://www.w3.org/2000/svg">
+                                        <div class="flex items-center text-sm lg:text-base gap-2 text-white"
+                                            style="text-shadow: 1px 1px 2px rgba(0,0,0,.7);">
+                                            <svg class="shrink-0" width="16" height="16" fill="currentColor"
+                                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" clip-rule="evenodd"
                                                     d="M4 9.92004C4 7.79831 4.84285 5.76348 6.34315 4.26319C7.84344 2.7629 9.87827 1.92004 12 1.92004C14.1217 1.92004 16.1566 2.7629 17.6569 4.26319C19.1571 5.76348 20 7.79831 20 9.92004C20 15.4 13 21.5 12.65 21.76C12.4689 21.915 12.2384 22.0001 12 22.0001C11.7616 22.0001 11.5311 21.915 11.35 21.76C11.05 21.5 4 15.4 4 9.92004ZM12 19.65C10.32 18.06 6 13.65 6 9.92004C6 8.32874 6.63214 6.80262 7.75736 5.6774C8.88258 4.55219 10.4087 3.92004 12 3.92004C13.5913 3.92004 15.1174 4.55219 16.2426 5.6774C17.3679 6.80262 18 8.32874 18 9.92004C18 13.61 13.68 18.06 12 19.65ZM8.5 9.50004C8.5 8.80781 8.70527 8.13112 9.08986 7.55555C9.47444 6.97998 10.0211 6.53137 10.6606 6.26647C11.3001 6.00156 12.0039 5.93225 12.6828 6.0673C13.3617 6.20234 13.9854 6.53569 14.4749 7.02517C14.9644 7.51465 15.2977 8.13829 15.4327 8.81723C15.5678 9.49616 15.4985 10.1999 15.2336 10.8394C14.9687 11.479 14.5201 12.0256 13.9445 12.4102C13.3689 12.7948 12.6922 13 12 13C11.0717 13 10.1815 12.6313 9.52513 11.9749C8.86875 11.3185 8.5 10.4283 8.5 9.50004ZM10.5 9.50004C10.5 9.79672 10.588 10.0867 10.7528 10.3334C10.9176 10.5801 11.1519 10.7723 11.426 10.8859C11.7001 10.9994 12.0017 11.0291 12.2926 10.9712C12.5836 10.9133 12.8509 10.7705 13.0607 10.5607C13.2704 10.3509 13.4133 10.0837 13.4712 9.79268C13.5291 9.50171 13.4994 9.20011 13.3858 8.92602C13.2723 8.65193 13.08 8.41766 12.8334 8.25284C12.5867 8.08802 12.2967 8.00004 12 8.00004C11.6022 8.00004 11.2206 8.15808 10.9393 8.43938C10.658 8.72069 10.5 9.10222 10.5 9.50004Z">
                                                 </path>
                                             </svg>
 
                                             <p>Evento presencial em {{
-                                                        event.address.location }}</p>
+                                                event.address.location }}</p>
                                         </div>
                                     </div>
                                 </section>
 
                                 <section
-                                    class="relative shrink-0 w-[518px] h-[280px] overflow-hidden max-h-[280px] lg:rounded-xl bg-center bg-cover bg-no-repeat lg:shadow-[0_20px_36px_0_rgba(25,31,40,0.2)]"
+                                    class="relative shrink-0 w-full h-[180px] mx-auto lg:w-[518px] lg:h-[280px] overflow-hidden max-h-[280px] rounded-xl bg-center bg-cover bg-no-repeat shadow-[0_20px_36px_0_rgba(25,31,40,0.2)]"
                                     :style="`background-image: url(${event.cover.medium || 'https://i.ibb.co/RpzZJGzc/5f282a0c6a2d9.png'}); background-size: cover`">
                                 </section>
                             </div>
                         </Container>
-
                     </div>
                 </div>
                 <!--end header-->
@@ -320,65 +322,44 @@ onMounted(async () => {
                 <!--data start-->
                 <Container>
                     <div class="lg:mt-5">
-                        <div class="flex flex-col-reverse lg:flex-row">
+                        <div class="flex flex-col-reverse lg:flex-row lg:gap-6">
                             <div class="w-full flex-1">
-                                <div class="bg-white pb-10 block mb-5 lg:mb-0 lg:hidden mt-4 lg:mt-0 pt-3 lg:pt-2 px-3">
-                                    <h3 style="letter-spacing: 0.2px;"
-                                        class="text-[#4c576c] mb-1 font-bold text-[28px] lg:text-3xl">{{
-                                            event.name
-                                        }}</h3>
-
-                                    <div class="text-[#4c576c] mb-4 text-sm font-semibold lg:text-[15px]">
-                                        <span class="flex mb-4 items-center gap-2">
-                                            <svg class="shrink-0" width="15" height="15" viewBox="0 0 24 24"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd" fill="#848c9b" clip-rule="evenodd"
-                                                    d="M7 16C7 15.8022 7.05865 15.6089 7.16853 15.4444C7.27841 15.28 7.43459 15.1518 7.61732 15.0761C7.80004 15.0004 8.00111 14.9806 8.19509 15.0192C8.38907 15.0578 8.56725 15.153 8.70711 15.2929C8.84696 15.4327 8.9422 15.6109 8.98079 15.8049C9.01937 15.9989 8.99957 16.2 8.92388 16.3827C8.84819 16.5654 8.72002 16.7216 8.55557 16.8315C8.39112 16.9414 8.19778 17 8 17C7.73478 17 7.48043 16.8946 7.29289 16.7071C7.10536 16.5196 7 16.2652 7 16ZM12 15H16C16.2652 15 16.5196 15.1054 16.7071 15.2929C16.8946 15.4804 17 15.7348 17 16C17 16.2652 16.8946 16.5196 16.7071 16.7071C16.5196 16.8946 16.2652 17 16 17H12C11.7348 17 11.4804 16.8946 11.2929 16.7071C11.1054 16.5196 11 16.2652 11 16C11 15.7348 11.1054 15.4804 11.2929 15.2929C11.4804 15.1054 11.7348 15 12 15ZM18 20H6C5.73478 20 5.48043 19.8946 5.29289 19.7071C5.10536 19.5196 5 19.2652 5 19V13H19V19C19 19.2652 18.8946 19.5196 18.7071 19.7071C18.5196 19.8946 18.2652 20 18 20ZM6 6H7V7C7 7.26522 7.10536 7.51957 7.29289 7.70711C7.48043 7.89464 7.73478 8 8 8C8.26522 8 8.51957 7.89464 8.70711 7.70711C8.89464 7.51957 9 7.26522 9 7V6H15V7C15 7.26522 15.1054 7.51957 15.2929 7.70711C15.4804 7.89464 15.7348 8 16 8C16.2652 8 16.5196 7.89464 16.7071 7.70711C16.8946 7.51957 17 7.26522 17 7V6H18C18.2652 6 18.5196 6.10536 18.7071 6.29289C18.8946 6.48043 19 6.73478 19 7V11H5V7C5 6.73478 5.10536 6.48043 5.29289 6.29289C5.48043 6.10536 5.73478 6 6 6ZM18 4H17V3C17 2.73478 16.8946 2.48043 16.7071 2.29289C16.5196 2.10536 16.2652 2 16 2C15.7348 2 15.4804 2.10536 15.2929 2.29289C15.1054 2.48043 15 2.73478 15 3V4H9V3C9 2.73478 8.89464 2.48043 8.70711 2.29289C8.51957 2.10536 8.26522 2 8 2C7.73478 2 7.48043 2.10536 7.29289 2.29289C7.10536 2.48043 7 2.73478 7 3V4H6C5.20435 4 4.44129 4.31607 3.87868 4.87868C3.31607 5.44129 3 6.20435 3 7L3 19C3 19.7956 3.31607 20.5587 3.87868 21.1213C4.44129 21.6839 5.20435 22 6 22H18C18.7956 22 19.5587 21.6839 20.1213 21.1213C20.6839 20.5587 21 19.7956 21 19V7C21 6.20435 20.6839 5.44129 20.1213 4.87868C19.5587 4.31607 18.7956 4 18 4Z">
-                                                </path>
-                                            </svg>
-                                            <p>{{ formatEventDates(event.starts_at.date, event.ends_at.date) }}</p>
-
-                                        </span>
-                                        <p class="font-bold text-base">
-                                            Horários e local das apresentações
-                                        </p>
-                                        <p class="mb-5">Os horários são referentes ao local do evento.</p>
-                                        <span class="flex items-center mb-1 gap-1.5">
-                                            <svg class="shrink-0" viewBox="0 0 24 24" fill="#848c9b" width="15px"
-                                                height="15px">
-                                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                                    d="M4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12ZM12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM13 8V12H17C17.553 12 18 12.447 18 13C18 13.553 17.553 14 17 14H12C11.448 14 11 13.553 11 13V8C11 7.447 11.448 7 12 7C12.552 7 13 7.447 13 8Z">
-                                                </path>
-                                            </svg>
-
-                                            <p>{{ formatEventTime(event.starts_at,
-                                                event.ends_at) }}</p>
-                                        </span>
-                                        <span class="flex items-center gap-1.5">
-                                            <svg class="shrink-0" width="15" height="15" viewBox="0 0 24 24"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd" fill="#848c9b" clip-rule="evenodd"
-                                                    d="M4 9.92004C4 7.79831 4.84285 5.76348 6.34315 4.26319C7.84344 2.7629 9.87827 1.92004 12 1.92004C14.1217 1.92004 16.1566 2.7629 17.6569 4.26319C19.1571 5.76348 20 7.79831 20 9.92004C20 15.4 13 21.5 12.65 21.76C12.4689 21.915 12.2384 22.0001 12 22.0001C11.7616 22.0001 11.5311 21.915 11.35 21.76C11.05 21.5 4 15.4 4 9.92004ZM12 19.65C10.32 18.06 6 13.65 6 9.92004C6 8.32874 6.63214 6.80262 7.75736 5.6774C8.88258 4.55219 10.4087 3.92004 12 3.92004C13.5913 3.92004 15.1174 4.55219 16.2426 5.6774C17.3679 6.80262 18 8.32874 18 9.92004C18 13.61 13.68 18.06 12 19.65ZM8.5 9.50004C8.5 8.80781 8.70527 8.13112 9.08986 7.55555C9.47444 6.97998 10.0211 6.53137 10.6606 6.26647C11.3001 6.00156 12.0039 5.93225 12.6828 6.0673C13.3617 6.20234 13.9854 6.53569 14.4749 7.02517C14.9644 7.51465 15.2977 8.13829 15.4327 8.81723C15.5678 9.49616 15.4985 10.1999 15.2336 10.8394C14.9687 11.479 14.5201 12.0256 13.9445 12.4102C13.3689 12.7948 12.6922 13 12 13C11.0717 13 10.1815 12.6313 9.52513 11.9749C8.86875 11.3185 8.5 10.4283 8.5 9.50004ZM10.5 9.50004C10.5 9.79672 10.588 10.0867 10.7528 10.3334C10.9176 10.5801 11.1519 10.7723 11.426 10.8859C11.7001 10.9994 12.0017 11.0291 12.2926 10.9712C12.5836 10.9133 12.8509 10.7705 13.0607 10.5607C13.2704 10.3509 13.4133 10.0837 13.4712 9.79268C13.5291 9.50171 13.4994 9.20011 13.3858 8.92602C13.2723 8.65193 13.08 8.41766 12.8334 8.25284C12.5867 8.08802 12.2967 8.00004 12 8.00004C11.6022 8.00004 11.2206 8.15808 10.9393 8.43938C10.658 8.72069 10.5 9.10222 10.5 9.50004Z">
-                                                </path>
-                                            </svg>
-
-                                            <p>{{ event.address.location }}</p>
-                                        </span>
-
-                                    </div>
-
-
-                                </div>
-                                <div class="px-4 md:px-4 lg:px-4 xl:px-0 lg:mt-4 mb-5">
+                                <div class="p-4 lg:p-4 xl:p-0 mb-5">
                                     <div class="mb-5">
-                                        <h3 class="text-[rgb(25,31,40)] font-bold text-lg lg:text-[20px]">Descrição do
+                                        <h3 class="text-black-text font-bold text-xl lg:text-[20px]">Descrição do
                                             evento</h3>
                                     </div>
-                                    <div class="text-[rgb(25,31,40)] font-normal text-base" v-html="event.description">
+                                    <div class="text-black-text font-normal text-base" v-html="event.description">
                                     </div>
                                 </div>
-                                <hr>
-                                <div class="px-4 md:px-4 lg:px-4 xl:px-0 mt-4 mb-8">
+                                <hr class="border-[rgba(0,0,0,.12)]" />
+                                <div class="p-4 lg:p-4 xl:p-0 mt-4">
+                                    <div class="mb-3">
+                                        <h3 class="text-black-text font-bold mb-3 text-xl lg:text-[20px]">Local</h3>
+                                        <div class="text-[#495057] mb-4 text-[15px]">
+                                            <span class="flex items-center gap-1">
+                                                <svg width="15" height="15" viewBox="0 0 24 24"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path fill-rule="evenodd" fill="currentColor" clip-rule="evenodd"
+                                                        d="M4 9.92004C4 7.79831 4.84285 5.76348 6.34315 4.26319C7.84344 2.7629 9.87827 1.92004 12 1.92004C14.1217 1.92004 16.1566 2.7629 17.6569 4.26319C19.1571 5.76348 20 7.79831 20 9.92004C20 15.4 13 21.5 12.65 21.76C12.4689 21.915 12.2384 22.0001 12 22.0001C11.7616 22.0001 11.5311 21.915 11.35 21.76C11.05 21.5 4 15.4 4 9.92004ZM12 19.65C10.32 18.06 6 13.65 6 9.92004C6 8.32874 6.63214 6.80262 7.75736 5.6774C8.88258 4.55219 10.4087 3.92004 12 3.92004C13.5913 3.92004 15.1174 4.55219 16.2426 5.6774C17.3679 6.80262 18 8.32874 18 9.92004C18 13.61 13.68 18.06 12 19.65ZM8.5 9.50004C8.5 8.80781 8.70527 8.13112 9.08986 7.55555C9.47444 6.97998 10.0211 6.53137 10.6606 6.26647C11.3001 6.00156 12.0039 5.93225 12.6828 6.0673C13.3617 6.20234 13.9854 6.53569 14.4749 7.02517C14.9644 7.51465 15.2977 8.13829 15.4327 8.81723C15.5678 9.49616 15.4985 10.1999 15.2336 10.8394C14.9687 11.479 14.5201 12.0256 13.9445 12.4102C13.3689 12.7948 12.6922 13 12 13C11.0717 13 10.1815 12.6313 9.52513 11.9749C8.86875 11.3185 8.5 10.4283 8.5 9.50004ZM10.5 9.50004C10.5 9.79672 10.588 10.0867 10.7528 10.3334C10.9176 10.5801 11.1519 10.7723 11.426 10.8859C11.7001 10.9994 12.0017 11.0291 12.2926 10.9712C12.5836 10.9133 12.8509 10.7705 13.0607 10.5607C13.2704 10.3509 13.4133 10.0837 13.4712 9.79268C13.5291 9.50171 13.4994 9.20011 13.3858 8.92602C13.2723 8.65193 13.08 8.41766 12.8334 8.25284C12.5867 8.08802 12.2967 8.00004 12 8.00004C11.6022 8.00004 11.2206 8.15808 10.9393 8.43938C10.658 8.72069 10.5 9.10222 10.5 9.50004Z">
+                                                    </path>
+                                                </svg>
+
+                                                <p>{{ event.address.location }}</p>
+                                            </span>
+                                        </div>
+                                        <a style="letter-spacing: 0.5px;"
+                                            :href="`https://www.google.com/maps/search/${event.address.location}`"
+                                            target="_blank"
+                                            class="rounded-lg hover:bg-primary/20 transition-colors px-5 py-2 border uppercase text-[14px] font-bold border-primary text-primary"
+                                            role="button" aria-pressed="true">
+                                            Ver Mapa
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <hr class="border-[rgba(0,0,0,.12)]" />
+                                <div class="p-4 lg:p-4 xl:p-0 mt-4 mb-8">
                                     <div class="mb-3">
                                         <h3 class="text-[#6c757d] mb-3 font-bold text-lg">Sobre o organizador</h3>
                                         <div class="text-[#495057] mb-4 text-[15px]">
@@ -429,34 +410,11 @@ onMounted(async () => {
 
                                     </div>
                                 </div>
-                                <hr />
-                                <div class="px-4 md:px-4 lg:px-4 xl:px-0 mt-4">
-                                    <div class="mb-3">
-                                        <h3 class="text-[#6c757d] mb-1 font-bold text-lg">Local</h3>
-                                        <div class="text-[#495057] mb-4 text-[15px]">
-                                            <span class="flex items-center gap-1">
-                                                <svg width="15" height="15" viewBox="0 0 24 24"
-                                                    xmlns="http://www.w3.org/2000/svg">
-                                                    <path fill-rule="evenodd" fill="currentColor" clip-rule="evenodd"
-                                                        d="M4 9.92004C4 7.79831 4.84285 5.76348 6.34315 4.26319C7.84344 2.7629 9.87827 1.92004 12 1.92004C14.1217 1.92004 16.1566 2.7629 17.6569 4.26319C19.1571 5.76348 20 7.79831 20 9.92004C20 15.4 13 21.5 12.65 21.76C12.4689 21.915 12.2384 22.0001 12 22.0001C11.7616 22.0001 11.5311 21.915 11.35 21.76C11.05 21.5 4 15.4 4 9.92004ZM12 19.65C10.32 18.06 6 13.65 6 9.92004C6 8.32874 6.63214 6.80262 7.75736 5.6774C8.88258 4.55219 10.4087 3.92004 12 3.92004C13.5913 3.92004 15.1174 4.55219 16.2426 5.6774C17.3679 6.80262 18 8.32874 18 9.92004C18 13.61 13.68 18.06 12 19.65ZM8.5 9.50004C8.5 8.80781 8.70527 8.13112 9.08986 7.55555C9.47444 6.97998 10.0211 6.53137 10.6606 6.26647C11.3001 6.00156 12.0039 5.93225 12.6828 6.0673C13.3617 6.20234 13.9854 6.53569 14.4749 7.02517C14.9644 7.51465 15.2977 8.13829 15.4327 8.81723C15.5678 9.49616 15.4985 10.1999 15.2336 10.8394C14.9687 11.479 14.5201 12.0256 13.9445 12.4102C13.3689 12.7948 12.6922 13 12 13C11.0717 13 10.1815 12.6313 9.52513 11.9749C8.86875 11.3185 8.5 10.4283 8.5 9.50004ZM10.5 9.50004C10.5 9.79672 10.588 10.0867 10.7528 10.3334C10.9176 10.5801 11.1519 10.7723 11.426 10.8859C11.7001 10.9994 12.0017 11.0291 12.2926 10.9712C12.5836 10.9133 12.8509 10.7705 13.0607 10.5607C13.2704 10.3509 13.4133 10.0837 13.4712 9.79268C13.5291 9.50171 13.4994 9.20011 13.3858 8.92602C13.2723 8.65193 13.08 8.41766 12.8334 8.25284C12.5867 8.08802 12.2967 8.00004 12 8.00004C11.6022 8.00004 11.2206 8.15808 10.9393 8.43938C10.658 8.72069 10.5 9.10222 10.5 9.50004Z">
-                                                    </path>
-                                                </svg>
 
-                                                <p>{{ event.address.location }}</p>
-                                            </span>
-                                        </div>
-                                        <a style="letter-spacing: 0.5px;"
-                                            :href="`https://www.google.com/maps/search/${event.address.location}`"
-                                            target="_blank"
-                                            class="rounded-full hover:bg-brand-primary hover:text-white transition-colors px-5 py-2 border uppercase text-[14px] font-bold border-brand-primary text-brand-primary"
-                                            role="button" aria-pressed="true">
-                                            Ver Mapa
-                                        </a>
-                                    </div>
-                                </div>
                             </div>
-                            <div class="shrink-0 lg:block w-full lg:w-[380px]">
-                                <div class="relative lg:sticky top-[90px] w-full lg:w-[360px]">
+                            <div
+                                class="shrink-0 bg-white lg:bg-transparent p-4 pb-6 lg:p-0 lg:block w-full lg:w-[380px]">
+                                <div class="relative lg:sticky lg:top-[90px] w-full lg:w-[360px]">
 
                                     <!--cart start-->
                                     <div
@@ -593,7 +551,7 @@ onMounted(async () => {
                                                         <button :disabled="form.couponName == '' || loadingCoupon"
                                                             class="rounded-lg outline-none overflow-hidden relative border text-sm font-semibold font-sans leading-4 inline-flex items-center justify-center min-w-fit w-max cursor-pointer transition-all ease-in duration-200 no-underline hover:bg-primary text-primary hover:text-white border-primary py-3 px-4"
                                                             v-if="form.couponName == '' || !coupon._id"
-                                                           @click="(event) => _applyCoupon(form.couponName, event)">Aplicar</button>
+                                                            @click="(event) => _applyCoupon(form.couponName, event)">Aplicar</button>
                                                         <button
                                                             class="rounded-lg outline-none border text-sm font-semibold font-sans leading-4 inline-flex items-center justify-center min-w-fit w-max cursor-pointer transition-all ease-in duration-200 no-underline hover:bg-primary text-primary hover:text-white border-primary py-3 px-4"
                                                             v-else @click="removeCoupon()">Remover</button>
@@ -646,6 +604,4 @@ onMounted(async () => {
 </template>
 
 
-<style>
-
-</style>
+<style></style>
