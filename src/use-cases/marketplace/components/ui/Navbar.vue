@@ -89,9 +89,6 @@ const hasLogged = computed(() => {
                             </li>
                         </ul>
                         <div class="flex items-center">
-                            <div class="relative hidden lg:flex lg:justify-center w-[20px] h-[40px]">
-                                <div class="absolute top-0 w-[1px] h-full bg-[#dee2e6]"></div>
-                            </div>
                             <button @click="toggleSidebar"
                                 class="bg-transparent text-primary relative w-[38px] flex justify-center items-center lg:hidden">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="22px" height="22px" viewBox="0 0 24 24"

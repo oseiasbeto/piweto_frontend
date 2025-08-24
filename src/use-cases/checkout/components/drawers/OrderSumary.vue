@@ -1,6 +1,6 @@
 <template>
     <div
-        class="bg-white lg:hidden flex fixed z-[9999] left-0 bottom-0 w-full overflow-hidden flex-col-reverse rounded-t-[8px] shadow-[0px_-9px_19px_-6px_rgba(0,0,0,0.2)] ">
+        class="bg-white lg:hidden flex fixed z-[7777] left-0 bottom-0 w-full overflow-hidden flex-col-reverse rounded-t-[8px] shadow-[0px_-9px_19px_-6px_rgba(0,0,0,0.2)] ">
 
         <div>
             <div
@@ -90,7 +90,7 @@
     </div>
 
     <!--start backdrop-->
-    <div class="fixed inset-0 w-full pointer-events-none h-full z-[8888] bg-[rgba(25,31,40,0.6)] transition-opacity duration-100 ease-in-out opacity-0 animate-fade-in"
+    <div class="fixed inset-0 w-full pointer-events-none h-full z-[6666] bg-[rgba(25,31,40,0.6)] transition-opacity duration-100 ease-in-out opacity-0 animate-fade-in"
         :class="{'opacity-100 pointer-events-auto': isShowMore, '!pointer-events-none': !isShowMore}">
         <!-- Conteúdo do backdrop -->
     </div>

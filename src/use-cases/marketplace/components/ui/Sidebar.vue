@@ -73,7 +73,7 @@ async function handlelogout() {
 
 <template>
     <div class="block lg:hidden">
-        <div class="bg-[#292b2c] h-full transition-all fixed top-0 z-[100] w-[275px]"
+        <div class="bg-[#292b2c] h-full transition-all fixed top-0 z-[9999] w-[275px]"
             :class="props.isView ? 'right-0' : 'right-[-275px]'">
             <!--start list items-->
             <ul v-if="!hasLogged" class="px-0">
@@ -166,7 +166,7 @@ async function handlelogout() {
             <!--end list items-->
         </div>
         <div @click="close"
-            class="fixed top-0 z-[90] transition-opacity left-0 right-0 w-screen h-screen bg-black/[0.6]"
+            class="fixed top-0 z-[8888] transition-opacity left-0 right-0 w-screen h-screen bg-black/[0.6]"
             :class="props.isView ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"></div>
     </div>
 </template>

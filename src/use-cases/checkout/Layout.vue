@@ -8,15 +8,19 @@ import Footer from "./components/ui/Footer.vue";
 import { useStore } from "vuex";
 import Modal from "./components/ui/Modal.vue";
 import Navbar from "../marketplace/components/ui/Navbar.vue";
+import Sidebar from "../marketplace/components/ui/Sidebar.vue";
 
 const route = useRoute()
-const router = useRouter()
 const store = useStore()
 
+
+const sidebar = computed(() => {
+    return store.getters.sidebar
+})
 </script>
 
 <template>
-    <div class="relative min-h-screen bg-[rgba(82,31,142,.077)]" :class="{ 'bg-white': route.name === 'Order' }">
+    <div class="relative min-h-screen bg-[#f5f7f8]" :class="{ 'bg-white': route.name === 'Order' }">
         <!--start navbar-->
         <Navbar />
         <!--end navbar-->
@@ -34,6 +38,10 @@ const store = useStore()
         <!--start footer-->
         <Footer />
         <!--end footer-->
+
+        <!--start sidebar-->
+        <Sidebar :isView="sidebar.show" />
+        <!--end sidebar-->
 
         <!--start modal-->
         <Modal />

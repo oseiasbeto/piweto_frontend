@@ -351,7 +351,7 @@ onMounted(async () => {
                                         <a style="letter-spacing: 0.5px;"
                                             :href="`https://www.google.com/maps/search/${event.address.location}`"
                                             target="_blank"
-                                            class="rounded-lg hover:bg-primary/20 transition-colors px-5 py-2 border uppercase text-[14px] font-bold border-primary text-primary"
+                                            class="rounded-full hover:bg-[rgb(0,151,255)] hover:text-white transition-colors px-5 py-2 border uppercase text-[14px] font-bold border-[rgb(0,151,255)] text-[rgb(0,151,255)]"
                                             role="button" aria-pressed="true">
                                             Ver Mapa
                                         </a>
@@ -392,7 +392,7 @@ onMounted(async () => {
                                             <a v-if="event?.created_by?.email?.length" style="letter-spacing: 0.5px;"
                                                 :href="`mailto:contato@evento.com?subject=Informações sobre ${encodeURIComponent(event?.name)}&body=Olá,%0D%0A%0D%0AGostaria de saber mais sobre ${encodeURIComponent(event?.name)}.%0D%0A%0D%0AObrigado!`"
                                                 target="_blank"
-                                                class="rounded-full  gap-1 hover:bg-brand-primary hover:text-white transition-colors px-5 py-2 border uppercase text-[14px] font-bold border-brand-primary text-brand-primary lg:w-auto w-full"
+                                                class="rounded-full  gap-1 hover:bg-[rgb(0,151,255)] hover:text-white transition-colors px-5 py-2 border uppercase text-[14px] font-bold border-[rgb(0,151,255)] text-[rgb(0,151,255)] lg:w-auto w-full"
                                                 role="button" aria-pressed="true">
 
 
@@ -402,7 +402,7 @@ onMounted(async () => {
                                             <a v-if="event?.created_by?.phone?.length" style="letter-spacing: 0.5px;"
                                                 :href="`https://wa.me/${event?.created_by?.phone}?text=${encodeURIComponent('Olá, gostaria de informações sobre ' + event?.name)}`"
                                                 target="_blank"
-                                                class="rounded-full  gap-1 hover:bg-brand-primary hover:text-white transition-colors px-5 py-2 border uppercase text-[14px] font-bold border-brand-primary text-brand-primary lg:w-auto w-full"
+                                                class="rounded-full  gap-1 hover:bg-[rgb(0,151,255)] hover:text-white transition-colors px-5 py-2 border uppercase text-[14px] font-bold border-[rgb(0,151,255)] text-[rgb(0,151,255)] lg:w-auto w-full"
                                                 role="button" aria-pressed="true">
                                                 Contato via WhatsApp
                                             </a>
@@ -452,9 +452,9 @@ onMounted(async () => {
                                                                 <div v-if="batch.quantity > 0 && !isDatePassed(batch.ends_at.date) && canReleaseSales(batch?.starts_at?.date)"
                                                                     class="flex items-center">
                                                                     <button
-                                                                        class="w-[32px] h-[32px] m-1 flex justify-center items-center text-black-text bg-muted-bg/5 rounded-[8px]"
+                                                                        class="w-[32px] h-[32px] m-1 flex justify-center items-center text-black-text bg-brand-muted-bg/5 rounded-[8px]"
                                                                         @click="reduceBatch(index)" :class="{
-                                                                            'cursor-default !text-muted-color !bg-muted-bg': batch.quantitySelected <= 0
+                                                                            'cursor-default !text-brand-muted-color !bg-brand-muted-bg': batch.quantitySelected <= 0
                                                                         }">
                                                                         <svg viewBox="0 0 16 16" fill="none"
                                                                             xmlns="http://www.w3.org/2000/svg"
@@ -468,9 +468,9 @@ onMounted(async () => {
                                                                         class="text-base font-semibold text-[rgb(76,87,108)] w-[26px] text-center">
                                                                         {{ batch.quantitySelected }}</p>
                                                                     <button
-                                                                        class="hover:opacity-70 transition-opacity w-[32px] h-[32px] m-1 flex justify-center items-center text-[#fff] bg-primary rounded-[8px]"
+                                                                        class="hover:opacity-70 transition-opacity w-[32px] h-[32px] m-1 flex justify-center items-center text-[#fff] bg-[rgb(0,151,255)] rounded-[8px]"
                                                                         @click="addBatch(index)" :class="{
-                                                                            'cursor-default !text-muted-color !bg-muted-bg': batch.quantitySelected >= batch.quantity_for_purchase.max
+                                                                            'cursor-default !text-brand-muted-color !bg-brand-muted-bg': batch.quantitySelected >= batch.quantity_for_purchase.max
                                                                         }">
                                                                         <svg viewBox="0 0 13 13" fill="none"
                                                                             xmlns="http://www.w3.org/2000/svg"
@@ -503,7 +503,7 @@ onMounted(async () => {
                                                     </li>
                                                 </ul>
                                             </div>
-                                            <div class="p-4 hidden lg:block">
+                                            <div class="p-4">
                                                 <div v-if="amount > 0"
                                                     class="flex mb-2 text-[rgb(25,31,40)] justify-between gap-1 items-center flex-row">
                                                     <div class="flex items-center gap-1">
@@ -522,14 +522,14 @@ onMounted(async () => {
                                                 <div class="mb-4">
                                                     <button v-if="!showCouponInput"
                                                         @click="showCouponInput = !showCouponInput"
-                                                        class="flex border border-border-color hover:border-primary transition-colors border-dashed w-full justify-center items-center text-sm gap-2 py-2.5 px-3 text-primary">
+                                                        class="flex border border-brand-border-color hover:border-[rgb(0,151,255)] transition-colors border-dashed w-full justify-center items-center text-sm gap-2 py-2.5 px-3 text-[rgb(0,151,255)]">
                                                         <span>Inserir código promocional</span>
                                                     </button>
                                                     <div class="flex relative gap-3 items-center justify-between"
                                                         v-else>
                                                         <div class="relative flex-1">
                                                             <input
-                                                                class="flex flex-row items-center w-full text-[rgb(25,31,40)] border border-border-color rounded-[4px] py-2 pr-12 p-4 text-base transition-[border-color] focus:border-primary duration-300 outline-none gap-4"
+                                                                class="flex flex-row items-center w-full text-[rgb(25,31,40)] border border-brand-border-color rounded-[4px] py-2 pr-12 p-4 text-base transition-[border-color] focus:border-brand-info duration-300 outline-none gap-4"
                                                                 v-model="form.couponName" type="text"
                                                                 placeholder="Código" :readonly="coupon._id">
                                                             <button
@@ -549,17 +549,17 @@ onMounted(async () => {
                                                         </div>
 
                                                         <button :disabled="form.couponName == '' || loadingCoupon"
-                                                            class="rounded-lg outline-none overflow-hidden relative border text-sm font-semibold font-sans leading-4 inline-flex items-center justify-center min-w-fit w-max cursor-pointer transition-all ease-in duration-200 no-underline hover:bg-primary text-primary hover:text-white border-primary py-3 px-4"
+                                                            class="rounded-lg outline-none overflow-hidden relative border text-sm font-semibold font-sans leading-4 inline-flex items-center justify-center min-w-fit w-max cursor-pointer transition-all ease-in duration-200 no-underline hover:bg-[rgb(0,151,255)] text-[rgb(0,151,255)] hover:text-white border-primary py-3 px-4"
                                                             v-if="form.couponName == '' || !coupon._id"
                                                             @click="(event) => _applyCoupon(form.couponName, event)">Aplicar</button>
                                                         <button
-                                                            class="rounded-lg outline-none border text-sm font-semibold font-sans leading-4 inline-flex items-center justify-center min-w-fit w-max cursor-pointer transition-all ease-in duration-200 no-underline hover:bg-primary text-primary hover:text-white border-primary py-3 px-4"
+                                                            class="rounded-lg outline-none border text-sm font-semibold font-sans leading-4 inline-flex items-center justify-center min-w-fit w-max cursor-pointer transition-all ease-in duration-200 no-underline hover:bg-primary text-[rgb(0,151,255)] hover:text-white border-[rgb(0,151,255)] py-3 px-4"
                                                             v-else @click="removeCoupon()">Remover</button>
                                                     </div>
                                                 </div>
 
                                                 <button style="letter-spacing: 0.5px;"
-                                                    class="bg-btn-pay-color relative overflow-hidden h-[48px] rounded-[8px] disabled:bg-muted-bg disabled:text-muted-color disabled:cursor-default w-full font-semibold text-[14px] py-2.5 px-3 text-[#fff] mb-1"
+                                                    class="bg-brand-btn-pay-color relative overflow-hidden h-[48px] rounded-[8px] disabled:bg-brand-muted-bg disabled:text-brand-muted-color disabled:cursor-default w-full font-semibold text-[14px] py-2.5 px-3 text-[#fff] mb-1"
                                                     :class="{ 'pointer-events-none cursor-default': loadingCart }"
                                                     @click="sendToCart" :disabled="isEventOver || amount == 0">
                                                     <span v-if="!loadingCart">{{ amount == 0 ? 'Selecione um Ingresso' :
@@ -593,7 +593,7 @@ onMounted(async () => {
                 </Container>
                 <!--data end-->
             </section>
-            <CartDrawer :amount="amount" :show="amount > 0" v-model:couponName="form.couponName"
+            <CartDrawer v-if="false" :amount="amount" :show="amount > 0" v-model:couponName="form.couponName"
                 :amount-after-discount="amountAfterDiscount" :coupon="coupon" :loadingCart="loadingCart"
                 :showCouponInput="showCouponInput" @toggle-coupon-input="showCouponInput = $event"
                 @sendToCart="sendToCart" @applyCoupon="_applyCoupon" @removeCoupon="removeCoupon" />
