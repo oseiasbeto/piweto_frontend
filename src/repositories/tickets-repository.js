@@ -48,8 +48,9 @@ export function useTickets() {
     }
   };
 
-  const getPartakers = async ({ page, limit, eventId, status }) => {
+  const getPartakers = async ({ page, limit, q, eventId, status }) => {
     try {
+
       loading.value = true
       const response = await api.get("/tickets/partakers", {
         params: {
@@ -57,6 +58,7 @@ export function useTickets() {
           page,
           limit,
           status,
+          q
         },
       });
       return response;

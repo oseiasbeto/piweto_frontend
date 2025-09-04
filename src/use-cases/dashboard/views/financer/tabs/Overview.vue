@@ -112,7 +112,7 @@ watch(event, (newEvent) => {
         <!-- Montante Pendente -->
         <div class="bg-white p-6 rounded-md shadow-md border-t-4 border-red-500">
             <h2 class="text-medium font-medium text-gray-500 mb-4">Montante Pendente</h2>
-            <h1 class="text-2xl font-bold text-gray-900">{{ formatAmount(event?.orders_pending_cash || 0) }}</h1>
+            <h1 class="text-2xl font-bold text-gray-900">{{ formatAmount(event?.orders_p_cash || 0) }}</h1>
         </div>
 
         <!-- Disponível para Repasse -->
