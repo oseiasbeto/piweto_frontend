@@ -9,7 +9,7 @@ body {
     -webkit-user-select: none;
     user-select: none;
   
-    font-family: "Open sans";
+    font-family: "Inter", sans-serif;
 }
 
 .fade-enter-active,

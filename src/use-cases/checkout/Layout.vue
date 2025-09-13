@@ -9,6 +9,7 @@ import { useStore } from "vuex";
 import Modal from "./components/ui/Modal.vue";
 import Navbar from "../marketplace/components/ui/Navbar.vue";
 import Sidebar from "../marketplace/components/ui/Sidebar.vue";
+import NavbarCheckout from "./components/ui/NavbarCheckout.vue";
 
 const route = useRoute()
 const store = useStore()
@@ -20,9 +21,10 @@ const sidebar = computed(() => {
 </script>
 
 <template>
-    <div class="relative min-h-screen bg-[#f5f7f8]" :class="{ 'bg-white': route.name === 'Order' }">
+    <div class="relative min-h-screen bg-white">
         <!--start navbar-->
-        <Navbar />
+        <Navbar v-if="route.name !== 'Cart' && route.name !== 'Order'" />
+        <NavbarCheckout v-else />
         <!--end navbar-->
 
         <!--start main-->
