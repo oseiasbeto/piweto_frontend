@@ -559,7 +559,7 @@ onMounted(async () => {
                                                 </div>
 
                                                 <button style="letter-spacing: 0.5px;"
-                                                    class="bg-brand-btn-pay-color relative overflow-hidden h-[48px] rounded-[8px] disabled:bg-brand-muted-bg disabled:text-brand-muted-color disabled:cursor-default w-full font-semibold text-[14px] py-2.5 px-3 text-[#fff] mb-1"
+                                                    class="bg-[rgb(23,178,106)] hover:bg-[rgb(7,148,85)] transition-colors relative overflow-hidden h-[48px] rounded-[8px] disabled:bg-[rgb(221,224,228)] disabled:text-[rgb(132,140,155)] disabled:cursor-default w-full font-semibold text-[14px] py-2.5 px-3 text-[#fff] mb-1"
                                                     :class="{ 'pointer-events-none cursor-default': loadingCart }"
                                                     @click="sendToCart" :disabled="isEventOver || amount == 0">
                                                     <span v-if="!loadingCart">{{ amount == 0 ? 'Selecione um Ingresso' :

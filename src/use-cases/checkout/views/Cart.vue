@@ -5,7 +5,7 @@
             <Container>
                 <div class="mt-1 mb-10 lg:mt-8">
 
-                    <div class="flex flex-col-reverse gap-4 lg:gap-8 px-0 lg:px-4 lg:flex-row justify-between">
+                    <div class="flex flex-col-reverse gap-0 lg:gap-8 px-0 lg:px-4 lg:flex-row justify-between">
                         <div class="flex-shrink-0 flex flex-col gap-2 lg:gap-5 w-full lg:w-2/3">
                             <div>
                                 <div class="lg:border border-b border-gray-300 bg-white rounded-sm gap-3 text-sm p-4 flex justify-between items-center flex-col lg:flex-row"
@@ -144,8 +144,7 @@
                                 <div class="mb-3">
                                     <div class="flex mb-4 items-center gap-2">
                                         <h1 style="letter-spacing: 0.2px; line-height: 1.2"
-                                            class="text-base lg:text-lg font-bold">Informações de
-                                            pagamento
+                                            class="text-base lg:text-lg font-bold">Formas de pagamento
                                         </h1>
                                     </div>
 
@@ -282,7 +281,7 @@
                                     </p>
 
                                     <button
-                                        class="rounded-sm relative overflow-hidden w-full lg:w-max shrink-0 outline-none border border-transparent border-solid text-sm font-semibold font-sans leading-4 inline-flex items-center justify-center min-w-fit cursor-pointer transition-all duration-200 ease-in no-underline bg-brand-btn-pay-color text-white px-6 h-[50px] disabled:bg-[rgb(221,224,228)] disabled:text-[rgb(132,140,155)] disabled:cursor-default"
+                                        class="rounded-sm relative overflow-hidden w-full lg:w-max shrink-0 outline-none border border-transparent border-solid text-sm font-semibold font-sans leading-4 inline-flex items-center justify-center min-w-fit cursor-pointer transition-all duration-200 ease-in no-underline bg-[rgb(23,178,106)] hover:bg-[rgb(7,148,85)] text-white px-6 h-[50px] disabled:bg-[rgb(221,224,228)] disabled:text-[rgb(132,140,155)] disabled:cursor-default"
                                         :disabled="!formIsValid || !form.paymentMethod || loadingOrder"
                                         @click="finishPurchase" type="submit">
                                         <p>Pagar Agora</p>
@@ -334,9 +333,9 @@
 
                                 <!--start order summary-->
                                 <div
-                                    class="bg-white hidden lg:block z-[9999] w-full relative overflow-hidden flex-col lg:gap-4 rounded-sm border border-gray-300">
+                                    class="bg-white hidden lg:block z-[9999] w-full relative overflow-hidden flex-col lg:gap-4 rounded-sm border border-gray-200">
                                     <div
-                                        class="flex p-1 mb-2 lg:mb-0 items-center px-3 h-[28px] justify-center gap-1 w-full bg-[rgb(242,235,253)] text-[rgb(128,49,255)]">
+                                        class="flex p-1 mb-2 lg:mb-0 items-center px-3 h-[28px] justify-center gap-1 w-full bg-[#fb8c00]/[0.12] text-[#fb8c00]">
                                         <svg width="15" height="15" viewBox="0 0 25 24" fill="currentColor"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path fill-rule="evenodd" clip-rule="evenodd"

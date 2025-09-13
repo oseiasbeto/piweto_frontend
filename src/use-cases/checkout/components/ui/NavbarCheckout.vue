@@ -15,6 +15,10 @@ const store = useStore()
 const timeLeft = ref(5 * 60) // 5 minutos em segundos
 const timer = ref(null)
 const isCriticalTime = ref(false) // Indica se o tempo está crítico (1 minuto ou menos)
+const showTimerComponent = computed(() => route.name === 'Cart')
+const sidebar = computed(() => {
+    return store.getters.sidebar
+})
 
 const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60)
@@ -62,7 +66,9 @@ const showTimeUpAlert = () => {
 
 // Iniciar o timer quando o componente for montado
 onMounted(() => {
-    startTimer()
+    if (showTimerComponent.value) {
+        startTimer()
+    } else return
 })
 
 // Limpar o timer quando o componente for desmontado
@@ -80,6 +86,12 @@ const clearReservationTimer = () => {
     }
 }
 
+const toggleSidebar = () => {
+    store.dispatch('setSidebar', {
+        show: !sidebar.value.show
+    })
+}
+
 // Expor a função para ser usada em outros componentes
 defineExpose({
     clearReservationTimer
@@ -87,7 +99,9 @@ defineExpose({
 </script>
 
 <template>
-    <div class="bg-white sticky border-b border-b-gray-300 z-[444] lg:px-0 px-4 top-0 h-12 lg:h-16 w-full">
+    <div class="bg-white sticky border-b z-[444] lg:px-0 px-4 top-0 h-12 lg:h-16 w-full"
+    :class="{ 'border-b-gray-300': showTimerComponent, 'border-b-gray-100': !showTimerComponent }"
+    >
         <Container>
             <div class="flex relative justify-between lg:px-4 items-center">
                 <div>
@@ -95,7 +109,7 @@ defineExpose({
                 </div>
 
                 <div>
-                    <div :class="[
+                    <div v-if="showTimerComponent" :class="[
                         'flex items-center gap-1 border border-gray-300 rounded-full py-1 lg:py-[6px] px-[12px] transition-colors duration-300',
                         isCriticalTime
                             ? 'text-red-600 border-red-300 bg-red-50'
@@ -108,6 +122,26 @@ defineExpose({
                                 fill="currentColor" />
                         </svg>
                         <p class="font-bold text-inherit text-sm lg:text-base">{{ formatTime(timeLeft) }}</p>
+                    </div>
+
+                    <div v-else class="flex items-center">
+                        <button @click="toggleSidebar"
+                            class="bg-transparent text-primary relative w-[38px] flex justify-center items-center lg:hidden">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22px" height="22px" viewBox="0 0 24 24"
+                                fill="none">
+                                <g clip-path="url(#clip0_429_11066)">
+                                    <path d="M3 6.00092H21M3 12.0009H21M3 18.0009H21" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </g>
+                                <defs>
+                                    <clipPath id="clip0_429_11066">
+                                        <rect width="24" height="24" fill="white"
+                                            transform="translate(0 0.000915527)" />
+                                    </clipPath>
+                                </defs>
+                            </svg>
+                        </button>
+
                     </div>
                 </div>
             </div>

@@ -30,15 +30,31 @@ const formattedExpiresDate = computed(() => {
     return moment(order.value.expires_at).add("1", "h").format("YYYY/MM/DD HH:mm")
 })
 
-function formatDate(date, time) {
-    const day = new Intl.DateTimeFormat('pt-BR', { weekday: 'short' }).format(date);
-    const dayNumber = date.getDate();
-    const month = new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(date);
-    const _time = time.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+// Função para formatar data para o formato do Google Calendar
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+};
 
-    return `${day}, ${dayNumber} ${month} · ${_time}`;
-}
+// Computed property que gera o link dinamicamente
+const calendarLink = computed(() => {
+    const baseUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
 
+    const params = new URLSearchParams({
+        text: order?.value?.event?.name || 'Evento',
+        dates: `${formatDate(order.value?.event?.starts_at?.date)}/${formatDate(order.value?.event?.ends_at?.date)}`,
+        details: 'Evento reservado via Piweto',
+        location: order.value?.event?.address?.location || '',
+        trp: 'false'
+    });
+
+    // Adiciona URL se existir
+    if (order.value?.event?.slug) {
+        params.append('details', `Evento reservado via Piweto\n\n🔗 Mais informações: https://piweto.it.ao/evento/${order.value?.event?.slug}`);
+    }
+
+    return `${baseUrl}&${params.toString()}`;
+});
 // quando montar a tela, faca a requisicao para api buscando um pedido com base no id passado na routa desta pagina.
 onMounted(async () => {
     const id = route.params.id
@@ -390,23 +406,37 @@ onMounted(async () => {
 
                 <div class="!bg-[#f5f7f8] mb-8 border-[#dde0e4] border rounded-[16px]">
                     <h1 class="p-4 py-4 w-60 lg:w-full text-sm text-center font-bold mx-auto text-[#4c576c]">
-                        Detalhes do evento
+                        Ações do pedido
                     </h1>
 
                     <div class="bg-white text-[#4c576c] font-semibold text-sm rounded-lg p-5 m-4 mt-0">
                         <div class="flex lg:flex-row lg:text-left text-center items-center lg:gap-8 gap-4 flex-col">
-                            <div
-                                class="shrink-0 overflow-hidden rounded-lg lg:w-[400px] lg:h-[225px] bg-gray-100 w-full h-[170px] lg:mb-0">
-                                <img v-lazy="order?.event?.cover?.low" alt="Event Image"
-                                    class="w-full h-full object-cover">
-                            </div>
-                            <div class="flex-1 w-full">
-                                <p class="mb-0.5 text-2xl text-gray-500">{{ order?.event?.name }}</p>
-                                <p class="mb-2 text-gray-400">{{ formatDate(new Date(order?.event.starts_at.date),
-                                    new
-                                        Date(order?.event.starts_at.hm)) }}</p>
 
-                                        <button @click="generateInvoicePDF(order)">Baixar factura</button>
+                            <div class="flex lg:flex-row flex-col gap-2 justify-center w-full">
+                                <button
+                                    class="flex py-2 px-4 lg:w-auto w-full justify-center items-center gap-2 rounded-lg h-10 font-bold normal-case text-sm mt-1 bg-brand-primary text-white"
+                                    @click="generateInvoicePDF(order)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="16px"
+                                        height="16px" viewBox="0 0 32 32" version="1.1">
+                                        <title>print</title>
+                                        <path d="M24 20h-16v-16h16v16zM4 24v4h24v-4h-24z" />
+                                    </svg>
+                                    <p> Gerar factura</p>
+                                </button>
+
+                                <a class="flex py-2 px-4 lg:w-auto w-full justify-center items-center gap-2 rounded-lg h-10 font-bold normal-case text-sm mt-1 transition-colors bg-[rgb(0,151,255)] text-white"
+                                    :href="calendarLink" target="_blank" rel="noopener noreferrer"
+                                    >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px"
+                                        viewBox="0 0 24 24" fill="none">
+                                        <path
+                                            d="M3 9H21M7 3V5M17 3V5M11.9976 12.7119C11.2978 11.9328 10.1309 11.7232 9.25414 12.4367C8.37738 13.1501 8.25394 14.343 8.94247 15.1868C9.33119 15.6632 10.2548 16.4983 10.9854 17.1353C11.3319 17.4374 11.5051 17.5885 11.7147 17.6503C11.8934 17.703 12.1018 17.703 12.2805 17.6503C12.4901 17.5885 12.6633 17.4374 13.0098 17.1353C13.7404 16.4983 14.664 15.6632 15.0527 15.1868C15.7413 14.343 15.6329 13.1426 14.7411 12.4367C13.8492 11.7307 12.6974 11.9328 11.9976 12.7119ZM6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z"
+                                            stroke="currentColor" stroke-width="2.1" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                    </svg>
+                                    <p>Adicionar à agenda</p>
+
+                                </a>
                             </div>
                         </div>
                     </div>
