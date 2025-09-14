@@ -13,6 +13,14 @@ export const generatePartakersPDF = (partakers, event, pagination) => {
   let y = margin;
   const tableWidth = pageWidth - 2 * margin; // 170 mm (210 - 2 * 20)
 
+  // Função para truncar texto com ellipsis
+  const truncateText = (text, maxLength) => {
+    if (text && text.length > maxLength) {
+      return text.substring(0, maxLength - 3) + "...";
+    }
+    return text || "N/A";
+  };
+
   // Função para adicionar o título
   const addTitle = () => {
     doc.setFontSize(16);
@@ -35,8 +43,8 @@ export const generatePartakersPDF = (partakers, event, pagination) => {
   const addTableHeader = () => {
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
-    const headers = ["Status", "Participante", "Preço", "Nº Reserva", "Data Compra"];
-    const colWidths = [30, 50, 30, 30, 30]; // Total: 170 mm
+    const headers = ["Status", "Participante", "Ingresso", "Preço", "Nº Reserva", "Data Compra"];
+    const colWidths = [25, 40, 35, 25, 25, 20]; // Total: 170 mm
     
     // Desenhar bordas do cabeçalho
     let x = margin;
@@ -67,7 +75,7 @@ export const generatePartakersPDF = (partakers, event, pagination) => {
       case "p":
         return "Pendente";
       case "a":
-        return "Processado";
+        return "Activo";
       case "d":
         return "Cancelado";
       default:
@@ -107,13 +115,14 @@ export const generatePartakersPDF = (partakers, event, pagination) => {
 
     const rowData = [
       generateStatusLegend(partaker.status),
-      String(partaker.costumer?.full_name || "N/A"),
+      truncateText(partaker.costumer?.full_name, 20),
+      truncateText(partaker.batch?.name, 20),
       formatAmount(partaker.price),
       String(partaker.booking_number || "N/A"),
       moment(partaker.created_at).format("DD/MM/YYYY"),
     ];
 
-    const colWidths = [30, 50, 30, 30, 30]; // Total: 170 mm
+    const colWidths = [25, 40, 35, 25, 25, 20]; // Total: 170 mm
 
     // Desenhar bordas para a linha
     let x = margin;

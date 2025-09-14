@@ -7,9 +7,19 @@
                     <div class="lg:max-w-80 w-full">
                         <DynamicSearch v-model:search="q" :loading="loadingPartakers" @update:search="performSearch" />
                     </div>
-                    <div class="flex gap-3 w-full lg:w-auto">
+                    <div class="flex lg:flex-row flex-col gap-3 w-full lg:w-auto">
+                        <div class="lg:max-w-80 w-full">
+                            <select v-model="status" @change="performSearch"
+                                class="flex h-[40px] w-full text-gray-500 items-center text-sm p-2 overflow-hidden border border-[#dfe0df] rounded-[3px] bg-white focus:outline-none">
+                                <option :value="null">Todos participantes</option>
+                                <option value="a">Participantes activos</option>
+                                <option value="p">Participantes pendentes</option>
+                                <option value="d">Participantes cancelados</option>
+                            </select>
+                        </div>
+
                         <button @click="generatePDF" :disabled="loadingPartakers || !partakers?.data?.length"
-                            class="px-4 py-2 w-full lg:w-auto  font-medium hover:text-white hover:bg-brand-primary border rounded-md bg-white text-xs text-brand-primary border-brand-primary transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                            class="px-4 py-2 text-sm font-medium text-white bg-brand-primary border border-transparent w-full rounded-md focus:outline-none focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
                             Gerar Lista em PDF
                         </button>
                     </div>
@@ -22,7 +32,7 @@
                             <tr>
                                 <th class="px-4 py-3">Status</th>
                                 <th class="px-4 py-3">Participante</th>
-                                <th class="px-4 py-3">Código</th>
+                                <th class="px-4 py-3">Ingresso</th>
                                 <th class="px-4 py-3">Preço</th>
                                 <th class="px-4 py-3">Nº Reserva</th>
                                 <th class="px-4 py-3">Data da Compra</th>
@@ -30,8 +40,9 @@
                             </tr>
                         </thead>
                         <tbody v-if="!loadingPartakers">
-                            <tr v-if="partakers?.data?.length" v-for="(partaker, index) in partakers.data"
-                                :key="partaker._id" class="bg-white border-b border-gray-100">
+                            <tr @click="openPartakerInfo(partaker)" v-if="partakers?.data?.length" v-for="(partaker, index) in partakers.data"
+                                :key="partaker._id"
+                                class="bg-white border-b border-gray-100 hover:bg-gray-50 cursor-pointer">
                                 <td class="px-4 py-3" :class="statusTxtColor(partaker.status)">
                                     <div class="flex items-center gap-2">
                                         <div class="w-[12px] h-[12px] rounded-full"
@@ -43,7 +54,7 @@
                                     <p>{{ partaker.costumer.full_name }}</p>
                                 </td>
                                 <td class="px-4 py-3 text-nowrap text-gray-500">
-                                    <p>{{ partaker.code }}</p>
+                                    <p>{{ partaker?.batch?.name }}</p>
                                 </td>
                                 <td class="px-4 py-3 text-nowrap text-gray-500">
                                     <p>{{ formatAmount(partaker?.price || 0) }}</p>
@@ -176,7 +187,7 @@ const generateStatusLegend = (status) => {
         case "p":
             return "Pendente";
         case "a":
-            return "Processado";
+            return "Activo";
         case "d":
             return "Cancelado";
     }
@@ -185,6 +196,17 @@ const generateStatusLegend = (status) => {
 const performSearch = () => {
     page.value = 1; // Reseta a página ao mudar o limite ou buscar
     fetchPartakers();
+};
+
+const openPartakerInfo = (partaker) => {
+    console.log(partaker);
+    store.dispatch("setModal", {
+        show: true,
+        name: "partaker-info",
+        data: {
+            partakerData: partaker
+        }
+    });
 };
 
 const fetchPartakers = async () => {

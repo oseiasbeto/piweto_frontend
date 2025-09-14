@@ -86,11 +86,13 @@ export function useStaffs() {
     const newStaff = async (data) => {
         try {
             loading.value = true
+
+            console.log(data)
             const response = await api.post(`/staffs/${data.eventId}`, {
-                email: data.email,
+                phone: data.phone,
                 role: data.role
             })
-            const staff = response.data.newStaff;
+            const staff = response.data.new_staff;
             return staff
         } catch (err) {
             error.value = true

@@ -23,8 +23,11 @@ loadingStaff.value = true
 const route = useRoute()
 const store = useStore()
 
-const currentUser = computed(() => {
+const user = computed(() => {
     return store.getters.currentUser
+})
+const event = computed(() => {
+    return store.getters.event
 })
 
 const _toast = computed(() => {
@@ -59,7 +62,7 @@ onMounted(async () => {
 
 <template>
     <div v-if="loadingStaff" class="flex justify-center items-center h-[500px]">
-        <SplashScreen />
+        <SplashScreen :visible="loadingStaff"/>
     </div>
     <div v-else class="relative">
 
@@ -76,7 +79,7 @@ onMounted(async () => {
             <!--start views dashboard-->
             <div class="lg:ml-[120px] relative w-full lg:w-[calc(100%-120px)]">
                 <div class="mt-0 w-full p-6">
-                    <div v-if="!currentUser.email" class="mb-5">
+                    <div v-if="event?.created_by === user._id && !user.email" class="mb-5">
                         <AlertConfirmEmail/>
                     </div>
                     

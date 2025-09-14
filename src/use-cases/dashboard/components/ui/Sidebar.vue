@@ -11,6 +11,10 @@ const isViewMobile = computed(() => {
     return store.getters.isViewMobile
 })
 
+const staff = computed(() => {
+    return store.getters.staff
+})
+
 const closeViewMobile = () => {
     store.dispatch("closeIsViewMobile")
 }
@@ -61,7 +65,7 @@ const closeViewMobile = () => {
                     <p class="mx-auto text-white font-medium">Participantes</p>
                 </router-link>
             </li>
-            <li>
+            <li v-if="staff && staff.role !== 'checker'">
                 <router-link @click="closeViewMobile()"
                     class="text-xs text-center px-[10px] hover:bg-[#42434f] py-4 flex items-center flex-col"
                     :class="{ 'bg-[#40414d] border-l-[4px] border-l-[#ffcd36] text-[#ffcd36] border-b border-b-[#6a6c77] border-t border-t-[#494b57]': route.name == 'Staffs' }"
@@ -91,7 +95,7 @@ const closeViewMobile = () => {
                     <p class="mx-auto text-white font-medium">Colaboradores</p>
                 </router-link>
             </li>
-            <li>
+            <li v-if="staff && staff.role !== 'checker'">
                 <router-link @click="closeViewMobile()"
                     class="text-xs text-center px-[10px] hover:bg-[#42434f] py-4 flex items-center flex-col"
                     :class="{ 'bg-[#40414d] border-l-[4px] border-l-[#ffcd36] text-[#ffcd36] border-b border-b-[#6a6c77] border-t border-t-[#494b57]': route.name == 'Finance' }"

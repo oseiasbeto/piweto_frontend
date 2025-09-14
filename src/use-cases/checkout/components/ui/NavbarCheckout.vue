@@ -4,7 +4,6 @@ import Logo from '@/components/Logo.vue';
 import { useStore } from "vuex";
 import { computed, ref, onMounted, onUnmounted } from "vue";
 import Container from '@/use-cases/marketplace/components/ui/Container.vue';
-import LocaleSelector from "./LocaleSelector.vue";
 import Swal from 'sweetalert2';
 
 const route = useRoute()

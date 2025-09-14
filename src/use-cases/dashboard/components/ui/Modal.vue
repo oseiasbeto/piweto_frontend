@@ -15,6 +15,7 @@ import ForgotPassword from "@/use-cases/marketplace/components/forms/auth/Forgot
 import AddBankAccount from "../forms/finance/AddBankAccount.vue"
 import CreatePayout from "../forms/finance/CreatePayout.vue"
 import StaffForm from "../forms/staffs/StaffForm.vue"
+import PartakerInfo from "../forms/partakers/partakerInfo.vue"
 
 // importe as referências necessários para o bom funcionamento deste componente.
 const store = useStore()
@@ -52,6 +53,7 @@ const close = (name) => {
                         <DialogPanel class="w-full overflow-hidden text-left align-middle transition-all transform">
                             <div>
                                 <AddBankAccount @onclose="close(modal.name)" v-if="modal.name == 'add-bank-account'" />
+                                <PartakerInfo :partaker-data="modal.data.partakerData || {}" @onclose="close(modal.name)" v-if="modal.name == 'partaker-info'" />
                                 <CreatePayout @onclose="close(modal.name)" v-if="modal.name == 'create-payout'" />
                                 <MyAccount @onclose="close(modal.name)" v-if="modal.name == 'my-account'" />
                                 <ForgotPassword @onclose="close(modal.name)" v-if="modal.name == 'forgot-password'"/>

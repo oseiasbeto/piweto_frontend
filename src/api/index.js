@@ -54,6 +54,7 @@ instance.interceptors.response.use(
     }
 );
 
+/* 
 instance.interceptors.response.use(
     response => response,
     error => {
@@ -62,7 +63,7 @@ instance.interceptors.response.use(
         }
         return Promise.reject(error);
     }
-)
+)*/
 
 instance.interceptors.request.use((config) => {
     const hasLogged = store.getters.hasLogged

@@ -22,15 +22,15 @@ const modal = computed(() => store.getters.modal)
 
 // Formulário e validação
 const form = ref({
-  email: "",
+  phone: "",
   role: "manager"
 })
 
 const errors = ref({
-  email: {
+  phone: {
     show: false,
     message: "",
-    emailError: null
+    phoneError: null
   },
   role: {
     show: false,
@@ -39,19 +39,41 @@ const errors = ref({
   }
 })
 
-// Validações
-const validateEmail = () => {
-  const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+// Validações para telefone angolano
+const validatePhone = () => {
+  // Formato de telefone angolano: +244 ou 244 seguido de 9 dígitos
+  const regex = /^(\+244|244)?(9[1-9]\d{7})$/
   
-  if (!form.value.email) {
-    setError('email', "Este campo é obrigatório.")
-  } else if (!regex.test(form.value.email)) {
-    setError('email', "Por favor, digite um e-mail válido.")
-  } else if (errors.value.email.emailError === form.value.email) {
-    setError('email', "Este e-mail não é válido.")
+  if (!form.value.phone) {
+    setError('phone', "Este campo é obrigatório.")
+  } else if (!regex.test(form.value.phone.replace(/\s/g, ''))) {
+    setError('phone', "Digite um número de telefone válido.")
+  } else if (errors.value.phone.phoneError === form.value.phone) {
+    setError('phone', "Este telefone não é válido.")
   } else {
-    clearError('email')
+    clearError('phone')
   }
+}
+
+// Formatar telefone enquanto digita
+const formatPhone = (event) => {
+  let input = event.target.value.replace(/\D/g, '')
+  
+  if (input.startsWith('244')) {
+    input = input.substring(3)
+  }
+  
+  if (input.length > 0) {
+    if (input.length <= 9) {
+      form.value.phone = input.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3')
+    } else {
+      form.value.phone = input.substring(0, 9).replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3')
+    }
+  } else {
+    form.value.phone = ''
+  }
+  
+  validatePhone()
 }
 
 const validateRole = () => {
@@ -82,7 +104,7 @@ const clearError = (field) => {
 
 // Submissão do formulário
 const submit = async () => {
-  validateEmail()
+  validatePhone()
   validateRole()
 
   if (hasError.value || loadingNewStaff.value || loadingUpdateStaff.value) return
@@ -99,9 +121,12 @@ const submit = async () => {
 }
 
 const handleCreateStaff = async () => {
+  // Remover espaços do telefone antes de enviar
+  const phoneNumber = form.value.phone.replace(/\s/g, '')
+  
   const staff = await newStaff({
     eventId: event.value.id,
-    email: form.value.email,
+    phone: phoneNumber,
     role: form.value.role
   })
   
@@ -131,10 +156,10 @@ const handleError = (err) => {
   if (err.response?.status === 400) {
     const message = err.response.data.message
     
-    if (message.includes('nao existe nenhum usuario activo')) {
-      setError('email', "Não existe nenhum usuário ativo com este e-mail.")
-    } else if (message.includes('este usuario e um colaborador')) {
-      setError('email', "Este usuário já colabora neste evento.")
+    if (message.includes('This user is already a staff member.')) {
+      setError('phone', "Este usuário já é um colaborador.")
+    } else if (message.includes('Cannot found user with this phone.')) {
+      setError('phone', "Não foi possível encontrar um usuário com este telefone.")
     } else {
       showError("Algo deu errado!")
       close()
@@ -175,7 +200,7 @@ onMounted(() => {
     errors.value.role.roleError = staff.role
 
     form.value = {
-      email: staff.member.email,
+      phone: staff.member.phone || '',
       role: staff.role
     }
   } else {
@@ -190,30 +215,32 @@ onMounted(() => {
       {{ modal.data.type === 'create' ? 'Adicionar Colaborador' : 'Editar Cargo' }}
     </h2>
 
-    <!-- Campo de Email -->
+    <!-- Campo de Telefone -->
     <div class="mb-5">
-      <label class="block text-sm font-medium text-gray-700 mb-1" for="email">
-        E-mail <span class="text-red-500">*</span>
+      <label class="block text-sm font-medium text-gray-700 mb-1" for="phone">
+        Telefone <span class="text-red-500">*</span>
       </label>
       
       <input 
-        :id="modal.data.type === 'create' ? 'email-input' : 'email-disabled'"
+        :id="modal.data.type === 'create' ? 'phone-input' : 'phone-disabled'"
         :class="[
           'w-full px-4 py-2 rounded-lg border focus:ring-2 focus:outline-none transition',
-          errors.email.show ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-200',
+          errors.phone.show ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-200',
           modal.data.type !== 'create' ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'
         ]"
         :readonly="loading"
         :disabled="modal.data.type !== 'create'"
-        :value="form.email"
-        @input="form.email = $event.target.value; validateEmail()"
+        :value="form.phone"
+        @input="formatPhone($event)"
         type="text"
         autocomplete="off"
-        placeholder="exemplo@email.com"
+        placeholder="923 456 789"
+        maxlength="11"
       >
+    
       
-      <p v-show="errors.email.show" class="mt-1 text-sm text-red-600">
-        {{ errors.email.message }}
+      <p v-show="errors.phone.show" class="mt-1 text-sm text-red-600">
+        {{ errors.phone.message }}
       </p>
     </div>
 
@@ -225,8 +252,7 @@ onMounted(() => {
         <label 
           v-for="role in [
             { value: 'manager', label: 'Gerente' },
-            { value: 'checker', label: 'Coordenador de check-in' },
-            { value: 'pdv', label: 'PDV (Ponto de vendas)' }
+            { value: 'checker', label: 'Coordenador de check-in' }
           ]" 
           :key="role.value"
           :class="[
@@ -265,10 +291,10 @@ onMounted(() => {
       <button
         v-if="modal.data.type === 'create'"
         @click="submit"
-        :disabled="loadingNewStaff || form.email == '' || loadingUpdateStaff || hasError"
+        :disabled="loadingNewStaff || form.phone == '' || loadingUpdateStaff || hasError"
         :class="[
           'px-4 py-2 text-sm font-medium text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition',
-          loadingNewStaff || hasError || form.email == ''
+          loadingNewStaff || hasError || form.phone == ''
             ? 'bg-blue-400 cursor-not-allowed'
             : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
         ]"
@@ -278,9 +304,9 @@ onMounted(() => {
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          Enviando...
+          Adicionando...
         </span>
-        <span v-else>Enviar convite</span>
+        <span v-else>Adicionar</span>
       </button>
       
       <button
