@@ -40,7 +40,7 @@
                             </tr>
                         </thead>
                         <tbody v-if="!loadingPartakers">
-                            <tr @click="openPartakerInfo(partaker)" v-if="partakers?.data?.length" v-for="(partaker, index) in partakers.data"
+                            <tr @click="openPartakerInfo(partaker, index)" v-if="partakers?.data?.length" v-for="(partaker, index) in partakers.data"
                                 :key="partaker._id"
                                 class="bg-white border-b border-gray-100 hover:bg-gray-50 cursor-pointer">
                                 <td class="px-4 py-3" :class="statusTxtColor(partaker.status)">
@@ -198,13 +198,13 @@ const performSearch = () => {
     fetchPartakers();
 };
 
-const openPartakerInfo = (partaker) => {
-    console.log(partaker);
+const openPartakerInfo = (partaker, index) => {
     store.dispatch("setModal", {
         show: true,
         name: "partaker-info",
         data: {
-            partakerData: partaker
+            partakerData: partaker,
+            partakerIndex: index,
         }
     });
 };

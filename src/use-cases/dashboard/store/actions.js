@@ -21,6 +21,9 @@ export const setCoupons = ({ commit }, payload) => {
 export const resetStaffs = ({ commit }, payload) => {
     commit(types.RESET_STAFFS, payload)
 }
+export const toggleStatusCheckIn = ({ commit }, payload) => {
+    commit(types.TOGGLE_STATUS_CHECKIN, payload)
+}
 export const resetCoupons = ({ commit }, payload) => {
     commit(types.RESET_COUPONS, payload)
 }

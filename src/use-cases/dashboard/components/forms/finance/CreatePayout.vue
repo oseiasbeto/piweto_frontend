@@ -54,6 +54,7 @@ const submitForm = async () => {
             confirmButtonText: "Entendi",
             confirmButtonColor: "#6366F1", // Cor roxa para combinar com o design
         }).then(() => {
+            store.dispatch("updateEventBalance", form.value.amount)
             store.dispatch("addPayoutFromPayouts", payout)
         })
     })
@@ -84,10 +85,15 @@ const validateAmount = (e) => {
             show: true,
             message: "Por favor, insira um valor válido para continuar."
         }
-    } else if (form.value.amount < 5) {
+    } else if (form.value.amount < 5000) {
         errors.value.amount = {
             show: true,
-            message: "O valor mínimo para saque é de 5 Kz."
+            message: "O valor mínimo para saque é de 5.000 Kz."
+        }
+    } else if (form.value.amount > 500000) {
+        errors.value.amount = {
+            show: true,
+            message: "O valor máximo para saque é de 500.000 Kz."
         }
     } else if (form.value.amount > event.value.balance) {
         errors.value.amount = {
@@ -108,7 +114,7 @@ const closeModal = () => {
 </script>
 
 <template>
-    <div class="bg-white p-6 rounded-sm shadow-lg w-full lg:w-96">
+    <div class="bg-white p-6 rounded-sm shadow-lg w-screen lg:w-96">
         <h2 class="text-xl font-semibold mb-4">Solicitar levantamento</h2>
         <div>
             <!-- IBAN -->

@@ -71,6 +71,10 @@ const handlePrevPage = () => {
     }
 };
 
+const goToDashboard = (eventId) => {
+    window.location.href = `/gerenciador-de-eventos/pagina-inicial/${eventId}`;
+}
+
 const handleNextPage = () => {
     if (events.value?.metadata?.hasNextPage) {
         page.value = events?.value?.metadata?.page + 1;
@@ -237,8 +241,9 @@ onMounted(async () => {
                                 </tr>
                             </thead>
                             <tbody v-if="!loadingEvents">
-                                <tr v-if="events.data.length" v-for="(event, index) in events.data" :key="event._id"
-                                    class=" bg-white border-b border-gray-100">
+                                <tr @click="goToDashboard(event?.event?.id)" v-if="events.data.length"
+                                    v-for="(event, index) in events.data" :key="event._id"
+                                    class=" bg-white cursor-pointer border-b border-gray-100 hover:bg-gray-50 transition-colors">
                                     <td class="px-4 py-3 text-gray-500">
                                         <div class="flex items-center gap-2">
                                             <div class="w-[12px] h-[12px] rounded-full bg-green-400"
@@ -250,11 +255,9 @@ onMounted(async () => {
                                     </td>
 
                                     <td class="px-4 py-3 text-nowrap text-gray-500">
-                                        <router-link class="hover:underline"
-                                            :to="'/gerenciador-de-eventos/pagina-inicial/' + event?.event?.id">{{
-                                                truncateText(event?.event?.name || 'Evento', 30)
-
-                                            }}</router-link>
+                                        {{
+                                            truncateText(event?.event?.name || 'Evento', 30)
+                                        }}
                                     </td>
 
                                     <td class="px-4 py-3 text-gray-500">
@@ -275,16 +278,12 @@ onMounted(async () => {
                                                 :style="`width: ${calculateProgress(event?.event?.tickets_purchased_count, event?.event?.tickets_available_count)}%`"></span>
                                         </div>
                                     </td>
-                                    <td class="px-4 py-3 flex items-center justify-end gap-2 text-gray-500">
-                                        <router-link :to="'/gerenciador-de-eventos/pagina-inicial/' + event?.event?.id">
-                                            <button
-                                                class="border p-[4px] px-[14px] rounded-full text-[12px] border-gray-400 font-medium text-gray-400 uppercase hover:bg-blue-400 hover:border-blue-400 hover:text-white">Gerenciar</button>
-                                        </router-link>
+                                    <td @click.stop class="px-4 py-3 flex items-center justify-end gap-2 text-gray-500">
                                         <router-link :to="'/eventos/' + event?.event?._id">
-                                            <button>Editar</button>
+                                            <button class="border border-blue-400 hover:bg-blue-400 hover:text-white transition-colors text-blue-400 py-2 px-3 text-xs font-bold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none">Editar</button>
                                         </router-link>
 
-                                        <button @click="confirmDelete(event?.event?._id)">Excluir</button>
+                                        <button class="border border-red-500 hover:bg-red-500 hover:text-white transition-colors text-red-500 py-2 px-3 text-xs font-bold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none" @click="confirmDelete(event?.event?._id)">Excluir</button>
                                     </td>
                                 </tr>
                                 <tr v-else>

@@ -47,6 +47,10 @@ export default {
     [types.SET_EVENT](state, payload) {
         state.event = payload
     },
+    [types.UPDATE_EVENT_BALANCE](state, amount) {
+        console.log(state.event, amount)
+        state.event.balance -= amount
+    },
     [types.UPDATE_EVENT](state, payload) {
         state.event = {
             ...(state.event || {}), // Garante que state.event nunca seja undefined

@@ -98,28 +98,24 @@ async function handlelogout() {
             </ul>
             <ul v-else class="px-0">
                 <li class="block relative">
-                    <router-link
-                        class="flex items-center h-[44px] border-b border-white/10 text-sm hover:bg-white/5 hover:text-white py-[9px] px-4"
+                    <a class="flex items-center h-[44px] border-b border-white/10 text-sm hover:bg-white/5 hover:text-white py-[9px] px-4"
                         :class="route.path == '/' ? 'bg-brand-primary text-white' : 'bg-transparent text-white/75'"
-                        @click="close" to="/">Home</router-link>
+                        href="/">Home</a>
                 </li>
                 <li class="block relative">
-                    <router-link
-                        class="flex items-center h-[44px] border-b border-white/10 text-sm hover:bg-white/5 hover:text-white py-[9px] px-4"
+                    <a class="flex items-center h-[44px] border-b border-white/10 text-sm hover:bg-white/5 hover:text-white py-[9px] px-4"
                         :class="route.path == '/meus-ingressos' ? 'bg-brand-primary text-white' : 'bg-transparent text-white/75'"
-                        @click="close" to="/meus-ingressos">Meus ingressos</router-link>
+                        href="/meus-ingressos">Meus ingressos</a>
                 </li>
                 <li class="block relative">
-                    <router-link
-                        class="flex items-center h-[44px] border-b border-white/10 text-sm hover:bg-white/5 hover:text-white py-[9px] px-4"
+                    <a class="flex items-center h-[44px] border-b border-white/10 text-sm hover:bg-white/5 hover:text-white py-[9px] px-4"
                         :class="route.path == '/eventos/meus-eventos' ? 'bg-brand-primary text-white' : 'bg-transparent text-white/75'"
-                        @click="close" to="/eventos/meus-eventos">Área do promotor</router-link>
+                        href="/eventos/meus-eventos">Área do promotor</a>
                 </li>
                 <li class="block relative">
-                    <router-link
-                        class="flex items-center h-[44px] border-b border-white/10 text-sm hover:bg-white/5 hover:text-white py-[9px] px-4"
+                    <a class="flex items-center h-[44px] border-b border-white/10 text-sm hover:bg-white/5 hover:text-white py-[9px] px-4"
                         :class="route.path == '/eventos/novo-evento?tipo=presencial' ? 'bg-brand-primary text-white' : 'bg-transparent text-white/75'"
-                        @click="close" to="/eventos/novo-evento?tipo=presencial">Crie um novo evento</router-link>
+                        href="/eventos/novo-evento?tipo=presencial">Crie um novo evento</a>
                 </li>
                 <li class="block relative">
                     <p class="flex items-center h-[44px] border-b border-white/10 text-sm hover:bg-white/5 hover:text-white gap-1 py-[9px] px-4"

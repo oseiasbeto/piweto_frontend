@@ -53,7 +53,7 @@ const close = (name) => {
                         <DialogPanel class="w-full overflow-hidden text-left align-middle transition-all transform">
                             <div>
                                 <AddBankAccount @onclose="close(modal.name)" v-if="modal.name == 'add-bank-account'" />
-                                <PartakerInfo :partaker-data="modal.data.partakerData || {}" @onclose="close(modal.name)" v-if="modal.name == 'partaker-info'" />
+                                <PartakerInfo :partaker-data="modal.data.partakerData || {}" :partaker-index="modal.data.partakerIndex" @onclose="close(modal.name)" v-if="modal.name == 'partaker-info'" />
                                 <CreatePayout @onclose="close(modal.name)" v-if="modal.name == 'create-payout'" />
                                 <MyAccount @onclose="close(modal.name)" v-if="modal.name == 'my-account'" />
                                 <ForgotPassword @onclose="close(modal.name)" v-if="modal.name == 'forgot-password'"/>

@@ -17,7 +17,7 @@
           <p class="text-sm text-gray-800">{{ partakerData.costumer.full_name }}</p>
         </div>
 
-        <div>
+        <div v-show="partakerData.costumer.email">
           <label class="block text-sm font-medium text-gray-500 mb-1">Email</label>
           <p class="text-sm text-gray-800">{{ partakerData.costumer.email }}</p>
         </div>
@@ -133,8 +133,8 @@
         </div>
 
         <div v-if="partakerData.check_in.checked_by">
-          <label class="block text-sm font-medium text-gray-500 mb-1">Realizado por</label>
-          <p class="text-sm text-gray-800">{{ partakerData.check_in.checked_by }}</p>
+          <label class="block text-sm font-medium text-gray-500 mb-1">Check-in realizado por</label>
+          <p class="text-sm text-gray-800">{{ partakerData?.check_in?.checked_by?.full_name }}</p>
         </div>
       </div>
     </div>
@@ -154,7 +154,7 @@
     <div class="flex justify-between items-center pt-4 border-t">
       <div>
         <button @click="closeModal"
-          class="px-5 py-2.5 text-sm font-medium hover:bg-blue-600 hover:text-white text-gray-700 bg-white border border-gray-300 rounded-lg">
+          class="px-5 py-2.5 text-sm outline-none font-medium hover:bg-blue-600 hover:text-white text-gray-700 bg-white border border-gray-300 rounded-lg">
           Fechar
         </button>
       </div>
@@ -163,11 +163,11 @@
         <button @click="handleCheckIn" :disabled="partakerData.status !== 'a' || partakerData.check_in.status === 'c'"
           :class="[
             'px-5 py-2.5 text-sm font-medium text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition',
-            (partakerData.status !== 'a' || partakerData.check_in.status === 'c')
-              ? 'bg-gray-400 cursor-not-allowed'
+            (partakerData.status !== 'a' || partakerData.check_in.status === 'a')
+              ? 'bg-gray-400 cursor-not-allowed pointer-events-none'
               : 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
           ]">
-          {{ partakerData.check_in.status === 'c' ? 'Check-in Realizado' : 'Realizar Check-in' }}
+          {{ partakerData.check_in.status === 'a' ? 'Check-in Realizado' : 'Realizar Check-in' }}
         </button>
       </div>
     </div>
@@ -176,6 +176,10 @@
 
 <script>
 import Swal from 'sweetalert2';
+import { useTickets } from "@/repositories/tickets-repository";
+import { useStore } from "vuex";
+import { computed } from 'vue';
+
 
 export default {
   name: 'ParticipantModal',
@@ -184,18 +188,25 @@ export default {
       type: Object,
       required: true,
       default: () => ({})
+    },
+    partakerIndex: {
+      type: Number,
+      required: true
     }
   },
   emits: ['onclose', 'check-in'],
   setup(props, { emit }) {
+    const store = useStore();
+
+    const user = computed(() => store.getters.currentUser);
+    const { checkIn } = useTickets();
+
     const formatCurrency = (value) => {
       return new Intl.NumberFormat('pt-AO', {
         style: 'currency',
         currency: 'AOA'
       }).format(value);
     };
-
-    console.log(props.partakerData);
 
     const formatDate = (dateString) => {
       if (!dateString) return 'N/A';
@@ -239,9 +250,21 @@ export default {
           showLoaderOnConfirm: true,
           preConfirm: async () => {
             try {
-
-              return true;
+              console.log(user.value?._id);
+              await checkIn(props.partakerData.code, user.value?._id ?? undefined).then(() => {
+                store.dispatch('toggleStatusCheckIn', ({
+                  index: props.partakerIndex,
+                  status: 'a',
+                  checked_by: {
+                    _id: user.value?._id,
+                    full_name: user.value?.full_name,
+                    email: user.value?.email,
+                    phone: user.value?.phone
+                  }
+                }) );
+              });
             } catch (error) {
+              console.log(error);
               Swal.showValidationMessage(`Falha ao realizar check-in`);
             }
           },
@@ -258,8 +281,6 @@ export default {
             timer: 2000,
             showConfirmButton: false
           });
-
-          return true; // Retorna true indicando que o check-in foi realizado
         }
       }
     };

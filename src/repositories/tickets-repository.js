@@ -106,12 +106,25 @@ export function useTickets() {
     }
   };
 
+  const checkIn = async (code, checked_by) => {
+    try {
+      const response = await api.put(`/tickets/${code}`, { checked_by });
+      return response;
+    } catch (err) {
+      console.log(err.message);
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
   return {
     getTickets,
     getTicketsLoadMore,
     searchUserTickets,
     getPartakers,
     getTicketsByOrderId,
+    checkIn,
     loading,
   };
 }

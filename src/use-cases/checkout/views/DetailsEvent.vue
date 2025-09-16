@@ -418,7 +418,7 @@ onMounted(async () => {
 
                                     <!--cart start-->
                                     <div
-                                        class="border rounded-[12px] flex-1 bg-white shadow-[0px_6px_24px_rgb(221,224,228)] overflow-hidden lg:block select-none">
+                                        class="border rounded-[12px] flex-1 bg-white lg:shadow-[0px_6px_24px_rgb(221,224,228)] overflow-hidden lg:block select-none">
                                         <div
                                             class="bg-[rgb(76,87,108)] text-white flex rounded-t-xl justify-between p-3 text-base font-semibold leading-6">
                                             <span>Ingressos</span>

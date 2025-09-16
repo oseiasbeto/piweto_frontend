@@ -39,6 +39,13 @@ export default {
         state.coupons.metadata = {}
         state.coupons.hasViewed = false
     },
+    [types.TOGGLE_STATUS_CHECKIN](state, { status, index, checked_by }) {
+        if (state.partakers.data[index]) {
+            state.partakers.data[index].check_in.status = status
+            state.partakers.data[index].check_in.checked_by = checked_by
+            state.partakers.data[index].check_in.at = Date.now()
+        }
+    },
     [types.REMOVE_STAFF_FROM_STAFFS](state, index) {
         state.staffs.data.splice(index, 1)
     },

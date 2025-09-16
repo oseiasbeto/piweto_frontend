@@ -16,6 +16,10 @@ const payouts = computed(() => {
     return store.getters.payouts
 })
 
+const page = ref(1);
+const limit = ref(10); // Valor inicial do limite
+const status = ref(null);
+
 const openModal = (name, data) => {
     store.dispatch("setModal", {
         show: true,
@@ -23,6 +27,27 @@ const openModal = (name, data) => {
         data: data || {}
     })
 }
+
+const performSearch = () => {
+    page.value = 1; // Reseta a página ao mudar o limite ou buscar
+    fetchPayouts();
+};
+
+const handlePrevPage = () => {
+    if (payouts.value?.metadata?.hasPrevPage) {
+        page.value = payouts.value.metadata.page - 1;
+        fetchPayouts();
+    }
+};
+
+const handleNextPage = () => {
+    if (payouts.value?.metadata?.hasNextPage) {
+        page.value = payouts.value.metadata.page + 1;
+        fetchPayouts();
+    }
+};
+
+
 const payout = () => {
     if (!event?.value.data_bank.iban) {
         Swal.fire({
@@ -90,9 +115,10 @@ onMounted(async () => {
 const fetchPayouts = async () => {
     loadingPayouts.value = true
     await getPayouts({
-        page: 1,
-        limit: 10,
-        event: event.value._id
+        page: page.value,
+        limit: limit.value,
+        event: event.value._id,
+        ...(status.value && { status: status.value })
     }).then(res => {
         store.dispatch("setPayouts", res.data)
     }).finally(() => {
@@ -132,7 +158,8 @@ watch(event, (newEvent) => {
             class="bg-white p-6 rounded-md shadow-md border-t-4 border-purple-500 col-span-1 md:col-span-2 flex flex-col items-center">
             <div v-if="!event?.data_bank?.iban">
                 <h2 class="text-medium font-medium text-gray-500 mb-4">Adicione sua Conta Bancária</h2>
-                <p class="text-gray-600 text-center mb-4">Para receber os repasses, adicione uma conta bancária.</p>
+                <p class="text-gray-600 text-center mb-4">Para receber os levantamentos, adicione uma conta bancária.
+                </p>
                 <button @click="openModal('add-bank-account')"
                     class="bg-purple-500 text-white px-6 py-2 rounded-lg hover:bg-purple-600 transition disabled:pointer-events-none disabled:bg-gray-300 disabled:text-gray-500">
                     Adicionar Conta Bancária
@@ -159,22 +186,35 @@ watch(event, (newEvent) => {
         <!-- Histórico de Repasses -->
         <div class="bg-white p-6 rounded-md shadow-md border-t-4 border-gray-500 col-span-1 md:col-span-2">
             <h2 class="text-medium font-medium text-gray-500 mb-4">Histórico de levantamentos</h2>
-            <div class="overflow-x-auto">
+            <div class="mb-4">
+                <div class="lg:max-w-80 w-full">
+                    <select v-model="status" @change="performSearch"
+                        class="flex h-[40px] w-full text-gray-500 items-center text-sm p-2 overflow-hidden border border-[#dfe0df] rounded-[3px] bg-white focus:outline-none">
+                        <option :value="null">Todos levantamentos</option>
+                        <option value="completed">Levantamentos activos</option>
+                        <option value="in_transit">Levantamentos pendentes</option>
+                        <option value="failed">Levantamentos rejeitados</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto mb-4">
                 <table class="w-full text-sm border-collapse border border-gray-200">
                     <thead>
                         <tr class="bg-gray-100">
-                            <th class="border border-gray-200 uppercase text-sm font-semibold p-2 text-left">Data</th>
-                            <th class="border border-gray-200 uppercase text-sm font-semibold p-2 text-left">Valor</th>
                             <th class="border border-gray-200 uppercase text-sm font-semibold p-2 text-left">Status</th>
+                            <th class="border border-gray-200 uppercase text-sm font-semibold p-2 text-left">Data</th>
+                            <th class="border border-gray-200 uppercase text-sm font-semibold p-2 text-left">Montante
+                            </th>
+                            <th class="border border-gray-200 uppercase text-sm font-semibold p-2 text-left">Solicitante
+                            </th>
                         </tr>
                     </thead>
                     <tbody v-if="!loadingPayouts">
                         <tr v-if="!payouts?.data?.length">
-                            <td colspan="3" class="text-center text-gray-500 p-4">Nenhum repasse encontrado</td>
+                            <td class="text-gray-500 text-nowrap p-4">Nenhum levantamento encontrado</td>
                         </tr>
                         <tr v-else v-for="payout in payouts.data || []" :key="payout.id" class="hover:bg-gray-50">
-                            <td class="border border-gray-200 p-2">{{ moment(payout.date).format("DD/MM/YYYY") }}</td>
-                            <td class="border border-gray-200 p-2">{{ formatAmount(payout.amount) }}</td>
                             <td class="border border-gray-200 p-2">
                                 <div class="flex items-center gap-2">
                                     <div class="w-[12px] h-[12px] rounded-full" :class="statusBgColor(payout.status)">
@@ -183,6 +223,11 @@ watch(event, (newEvent) => {
                                     </p>
                                 </div>
                             </td>
+                            <td class="border border-gray-200 p-2">{{ moment(payout.date).format("DD/MM/YYYY") }}</td>
+                            <td class="border border-gray-200 p-2">{{ formatAmount(payout.amount) }}</td>
+                            <td class="border border-gray-200 p-2">{{ payout?.user?.full_name || 'Desconhecido(a)' }}
+                            </td>
+
                         </tr>
                     </tbody>
                     <tbody v-else>
@@ -193,6 +238,44 @@ watch(event, (newEvent) => {
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-between py-4 px-4">
+                <!-- Informação de resultados -->
+                <div class="flex items-center gap-2 mb-4 sm:mb-0">
+                    <p class="text-sm flex-1 text-gray-600">
+                        Mostrando
+                        <span class="font-medium">{{ payouts?.metadata?.page || 1 }}</span>
+                        a
+                        <span class="font-medium">{{ payouts?.metadata?.limit || 10 }}</span>
+                        de
+                        <span class="font-medium">{{ payouts?.metadata?.total || 0 }}</span>
+                        resultados
+                    </p>
+
+                </div>
+
+
+                <!-- Controles de paginação -->
+                <div class="flex items-center space-x-2">
+                    <button @click="handlePrevPage" :disabled="!payouts?.metadata?.hasPrevPage"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        :class="{ 'opacity-50 cursor-not-allowed': !payouts?.metadata?.hasPrevPage }">
+                        Anterior
+                    </button>
+                    <select v-model="limit" @change="performSearch"
+                        class="block w-auto px-[20px] py-2 text-sm font-medium shrink-0 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none">
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                    </select>
+                    <button @click="handleNextPage" :disabled="!payouts?.metadata?.hasNextPage"
+                        class="px-4 py-2 text-sm font-medium text-white bg-brand-primary border border-transparent rounded-md focus:outline-none focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        :class="{ 'opacity-50 cursor-not-allowed': !payouts?.metadata?.hasNextPage }">
+                        Próximo
+                    </button>
+                </div>
             </div>
         </div>
     </section>

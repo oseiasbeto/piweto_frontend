@@ -157,20 +157,70 @@ async function submit() {
             .catch(error => {
                 console.log(error)
                 if (error.response.status == 400) {
-                    toast("Já existe um usuário cadastrado com este número de telefone.", {
+                    if (error.response.data.message === "ups! ja existe um usuario com este numero de telefone.") {
+                        toast("Já existe um usuário cadastrado com este número de telefone.", {
+                            theme: "colored",
+                            autoClose: 2000,
+                            position: "top-right",
+                            transition: "bounce",
+                            type: 'error'
+                        })
+                        errors.value.phone = {
+                            show: true,
+                            data: form.value.phone,
+                            message: "Por favor, insira um número de telefone válido!"
+                        }
+                    }
+                } else {
+                    resetForm()
+                    toast("Erro ao registrar o usuário, tente novamente mais tarde.", {
                         theme: "colored",
                         autoClose: 2000,
                         position: "top-right",
                         transition: "bounce",
                         type: 'error'
                     })
-                    errors.value.phone = {
-                        show: true,
-                        data: form.value.phone,
-                        message: "Por favor, insira um número de telefone válido!"
-                    }
                 }
             })
+    }
+}
+
+const resetForm = () => {
+    form.value = {
+        first_name: "",
+        last_name: "",
+        email: "",
+        phone: "",
+        password: "",
+        viewPassword: false,
+        strength: "Fraca"
+    }
+    errors.value = {
+        first_name: {
+            show: false,
+            message: "",
+            data: ""
+        },
+        last_name: {
+            show: false,
+            message: "",
+            data: ""
+        },
+        email: {
+            show: false,
+            message: "",
+            data: ""
+        },
+        phone: {
+            show: false,
+            message: "",
+            data: ""
+        },
+        password: {
+            show: false,
+            message: "",
+            data: ""
+        }
     }
 }
 
