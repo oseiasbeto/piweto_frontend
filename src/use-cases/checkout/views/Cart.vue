@@ -183,7 +183,7 @@
                                                 <p class="text-xs text-gray-500">Pagamento por referência</p>
                                             </div>
                                         </label>
-
+                                        <!--
                                         <label for="mul"
                                             class="p-4 cursor-pointer mb-4 flex gap-2 bg-white border border-gray-300 rounded-sm">
                                             <div class="shrink-0">
@@ -249,7 +249,7 @@
                                                 <p class="text-xs text-gray-500">Multicaixa Express</p>
                                             </div>
                                         </label>
-
+-->
                                         <label for="paypay"
                                             class="p-4 cursor-pointer mb-4 flex gap-2 bg-white border border-gray-300 rounded-sm">
                                             <div class="shrink-0">
