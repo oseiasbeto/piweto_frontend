@@ -9,7 +9,8 @@ import SplashScreen from "../components/ui/SplashScreen.vue";
 import copyToClipboard from "../../../utils/copyToClipboard"
 import formatAmount from "@/utils/formatAmount";
 import moment from "moment";
-import { generateInvoicePDF } from "@/utils/generateInvoicePDF";
+import { useInvoiceGenerator } from "@/utils/useInvoiceGenerator";
+const { generateInvoicePDF, isLoading: loadingGenerateInvoce } = useInvoiceGenerator();
 
 const { getOrderById, loading } = useOrders()
 loading.value = true
@@ -243,11 +244,11 @@ onMounted(async () => {
 
                             <!--start steps-->
                             <div class="flex-1 text-[#4c576c]">
-                                <div class="mb-3">
+                                <div class="hidden lg:block mb-3">
                                     <strong class="text-base">Como pagar?</strong>
                                 </div>
 
-                                <div class="flex text-xs py-3 items-center gap-1.5">
+                                <div class="hidden lg:flex text-xs lg:py-3 items-center gap-1.5">
 
                                     <svg class="w-4 h-4 lg:w-5 lg:h-5 shrink-0" xmlns="http://www.w3.org/2000/svg"
                                         width="800px" height="800px" viewBox="0 0 24 24" fill="none">
@@ -268,7 +269,7 @@ onMounted(async () => {
                                         Introduza o seu cartão <b>"Multicaixa"</b> no <b>"ATM"</b>
                                     </p>
                                 </div>
-                                <div class="flex text-xs py-3 items-center gap-1.5">
+                                <div class="hidden lg:flex text-xs lg:py-3 items-center gap-1.5">
                                     <svg class="w-4 h-4 lg:w-5 lg:h-5 shrink-0" xmlns="http://www.w3.org/2000/svg"
                                         viewBox="0 0 24 24" fill="none">
                                         <path
@@ -281,7 +282,7 @@ onMounted(async () => {
                                             serviços"</b> >> <b>"Pagamento Por Referência"</b>
                                     </p>
                                 </div>
-                                <div class="flex text-xs py-3 items-center gap-1.5">
+                                <div class="hidden lg:flex text-xs lg:py-3 items-center gap-1.5">
                                     <svg class="w-4 h-4 lg:w-5 lg:h-5 shrink-0" fill="#848c9b" viewBox="0 0 24 24">
                                         <path fill-rule="evenodd" clip-rule="evenodd"
                                             d="M2.1001 12.09C2.1001 6.59998 6.6001 2.09998 12.0901 2.09998C17.5801 2.09998 22.0801 6.59998 22.0801 12.09C22.0801 17.58 17.5801 22.08 12.0901 22.08C6.6001 22.08 2.1001 17.61 2.1001 12.09ZM4.1101 12.09C4.1101 16.5 7.6801 20.1 12.0901 20.1C16.5001 20.1 20.1001 16.5 20.1001 12.09C20.1001 7.67998 16.5001 4.10998 12.0901 4.10998C7.6801 4.10998 4.1101 7.67998 4.1101 12.09ZM9.6001 11.13C9.3001 10.77 8.7601 10.71 8.4001 11.01C8.0401 11.31 7.9801 11.85 8.2801 12.21L10.3801 14.79C10.7401 15.21 11.4001 15.21 11.7001 14.73L15.9001 10.44C16.1701 10.05 16.0801 9.50997 15.6901 9.23997C15.3001 8.96997 14.7901 9.05998 14.5201 9.44998L11.0101 12.84L9.6001 11.13Z">
@@ -292,9 +293,9 @@ onMounted(async () => {
                                         abaixo.
                                     </p>
                                 </div>
-                                <div class="flex flex-col text-xs py-3 gap-1.5">
+                                <div class="flex flex-col text-xs lg:py-3 gap-1.5">
                                     <p>
-                                        ID da entidade: <b class="text-[#f0861f]">{{
+                                        Entidade: <b class="text-[#f0861f]">{{
                                             order?.biz_content?.entity_id }}</b>
                                     </p>
                                     <p>
@@ -414,14 +415,15 @@ onMounted(async () => {
 
                             <div class="flex lg:flex-row flex-col gap-2 justify-center w-full">
                                 <button
-                                    class="flex py-2 px-4 lg:w-auto w-full justify-center items-center gap-2 rounded-lg h-10 font-bold normal-case text-sm mt-1 bg-brand-primary text-white"
+                                    class="flex py-2 px-4 lg:w-auto w-full justify-center items-center gap-2 rounded-lg h-10 font-bold normal-case text-sm mt-1 bg-brand-primary text-white disabled:bg-[rgb(221,224,228)] disabled:text-[rgb(132,140,155)] disabled:cursor-default"
+                                    :disabled="loadingGenerateInvoce"
                                     @click="generateInvoicePDF(order)">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="16px"
                                         height="16px" viewBox="0 0 32 32" version="1.1">
                                         <title>print</title>
                                         <path d="M24 20h-16v-16h16v16zM4 24v4h24v-4h-24z" />
                                     </svg>
-                                    <p> Gerar factura</p>
+                                    <p> {{ loadingGenerateInvoce ? 'Gerando...' : 'Gerar factura' }}</p>
                                 </button>
 
                                 <a class="flex py-2 px-4 lg:w-auto w-full justify-center items-center gap-2 rounded-lg h-10 font-bold normal-case text-sm mt-1 transition-colors bg-[rgb(0,151,255)] text-white"
