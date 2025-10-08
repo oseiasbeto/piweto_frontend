@@ -11,8 +11,6 @@ export function useInvoiceGenerator() {
             isLoading.value = true;
             error.value = null;
             
-            console.log("Gerando factura para a encomenda:", orderData);
-
             // Inicializa o documento PDF
             const doc = new jsPDF();
 
