@@ -8,8 +8,7 @@ import SplashScreen from "./use-cases/checkout/components/ui/SplashScreen.vue";
 const { refreshToken, loading } = useUsers()
 
 loading.value = true
-jjssj
-s
+
 const sessionId = Cookies.get("session_id")
 const sessionChecked = ref(false);
 
