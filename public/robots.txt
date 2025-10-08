@@ -1,6 +1,13 @@
 User-agent: *
 Allow: /
-Disallow: /admin
-Disallow: /private
+
+# Bloquear acesso a arquivos de desenvolvimento
+Disallow: /src/
+Disallow: /node_modules/
+Disallow: /.git/
+
+# Bloquear parâmetros de URL que não mudam conteúdo
+Disallow: /*?*
+Disallow: /*&
 
 Sitemap: https://piweto.it.ao/sitemap.xml
