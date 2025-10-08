@@ -13,9 +13,6 @@ import { formatTime } from "@/utils/formatTime";
 import CartDrawer from "../components/drawers/CartDrawer.vue";
 import BtnSpinner from "../../marketplace/components/spinners/BtnSpinner";
 import moment from "moment";
-import copyToClipboard from "../../../utils/copyToClipboard"
-import formatEventDates from "@/utils/formatEventDates";
-import formatEventTime from "@/utils/formatEventTime";
 import { useCoupons } from "@/repositories/coupons-repository";
 import SplashScreen from "../components/ui/SplashScreen.vue";
 import createRippleAnimation from "@/utils/createRippleAnimation";

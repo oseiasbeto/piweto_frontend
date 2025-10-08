@@ -6,7 +6,6 @@
             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 <!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
 
-
 <url>
   <loc>https://piweto.it.ao/</loc>
   <lastmod>2025-10-07T23:28:59+00:00</lastmod>
@@ -15,11 +14,38 @@
 </url>
 
 <url>
+<loc>https://piweto.it.ao/conta/registrar-se</loc>
+<lastmod>2025-10-07T23:28:59+00:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.80</priority>
+</url>
+
+<url>
+<loc>https://piweto.it.ao/conta/login</loc>
+<lastmod>2025-10-07T23:28:59+00:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.80</priority>
+</url>
+
+<url>
     <loc>https://piweto.it.ao/como-funciona</loc>
     <lastmod>2025-10-07T23:28:59+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-  </url>
+</url>
 
+<url>
+<loc>https://piweto.it.ao/termos-de-uso</loc>
+<lastmod>2025-10-07T23:28:59+00:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.80</priority>
+</url>
+
+<url>
+<loc>https://piweto.it.ao/politica-de-privacidade</loc>
+<lastmod>2025-10-07T23:28:59+00:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.80</priority>
+</url>
 
 </urlset>
