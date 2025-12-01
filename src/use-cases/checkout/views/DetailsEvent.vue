@@ -71,10 +71,10 @@
                                 </div>
 
                                 <hr class="border-[rgba(0,0,0,.12)]" />
-                                <div class="adsterra-wrapper">
-                                    <div class="p-4 lg:p-4 xl:p-0 mt-4 !max-w-full" id="adsterra-banner"></div>
+                                <div class="hilltop-wrapper">
+                                    <div id="hilltop-ad"></div>
                                 </div>
-                                
+
 
                                 <div class="p-4 lg:p-4 xl:p-0 mt-4">
                                     <div class="mb-3">
@@ -365,6 +365,7 @@ import { useCoupons } from "@/repositories/coupons-repository";
 import SplashScreen from "../components/ui/SplashScreen.vue";
 import createRippleAnimation from "@/utils/createRippleAnimation";
 import { renderAdsterra } from "@/utils/renderAdsterra";
+import { renderHilltopAds } from "@/utils/renderHilltopAds";
 
 const { getEvent, loading: loadingEvent, error: errorEvent } = useEvents();
 const { getBatches, loading: loadingBatches, error: errorBatches } = useBatches()
@@ -605,14 +606,12 @@ onMounted(async () => {
         });
     }
 
-    renderAdsterra("#adsterra-banner", {
-        key: "9a4df87436c2ac1895ed21f86de1a22d",
-        format: "iframe",
-        height: 300,
-        width: 160
-    });
+    renderHilltopAds(
+        "#hilltop-ad",
+        "//decimalair.com/b-XhVKsad.G/lM0qYGWxca/Oezmi9gu/ZDUalvklPkTyYQ3ZMJTXcb1/MoToQ/tGN/jec/xjNXzpUUxVNIQs",
+        {} // você pode inserir configurações extras aqui
+    );
 })
 </script>
 
-<style>
-</style>
+<style></style>
