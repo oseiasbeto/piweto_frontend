@@ -1,263 +1,3 @@
-<script setup>
-import { useRoute } from "vue-router";
-import { useRouter } from "vue-router";
-import { toast } from "vue3-toastify"
-import { onMounted, ref, computed } from "vue";
-import { useEvents } from "../../../repositories/events-repository";
-import { useBatches } from "../../../repositories/batches-repository";
-import formatAmount from "@/utils/formatAmount";
-import { useStore } from "vuex";
-import Container from "@/use-cases/marketplace/components/ui/Container.vue";
-import { formatDate } from "@/utils/formatDate";
-import { formatTime } from "@/utils/formatTime";
-import CartDrawer from "../components/drawers/CartDrawer.vue";
-import BtnSpinner from "../../marketplace/components/spinners/BtnSpinner";
-import moment from "moment";
-import { useCoupons } from "@/repositories/coupons-repository";
-import SplashScreen from "../components/ui/SplashScreen.vue";
-import createRippleAnimation from "@/utils/createRippleAnimation";
-
-const { getEvent, loading: loadingEvent, error: errorEvent } = useEvents();
-const { getBatches, loading: loadingBatches, error: errorBatches } = useBatches()
-const { applyCoupon, loading: loadingCoupon } = useCoupons()
-
-const route = useRoute()
-const router = useRouter()
-const store = useStore()
-const form = ref({
-    couponName: ""
-})
-const showCouponInput = ref(false)
-const coupon = ref({})
-const amount = ref(0)
-const loadingCart = ref(false)
-const amountAfterDiscount = ref(0)
-
-const alert = ref({
-    show: false,
-    message: "",
-    type: "warning"
-})
-
-// esta funcao computada tem como finalidade retornar o corrente evento.
-const event = computed(() => {
-    return store.getters.event
-})
-
-const isEventOver = computed(() => {
-    return moment().isAfter(moment(event.value.ends_at.date, "YYYY-MM-DD HH:mm"));
-});
-
-// esta funcao computada tem como finalidade retornar todos os lotes disponiveis 
-const batches = computed(() => {
-    return store.getters.batches
-})
-
-// Esta função computada tem como finalidade verificar se o corrente usuário está autenticado no sistema.
-const hasLogged = computed(() => {
-    return store.getters.hasLogged
-})
-
-
-const formattedDate = (date) => {
-    return moment(date).format("DD/MM/YY"); // Formata para 03/03/25
-}
-
-
-// Esta função computada tem como finalidade retornar o lote de ingressos selecionado pelo corrente usuário.
-const batchesSelected = computed(() => {
-    return batches.value.data.filter(batch => batch.quantitySelected > 0)
-})
-
-// Esta função tem como finalidade somar a quantidade de ingressos de um lote através do seu index na lista de lotes disponíveis do corrente evento.
-function addBatch(index) {
-    const currentBatch = batches.value.data[index]
-    const max = currentBatch.quantity_for_purchase.max
-    const min = currentBatch.quantity_for_purchase.min
-    const quantity = currentBatch.quantitySelected
-
-    if (currentBatch.quantity - currentBatch.quantitySelected <= min) {
-        currentBatch.quantitySelected = currentBatch.quantity
-        calcTotalAmount()
-    } else {
-        if (quantity <= max) {
-            currentBatch.quantitySelected += min
-            if (currentBatch.quantitySelected > max) {
-                currentBatch.quantitySelected = max
-            }
-            calcTotalAmount()
-        } else return
-    }
-}
-
-// Esta função tem como finalidade subrair a quantidade de ingressos de um lote através do seu index na lista de lotes disponíveis do corrente evento.
-function reduceBatch(index) {
-    const currentBatch = batches.value.data[index]
-    const min = currentBatch.quantity_for_purchase.min
-    const quantity = currentBatch.quantitySelected
-
-    if (quantity >= min) {
-        currentBatch.quantitySelected -= 1
-
-        if (currentBatch.quantitySelected < min) {
-            currentBatch.quantitySelected = 0
-            if (batchesSelected.value.length == 0) {
-                amount.value = 0
-            }
-        }
-        calcTotalAmount()
-    } else {
-        amount.value = 0
-        currentBatch.quantitySelected = 0
-        calcTotalAmount()
-    }
-}
-
-// Esta função tem como finalidade calcular a quantia total do carrinho de compras.
-function calcTotalAmount() {
-    batchesSelected.value.reduce((acc, batch) => amount.value = acc + batch.price * batch.quantitySelected, 0)
-    if (coupon?.value?._id != undefined) {
-        amountAfterDiscount.value = amount.value - (amount.value * coupon?.value?.discount / 100)
-    }
-}
-
-function isDatePassed(targetDate) {
-    // Converte a data informada para objeto Date (caso seja string)
-    const endDate = new Date(targetDate);
-    // Pega a data/hora atual
-    const now = new Date();
-
-    // Compara os timestamps (milissegundos desde 1970)
-    return now > endDate;
-}
-
-function canReleaseSales(targetDate) {
-    // Converte a data informada para objeto Date (caso seja string)
-    const endDate = new Date(targetDate);
-    // Pega a data/hora atual
-    const now = new Date();
-
-    // Compara os timestamps (milissegundos desde 1970)
-    return now >= endDate;
-}
-
-
-// Esta função tem como finalidade fazer uma requesição REST a api para criar um carrinho de compras com os ingressos selecionados pelo corrente usuário. 
-function sendToCart(e) {
-    if (batchesSelected.value.length) {
-        createRippleAnimation(e)
-        const id = `RES-${Date.now()}`
-        store.dispatch("setCart", {
-            id,
-            amount: amount.value,
-            event: event.value,
-            amount_after_discount: amountAfterDiscount.value,
-            coupon: coupon.value,
-            batches: batchesSelected.value
-        })
-        loadingCart.value = true
-        setTimeout(() => {
-            router.push('/checkout/carrinho/' + event.value.slug)
-            loadingCart.value = false
-        }, 1030)
-    } else {
-        alert.value = {
-            show: true,
-            message: "Nenhum ingresso foi selecionado.",
-            type: "warning"
-        }
-    }
-}
-
-// Esta função tem como finalidade fazer uma requesição REST a api e aplicar um cupom de desconto para o carrinho de compras. 
-async function _applyCoupon(code, event) {
-    if (loadingCoupon.value || code !== "") {
-        createRippleAnimation(event)
-        await applyCoupon({
-            couponName: code
-        })
-            .then(_coupon => {
-                if (_coupon.event_type == 'specific' && _coupon.applicable_event.toString() !== event.value._id.toString()) {
-                    toast("Cupom de desconto inválido!", {
-                        theme: "colored",
-                        position: "top-right",
-                        autoClose: 2000,
-                        type: 'error'
-                    })
-                } else {
-                    coupon.value = _coupon
-                    toast("Cupom de desconto adicionado!", {
-                        theme: "colored",
-                        position: "top-right",
-                        autoClose: 1000,
-                        type: 'success'
-                    })
-                    amountAfterDiscount.value = amount.value - (amount.value * _coupon.discount_value / 100)
-                }
-            })
-            .catch((err) => {
-                toast("Cupom de desconto inválido!", {
-                    theme: "colored",
-                    position: "top-right",
-                    autoClose: 2000,
-                    type: 'error'
-                })
-                form.value.couponName = ""
-                console.error(err.message)
-            })
-            .finally(() => {
-                loadingCoupon.value = false
-            })
-    } else return
-}
-
-// Esta função tem como finalidade remover o cupom de desconto adicionado ao carrinho de compras. 
-function removeCoupon() {
-    Swal.fire({
-        title: "Voce deseja remover o cupom de desconto?",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "Sim",
-        cancelButtonText: "Não",
-        reverseButtons: true
-    }).then((result) => {
-        if (result.isConfirmed) {
-            coupon.value = {}
-            amountAfterDiscount.value = 0
-            form.value.couponName = ""
-            toast("Cupom de desconto removido!", {
-                theme: "colored",
-                position: "bottom-center",
-                autoClose: 1000,
-                type: 'success'
-            })
-        }
-    })
-}
-
-onMounted(async () => {
-    if (!event.value?.slug || event.value?.slug !== route.params.slug) {
-        await getEvent(route.params.slug).then(async () => {
-            document.title = event.value.name
-            await getBatches({
-                event: event.value._id,
-                page: 1,
-                visibility: 'public',
-                limit: 10
-            });
-        })
-    } else {
-        loadingEvent.value = false
-        await getBatches({
-            event: event.value._id,
-            page: 1,
-            visibility: 'public',
-            limit: 10
-        });
-    }
-})
-</script>
-
 <template>
     <div class="mb-10">
         <div v-if="!loadingEvent">
@@ -329,7 +69,13 @@ onMounted(async () => {
                                     <div class="text-black-text font-normal text-base" v-html="event.description">
                                     </div>
                                 </div>
+
                                 <hr class="border-[rgba(0,0,0,.12)]" />
+                                <div class="adsterra-wrapper">
+                                    <div class="p-4 lg:p-4 xl:p-0 mt-4 !max-w-full" id="adsterra-banner"></div>
+                                </div>
+                                
+
                                 <div class="p-4 lg:p-4 xl:p-0 mt-4">
                                     <div class="mb-3">
                                         <h3 class="text-black-text font-bold mb-3 text-xl lg:text-[20px]">Local</h3>
@@ -600,5 +346,273 @@ onMounted(async () => {
 
 </template>
 
+<script setup>
+import { useRoute } from "vue-router";
+import { useRouter } from "vue-router";
+import { toast } from "vue3-toastify"
+import { onMounted, ref, computed } from "vue";
+import { useEvents } from "../../../repositories/events-repository";
+import { useBatches } from "../../../repositories/batches-repository";
+import formatAmount from "@/utils/formatAmount";
+import { useStore } from "vuex";
+import Container from "@/use-cases/marketplace/components/ui/Container.vue";
+import { formatDate } from "@/utils/formatDate";
+import { formatTime } from "@/utils/formatTime";
+import CartDrawer from "../components/drawers/CartDrawer.vue";
+import BtnSpinner from "../../marketplace/components/spinners/BtnSpinner";
+import moment from "moment";
+import { useCoupons } from "@/repositories/coupons-repository";
+import SplashScreen from "../components/ui/SplashScreen.vue";
+import createRippleAnimation from "@/utils/createRippleAnimation";
+import { renderAdsterra } from "@/utils/renderAdsterra";
 
-<style></style>
+const { getEvent, loading: loadingEvent, error: errorEvent } = useEvents();
+const { getBatches, loading: loadingBatches, error: errorBatches } = useBatches()
+const { applyCoupon, loading: loadingCoupon } = useCoupons()
+
+const route = useRoute()
+const router = useRouter()
+const store = useStore()
+const form = ref({
+    couponName: ""
+})
+const showCouponInput = ref(false)
+const coupon = ref({})
+const amount = ref(0)
+const loadingCart = ref(false)
+const amountAfterDiscount = ref(0)
+
+const alert = ref({
+    show: false,
+    message: "",
+    type: "warning"
+})
+
+// esta funcao computada tem como finalidade retornar o corrente evento.
+const event = computed(() => {
+    return store.getters.event
+})
+
+const isEventOver = computed(() => {
+    return moment().isAfter(moment(event.value.ends_at.date, "YYYY-MM-DD HH:mm"));
+});
+
+// esta funcao computada tem como finalidade retornar todos os lotes disponiveis 
+const batches = computed(() => {
+    return store.getters.batches
+})
+
+// Esta função computada tem como finalidade verificar se o corrente usuário está autenticado no sistema.
+const hasLogged = computed(() => {
+    return store.getters.hasLogged
+})
+
+
+const formattedDate = (date) => {
+    return moment(date).format("DD/MM/YY"); // Formata para 03/03/25
+}
+
+
+// Esta função computada tem como finalidade retornar o lote de ingressos selecionado pelo corrente usuário.
+const batchesSelected = computed(() => {
+    return batches.value.data.filter(batch => batch.quantitySelected > 0)
+})
+
+// Esta função tem como finalidade somar a quantidade de ingressos de um lote através do seu index na lista de lotes disponíveis do corrente evento.
+function addBatch(index) {
+    const currentBatch = batches.value.data[index]
+    const max = currentBatch.quantity_for_purchase.max
+    const min = currentBatch.quantity_for_purchase.min
+    const quantity = currentBatch.quantitySelected
+
+    if (currentBatch.quantity - currentBatch.quantitySelected <= min) {
+        currentBatch.quantitySelected = currentBatch.quantity
+        calcTotalAmount()
+    } else {
+        if (quantity <= max) {
+            currentBatch.quantitySelected += min
+            if (currentBatch.quantitySelected > max) {
+                currentBatch.quantitySelected = max
+            }
+            calcTotalAmount()
+        } else return
+    }
+}
+
+// Esta função tem como finalidade subrair a quantidade de ingressos de um lote através do seu index na lista de lotes disponíveis do corrente evento.
+function reduceBatch(index) {
+    const currentBatch = batches.value.data[index]
+    const min = currentBatch.quantity_for_purchase.min
+    const quantity = currentBatch.quantitySelected
+
+    if (quantity >= min) {
+        currentBatch.quantitySelected -= 1
+
+        if (currentBatch.quantitySelected < min) {
+            currentBatch.quantitySelected = 0
+            if (batchesSelected.value.length == 0) {
+                amount.value = 0
+            }
+        }
+        calcTotalAmount()
+    } else {
+        amount.value = 0
+        currentBatch.quantitySelected = 0
+        calcTotalAmount()
+    }
+}
+
+// Esta função tem como finalidade calcular a quantia total do carrinho de compras.
+function calcTotalAmount() {
+    batchesSelected.value.reduce((acc, batch) => amount.value = acc + batch.price * batch.quantitySelected, 0)
+    if (coupon?.value?._id != undefined) {
+        amountAfterDiscount.value = amount.value - (amount.value * coupon?.value?.discount / 100)
+    }
+}
+
+function isDatePassed(targetDate) {
+    // Converte a data informada para objeto Date (caso seja string)
+    const endDate = new Date(targetDate);
+    // Pega a data/hora atual
+    const now = new Date();
+
+    // Compara os timestamps (milissegundos desde 1970)
+    return now > endDate;
+}
+
+function canReleaseSales(targetDate) {
+    // Converte a data informada para objeto Date (caso seja string)
+    const endDate = new Date(targetDate);
+    // Pega a data/hora atual
+    const now = new Date();
+
+    // Compara os timestamps (milissegundos desde 1970)
+    return now >= endDate;
+}
+
+
+// Esta função tem como finalidade fazer uma requesição REST a api para criar um carrinho de compras com os ingressos selecionados pelo corrente usuário. 
+function sendToCart(e) {
+    if (batchesSelected.value.length) {
+        createRippleAnimation(e)
+        const id = `RES-${Date.now()}`
+        store.dispatch("setCart", {
+            id,
+            amount: amount.value,
+            event: event.value,
+            amount_after_discount: amountAfterDiscount.value,
+            coupon: coupon.value,
+            batches: batchesSelected.value
+        })
+        loadingCart.value = true
+        setTimeout(() => {
+            router.push('/checkout/carrinho/' + event.value.slug)
+            loadingCart.value = false
+        }, 1030)
+    } else {
+        alert.value = {
+            show: true,
+            message: "Nenhum ingresso foi selecionado.",
+            type: "warning"
+        }
+    }
+}
+
+// Esta função tem como finalidade fazer uma requesição REST a api e aplicar um cupom de desconto para o carrinho de compras. 
+async function _applyCoupon(code, event) {
+    if (loadingCoupon.value || code !== "") {
+        createRippleAnimation(event)
+        await applyCoupon({
+            couponName: code
+        })
+            .then(_coupon => {
+                if (_coupon.event_type == 'specific' && _coupon.applicable_event.toString() !== event.value._id.toString()) {
+                    toast("Cupom de desconto inválido!", {
+                        theme: "colored",
+                        position: "top-right",
+                        autoClose: 2000,
+                        type: 'error'
+                    })
+                } else {
+                    coupon.value = _coupon
+                    toast("Cupom de desconto adicionado!", {
+                        theme: "colored",
+                        position: "top-right",
+                        autoClose: 1000,
+                        type: 'success'
+                    })
+                    amountAfterDiscount.value = amount.value - (amount.value * _coupon.discount_value / 100)
+                }
+            })
+            .catch((err) => {
+                toast("Cupom de desconto inválido!", {
+                    theme: "colored",
+                    position: "top-right",
+                    autoClose: 2000,
+                    type: 'error'
+                })
+                form.value.couponName = ""
+                console.error(err.message)
+            })
+            .finally(() => {
+                loadingCoupon.value = false
+            })
+    } else return
+}
+
+// Esta função tem como finalidade remover o cupom de desconto adicionado ao carrinho de compras. 
+function removeCoupon() {
+    Swal.fire({
+        title: "Voce deseja remover o cupom de desconto?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Sim",
+        cancelButtonText: "Não",
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            coupon.value = {}
+            amountAfterDiscount.value = 0
+            form.value.couponName = ""
+            toast("Cupom de desconto removido!", {
+                theme: "colored",
+                position: "bottom-center",
+                autoClose: 1000,
+                type: 'success'
+            })
+        }
+    })
+}
+
+onMounted(async () => {
+    if (!event.value?.slug || event.value?.slug !== route.params.slug) {
+        await getEvent(route.params.slug).then(async () => {
+            document.title = event.value.name
+            await getBatches({
+                event: event.value._id,
+                page: 1,
+                visibility: 'public',
+                limit: 10
+            });
+        })
+    } else {
+        loadingEvent.value = false
+        await getBatches({
+            event: event.value._id,
+            page: 1,
+            visibility: 'public',
+            limit: 10
+        });
+    }
+
+    renderAdsterra("#adsterra-banner", {
+        key: "9a4df87436c2ac1895ed21f86de1a22d",
+        format: "iframe",
+        height: 300,
+        width: 160
+    });
+})
+</script>
+
+<style>
+</style>
