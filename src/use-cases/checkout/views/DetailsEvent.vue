@@ -71,12 +71,14 @@
                                 </div>
 
                                 <hr class="border-[rgba(0,0,0,.12)]" />
-                                <!-- 
-                                <div class="hilltop-wrapper">
+                   
+                                <div class="p-4 lg:p-4 xl:p-0 mt-4">
+                                     <h3 class="text-black-text font-bold mb-3 text-xl lg:text-[20px]">Publicidade</h3>
                                     <div id="hilltop-ad"></div>
-                                </div>-->
+                                </div>
 
-
+                                <hr class="border-[rgba(0,0,0,.12)]" />
+                                
                                 <div class="p-4 lg:p-4 xl:p-0 mt-4">
                                     <div class="mb-3">
                                         <h3 class="text-black-text font-bold mb-3 text-xl lg:text-[20px]">Local</h3>
@@ -366,7 +368,7 @@ import { useCoupons } from "@/repositories/coupons-repository";
 import SplashScreen from "../components/ui/SplashScreen.vue";
 import createRippleAnimation from "@/utils/createRippleAnimation";
 //import { renderAdsterra } from "@/utils/renderAdsterra";
-//import { renderHilltopAds } from "@/utils/renderHilltopAds";
+import { renderHilltopAds } from "@/utils/renderHilltopAds";
 
 const { getEvent, loading: loadingEvent, error: errorEvent } = useEvents();
 const { getBatches, loading: loadingBatches, error: errorBatches } = useBatches()
@@ -607,12 +609,11 @@ onMounted(async () => {
         });
     }
 
-    /* 
     renderHilltopAds(
         "#hilltop-ad",
         "//decimalair.com/b-XhVKsad.G/lM0qYGWxca/Oezmi9gu/ZDUalvklPkTyYQ3ZMJTXcb1/MoToQ/tGN/jec/xjNXzpUUxVNIQs",
         {} // você pode inserir configurações extras aqui
-    );*/
+    )
 })
 </script>
 
