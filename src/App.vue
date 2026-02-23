@@ -38,6 +38,7 @@ onBeforeMount(async () => {
     <!-- start main app area-->
     <div class="app font-primary text-brand-black-text">
         <div v-if="!loading">
+            <div class="clever-core-ads"></div>
             <router-view></router-view>
             <AlertCookies />
         </div>
