@@ -3,10 +3,12 @@ import { Promise } from 'core-js'
 import store from "../store"
 import Cookies from "js-cookie"
 
-const node_env = 'prod'
+const node_env = process.env.NODE_ENV === 'production' ? 'prod' : 'dev'
 
 const instance = axios.create({
-    baseURL: node_env == 'dev' ? 'http://192.168.1.129:5050/v1' : 'https://piweto.it.ao/api/v1',
+    baseURL: node_env == 'dev' ? 
+        'http://localhost:5050/v1' : 
+        'https://piweto.it.ao/api/v1',
     headers: {
         'Content-Type': 'application/json'
     }
