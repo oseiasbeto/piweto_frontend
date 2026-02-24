@@ -50,7 +50,7 @@ onUnmounted(() => {
             <Container>
                 <div class="flex h-full items-center justify-between">
                     <div class="flex items-center gap-5">
-                        <Logo size="w-[94px] lg:w-[100px]" />
+                        <Logo size="w-[80px] lg:w-[100px]" />
                         <ul class="hidden lg:flex items-center gap-1.5">
                             <li>
                                 <a href="#"

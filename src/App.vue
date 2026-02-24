@@ -2,7 +2,6 @@
 import { ref, onMounted } from "vue";
 import Cookies from "js-cookie"
 import { useUsers } from "@/repositories/users-repository.js";
-import AlertCookies from "./use-cases/marketplace/components/ui/AlertCookies.vue";
 import SplashScreen from "./use-cases/checkout/components/ui/SplashScreen.vue";
 import { useRoute } from "vue-router";
 
@@ -64,7 +63,6 @@ onMounted(async () => {
         <div v-if="!loading">
             <div class="clever-core-ads"></div>
             <router-view></router-view>
-            <AlertCookies />
         </div>
         <div v-else>
             <SplashScreen />
