@@ -31,7 +31,7 @@ const initializeAuthFlow = async () => {
     }
 };
 
-const initializedClever = () => {
+const injectCleverScript = () => {
     const script = document.createElement("script");
     script.id = "clever-core";
     script.setAttribute("data-cfasync", "true");
@@ -50,7 +50,9 @@ onMounted(async () => {
     cleverContainer = document.querySelector(".clever-core-ads");
     
     if (cleverContainer) {
-        initializedClever()
+        setTimeout(() => {
+            injectCleverScript();
+        }, 15000);
     }
 });
 
