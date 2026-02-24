@@ -10,7 +10,7 @@ const searchKeywords = defineModel()
 const emits = defineEmits(['onsearch'])
 
 const goToSearch = (keywords) => {
-    if(!keywords) return
+    if (!keywords) return
     else {
         emits('onsearch', keywords)
     }
@@ -19,21 +19,37 @@ const goToSearch = (keywords) => {
 </script>
 
 <template>
-    <div class="relative flex items-center w-full mt-1 md:m-auto md:w-auto order-4 md:order-2">
-        <input
-            class="h-11 w-full placeholder:text-gray-600 text-[15px] focus:border-[#0097ff] outline-none border border-gray-400/60 px-4"
-            v-model="searchKeywords"
-            @keyup.enter="goToSearch(searchKeywords)"
-            type="searc" :placeholder="props.placeholder">
-        <button @click="goToSearch(searchKeywords)" class="bg-[#0097ff] hover:opacity-[0.8] flex gap-1 items-center text-sm px-4 h-11 outline-none text-white font-bold uppercase">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" width="22px"
-                height="22px" viewBox="0 0 32 32" version="1.1">
-                <title>search</title>
-                <path
-                    d="M16.906 20.188l5.5 5.5-2.25 2.281-5.75-5.781c-1.406 0.781-3.031 1.219-4.719 1.219-5.344 0-9.688-4.344-9.688-9.688s4.344-9.688 9.688-9.688 9.719 4.344 9.719 9.688c0 2.5-0.969 4.781-2.5 6.469zM3.219 13.719c0 3.594 2.875 6.469 6.469 6.469s6.469-2.875 6.469-6.469-2.875-6.469-6.469-6.469-6.469 2.875-6.469 6.469z">
-                </path>
+    <div class="relative px-1 flex items-center w-full mt-1 group">
+
+        <button class="text-black/[.46]
+           pointer-events-none 
+           absolute top-0 bottom-0 pb-[3px] left-[18px] lg:left-[22px]
+           group-focus-within:text-brand-primary
+           transition-colors duration-200">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" class="
+           transition-all duration-200
+           [stroke-width:2]
+           group-focus-within:[stroke-width:2.5]
+         ">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.3-4.3"></path>
             </svg>
-            <span class="hidden lg:block">Procurar</span>
         </button>
+
+        <input class="h-12 w-full pl-10 lg:pl-11 
+           placeholder:text-gray-500/90
+           shadow-[0_0_0_0.75px_rgb(0,0,0,0.0),0_20px_24px_-16px_rgb(0,0,0,0.16)]
+           text-[15px] 
+           rounded-3xl 
+           px-4
+           pb-0.5
+           lg:pb-1
+           border border-black/[.16]
+           focus:border-brand-primary
+           focus:border-2
+           outline-none
+           transition-all duration-100" v-model="searchKeywords" @keyup.enter="goToSearch(searchKeywords)" type=""
+            :placeholder="props.placeholder">
     </div>
 </template>

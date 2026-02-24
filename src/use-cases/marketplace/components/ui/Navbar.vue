@@ -45,12 +45,12 @@ onUnmounted(() => {
     <div class="sticky top-0 z-[90]">
         <div :class="[
             'px-4 xl:px-0 relative backdrop-blur-md bg-white/[0.92] h-[56px] transition-all duration-200',
-            hasScroll ? 'border-b border-gray-200' : 'border-b border-transparent'
+            hasScroll ? 'shadow-[0_.5px_rgb(0,0,0,0.16)]' : 'shadow-none'
         ]">
             <Container>
-                <div class="flex h-full items-center justify-between">
+                <div class="flex h-full mx-2 lg:mx-auto items-center justify-between">
                     <div class="flex items-center gap-5">
-                        <Logo size="w-[80px] lg:w-[100px]" />
+                        <Logo size="w-[84px] lg:w-[100px]" />
                         <ul class="hidden lg:flex items-center gap-1.5">
                             <li>
                                 <a href="#"

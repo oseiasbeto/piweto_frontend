@@ -30,6 +30,7 @@ const initializeAuthFlow = async () => {
     }
 };
 
+/*
 const injectCleverScript = () => {
     const script = document.createElement("script");
     script.id = "clever-core";
@@ -43,16 +44,19 @@ const injectCleverScript = () => {
     script.setAttribute("data-callback-url-view", "put-your-view-macro-here");
 
     cleverContainer.appendChild(script);
-}
+} */
+
 onMounted(async () => {
     await initializeAuthFlow();
+
+    /*
     cleverContainer = document.querySelector(".clever-core-ads");
     
     if (cleverContainer) {
         setTimeout(() => {
             injectCleverScript();
         }, 15000);
-    }
+    } */
 });
 
 </script>

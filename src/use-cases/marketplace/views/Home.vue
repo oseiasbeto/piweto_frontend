@@ -8,6 +8,7 @@ import CarosselEvents from "../components/ui/CarosselEvents.vue";
 import Spinner from "@/use-cases/checkout/components/ui/Spinner.vue";
 import ForOrganizers from "../components/ui/ForOrganizers.vue";
 import { useRoute, useRouter } from "vue-router";
+import Container from "../components/ui/Container.vue";
 
 const { events: topViewedEvents, getEvents: getTopViewedEvents, loading: loadingTopViewed, error: errorTopViewed, metadata: topViewedEventsMetadata, loadMore: getTopViewedEventsLoadMore, loadingLoadMore: topViewedEventsloadingLoadMore } = useEvents();
 
@@ -54,16 +55,19 @@ onMounted(async () => {
 
 <template>
     <div v-if="!loadingGlobal" class="relative">
+        <div v-if="topViewedEvents.length" class="px-4 xl:px-0">
+            <Container>
+                <div class="lg:py-5 pb-4 lg:pb-0 w-full">
+                    <Search @onsearch="goToSearch" />
+                </div>
+            </Container>
+        </div>
+
         <div class="lg:mb-6" v-if="!loadingNewEvents && newEvents.length">
             <CarosselEvents :events="newEvents" />
         </div>
         <div v-if="!newEvents.length" class="mt-8"></div>
 
-        <div v-if="topViewedEvents.length" class="px-4 xl:px-0">
-            <div class="mx-auto w-full lg:w-[540px]">
-                <Search @onsearch="goToSearch" />
-            </div>
-        </div>
         <div class="w-full px-4 mt-8" v-if="topViewedEvents.length">
             <ListEvents title="Eventos em destaque" :error="errorTopViewed" :loading="loadingTopViewed"
                 @onloadmore="TopViewedLoadMore()" :btn-loading-more="topViewedEventsloadingLoadMore"
