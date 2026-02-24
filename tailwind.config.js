@@ -7,6 +7,7 @@ module.exports = {
         brand: {
           "black-text": "#272c2f",
           "primary": "rgb(50,186,120)",
+          "primary-dark": "rgb(42,163,104)",
           "secondary": "#ffcd35",
           "success": "#3bbf63",
           "info": "#0096ff",

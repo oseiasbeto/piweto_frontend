@@ -2,7 +2,7 @@
 const props = defineProps({
     placeholder: {
         type: String,
-        default: 'digite o nome do evento'
+        default: 'Pesquisar eventos, shows, espetáculos, cursos...'
     }
 })
 

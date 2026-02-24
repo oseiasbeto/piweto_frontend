@@ -1,15 +1,13 @@
 <script setup>
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import Logo from "@/components/Logo.vue";
 import Container from "./Container.vue";
 import UserMenu from "@/components/UserMenu";
+import UserTriggerDropdown from "./UserTriggerDropdown.vue";
 
-const loading = ref(false)
-const openSearch = ref(false)
-const searchInputRef = ref(null);
-const searchInputKeywords = ref("");
+const hasScroll = ref(false);
 
 const store = useStore()
 const router = useRouter()
@@ -19,73 +17,94 @@ const sidebar = computed(() => {
     return store.getters.sidebar
 })
 
-const toggleOpenSearch = () => {
-    if (openSearch.value) {
-        openSearch.value = false
-        searchInputKeywords.value = ''
-    } else {
-        openSearch.value = true
-        searchInputRef.value?.focus();
-    }
-}
-
-const goToSearch = () => {
-    if (!searchInputKeywords.value) return
-    else {
-        openSearch.value = false
-        router.push({ path: '/eventos/pesquisar', query: { ...route.query, s: searchInputKeywords.value || undefined } })
-        searchInputKeywords.value = ""
-    }
-}
-
 const toggleSidebar = () => {
     store.dispatch('setSidebar', {
         show: !sidebar.value.show
     })
 }
 
+const handleScroll = () => {
+    hasScroll.value = window.scrollY > 0;
+};
+
+
 const hasLogged = computed(() => {
     return store.getters.hasLogged
 })
+
+onMounted(() => {
+    window.addEventListener('scroll', handleScroll);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('scroll', handleScroll);
+});
 </script>
 
 <template>
     <div class="sticky top-0 z-[90]">
-        <div class="px-4 xl:px-0 relative bg-white h-[56px] lg:h-[64px] py-3">
+        <div :class="[
+            'px-4 xl:px-0 relative backdrop-blur-md bg-white/[0.92] h-[56px] transition-all duration-200',
+            hasScroll ? 'border-b border-gray-200' : 'border-b border-transparent'
+        ]">
             <Container>
-                <div class="flex justify-between">
-                    <div>
-                        <Logo size="w-[94px] lg:w-[112px]" />
+                <div class="flex h-full items-center justify-between">
+                    <div class="flex items-center gap-5">
+                        <Logo size="w-[94px] lg:w-[100px]" />
+                        <ul class="hidden lg:flex items-center gap-1.5">
+                            <li>
+                                <a href="#"
+                                    class="py-1 rounded-lg px-3 pb-1 flex items-center hover:bg-[rgba(0,0,0,0.08)] font-medium text-[15px]">
+                                    <p> Para produtores </p>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#"
+                                    class="py-1 rounded-lg px-3 pb-1 flex items-center hover:bg-[rgba(0,0,0,0.08)] font-medium text-[15px]">
+                                    <p>Preços</p>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#"
+                                    class="py-1 rounded-lg px-3 pb-1 flex items-center hover:bg-[rgba(0,0,0,0.08)] font-medium text-[15px]">
+                                    <p> Encontrar eventos </p>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#"
+                                    class="py-1 rounded-lg px-3 pb-1 flex items-center hover:bg-[rgba(0,0,0,0.08)] font-medium text-[15px]">
+                                    <p> Ajuda </p>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                     <div class="flex items-center">
-                        <ul class="hidden lg:flex items-center gap-2">
-                            <li v-if="hasLogged">
-                                <router-link
-                                    class="py-2.5 px-3 flex items-center border border-white text-gray-500 hover:text-brand-primary  font-semibold text-sm"
-                                    to="/eventos/novo-evento?tipo=presencial">
-                                    <p>Crie um evento</p>
-                                </router-link>
-                            </li>
+                        <ul class="hidden lg:flex items-center gap-1.5">
+
                             <li v-if="!hasLogged">
-                                <router-link to="/conta/login"
-                                    class="py-2.5 px-3 flex items-center border border-white text-gray-500 hover:text-brand-primary  font-semibold text-sm">
-                                    <p>Acessar minha conta</p>
-                                </router-link>
+                                <a href="/eventos/meus-eventos"
+                                    class="py-1 rounded-lg px-3 pb-1 flex items-center hover:bg-[rgba(0,0,0,0.08)] font-medium text-[15px]">
+                                    <p> Área do produtor </p>
+                                </a>
                             </li>
+
+                            <li v-if="!hasLogged" class="flex items-center gap-1.5">
+
+                                <a class="py-1 rounded-lg px-3 pb-1 flex items-center hover:bg-[rgba(0,0,0,0.08)] font-medium text-[15px]"
+                                    href="/conta/login">
+                                    Entrar
+                                </a>
+                            </li>
+
                             <li v-if="hasLogged">
-                                <router-link
-                                    class="py-2.5 px-3 flex items-center border border-white text-gray-500 hover:text-brand-primary  font-semibold text-sm"
-                                    to="/eventos/meus-eventos">
-                                    <p style="line-height: 1;" class="text-sm">Área do promotor</p>
-                                </router-link>
+                                <UserTriggerDropdown />
                             </li>
-                            <li class="flex items-center gap-1.5">
-                                <UserMenu />
-                                <router-link
-                                    class="py-2.5 px-3 flex items-center border border-white text-gray-500 hover:text-brand-primary  font-semibold text-sm"
-                                    to="/conta/registrar-se" v-if="!hasLogged">
-                                    Registrar-se
-                                </router-link>
+
+                            <li>
+                                <a class="py-1 rounded-lg bg-brand-primary text-white px-3 pb-1 flex items-center hover:bg-brand-primary-dark font-medium text-[15px] shadow-[0_0.3259259164px_0.7333333492px_0_#0000001f,0_1.5407407284px_2.8666665554px_0_#00000012,0_4px_9px_0_#0000000d]"
+                                    href="/eventos/novo-evento?tipo=presencial">
+                                    <p>Publicar evento</p>
+                                </a>
                             </li>
                         </ul>
                         <div class="flex items-center">
@@ -105,7 +124,7 @@ const hasLogged = computed(() => {
                                     </defs>
                                 </svg>
                             </button>
-                          
+
                         </div>
                     </div>
                 </div>
