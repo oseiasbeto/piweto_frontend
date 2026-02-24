@@ -109,20 +109,16 @@ onUnmounted(() => {
                         </ul>
                         <div class="flex items-center">
                             <button @click="toggleSidebar"
-                                class="bg-transparent text-primary relative w-[38px] flex justify-center items-center lg:hidden">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="22px" height="22px" viewBox="0 0 24 24"
-                                    fill="none">
-                                    <g clip-path="url(#clip0_429_11066)">
-                                        <path d="M3 6.00092H21M3 12.0009H21M3 18.0009H21" stroke="currentColor"
-                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </g>
-                                    <defs>
-                                        <clipPath id="clip0_429_11066">
-                                            <rect width="24" height="24" fill="white"
-                                                transform="translate(0 0.000915527)" />
-                                        </clipPath>
-                                    </defs>
+                                class="py-1 gap-1 rounded-lg px-3 pb-1 flex items-center hover:bg-[rgba(0,0,0,0.08)] font-medium text-[15px] lg:hidden">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="lucide lucide-menu-icon">
+                                    <line x1="4" x2="20" y1="12" y2="12"></line>
+                                    <line x1="4" x2="20" y1="6" y2="6"></line>
+                                    <line x1="4" x2="20" y1="18" y2="18"></line>
                                 </svg>
+
+                                <span>Menu</span>
                             </button>
 
                         </div>
