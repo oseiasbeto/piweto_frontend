@@ -58,7 +58,7 @@ onMounted(async () => {
     <div class="relative">
         <div class="px-5 xl:px-0">
             <Container>
-                <div class="lg:py-5 pb-2 mb-2 w-full">
+                <div class="lg:py-5 w-full">
                     <Search @onsearch="goToSearch" />
                 </div>
             </Container>

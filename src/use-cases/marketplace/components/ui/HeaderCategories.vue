@@ -1,7 +1,8 @@
 <template>
   <div class="max-w-full mx-auto lg:max-w-[1200px]">
     <div class="flex w-full justify-center items-center">
-      <div class="flex overflow-x-scroll scrollbar-hide px-6 lg:px-0 lg:overflow-x-hidden items-center gap-4">
+
+      <div class="flex py-4 overflow-x-scroll scrollbar-hide px-6 lg:px-0 lg:overflow-x-hidden items-center gap-4">
 
         <!-- Item -->
         <a class="rounded-[10px] hover:bg-black/[.04] border border-black/[.16] flex items-center gap-3 pt-2 pr-2.5 pb-2.5 pl-3.5" href="#Shows e festas">
