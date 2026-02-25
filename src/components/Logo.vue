@@ -19,7 +19,7 @@ export default {
 </script>
 
 <template>
-    <a class="max-w-min" href="https://piweto.it.ao">
+    <a class="max-w-min select-none outline-none" href="https://piweto.it.ao">
         <svg xmlns="http://www.w3.org/2000/svg" version="1.0" :class="size" viewBox="0 0 1557.000000 500.000000"
             preserveAspectRatio="xMidYMid meet">
 
