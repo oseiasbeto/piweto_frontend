@@ -1,58 +1,85 @@
 <script setup>
-import Logo from '@/components/Logo.vue';
-import Container from '@/use-cases/marketplace/components/ui/Container.vue';
-
+import Logo from '@/components/Logo.vue'
+import Container from '@/use-cases/marketplace/components/ui/Container.vue'
 </script>
 
 <template>
-    <div class="w-full bg-white relative border-t-2 border-brand-primary">
+    <footer class="w-full bg-white mt-20">
         <Container>
-            <div class="flex px-4 justify-center pt-10 pb-16">
-                <div>
-                    <div class="flex justify-center">
-                        <Logo size="w-[100px] h-[56px]" />
-                    </div>
+            <div class="px-6 border-t border-neutral-200 lg:px-0 pt-14 pb-20">
 
-                    <ul class="flex flex-wrap text-sm justify-center items-center gap-2 lg:gap-3 py-4">
-                        <li class="flex items-center gap-1.5"><a href="/conta/login" class="flex flex-nowrap hover:underline">Login</a> | </li>
-                        <li class="flex items-center gap-1.5"><a class="flex flex-nowrap hover:underline" href="/conta/registrar-se">Criar
-                                Conta</a> | </li>
-                        <li class="flex items-center gap-1.5"><a class="flex flex-nowrap hover:underline" href="/meus-ingressos">Meus Ingressos</a> | </li>
-                        <li class="flex items-center gap-1.5"><a class="flex flex-nowrap hover:underline" href="/como-funciona">Sou organizador</a> | </li>
+                <!-- GRID PRINCIPAL -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
 
-                        <li class="flex items-center gap-1.5"><a class="flex flex-nowrap hover:underline" href="https://wa.me/948360831" target="_blank">Fale
-                                conosco</a> </li>
+                    <!-- Para o organizador -->
+                    <div>
+                        <h3 class="text-xs font-semibold uppercase tracking-wider text-neutral-900 mb-5">
+                            Para o organizador
+                        </h3>
 
-                    </ul>
-                    <div class="pt-3 pb-8">
-                         <hr>
-                    </div>
-            
-                    <div class="subfooter text-sm text-center">
-                        <p>
-                            © Piweto - Todos os direitos reservados.
-
-                            <br>
-
-                            NIF: 482819381281671
-
-
-
-                        </p>
-                       
-                     
-                        <ul class="flex gap-1.5 my-3 justify-center items-center mx-auto">
-
-                            <li><a href="/termos-de-uso/" target="_blank">Termos de uso</a>
-                            </li>
-                            <li><a href="/politica-de-privacidade/" target="_blank">Política de
-                                    privacidade</a></li>
-
+                        <ul class="space-y-3 text-sm text-black/[.65]">
+                            <li><a href="#" class="hover:text-black transition-colors duration-200">Vender
+                                    ingressos online</a></li>
+                            <li><a href="#" class="hover:text-black transition-colors duration-200">Área do
+                                    produtor</a></li>
+                            <li><a href="#" class="hover:text-black transition-colors duration-200">Falar com um
+                                    consultor</a></li>
+                            <li><a href="#" class="hover:text-black transition-colors duration-200">Criar
+                                    evento</a></li>
                         </ul>
+                    </div>
+
+                    <!-- Para o participante -->
+                    <div>
+                        <h3 class="text-xs font-semibold uppercase tracking-wider text-neutral-900 mb-5">
+                            Para o participante
+                        </h3>
+
+                        <ul class="space-y-3 text-sm text-black/[.65]">
+                            <li><a href="#" class="hover:text-black transition-colors duration-200">Minhas
+                                    compras</a></li>
+                            <li><a href="#" class="hover:text-black transition-colors duration-200">Central do
+                                    participante</a></li>
+                            <li><a href="#" class="hover:text-black transition-colors duration-200">Falar com a
+                                    Piweto</a></li>
+                            <li><a href="#" class="hover:text-black transition-colors duration-200">Termos de
+                                    uso</a></li>
+                            <li><a href="#" class="hover:text-black transition-colors duration-200">Política de
+                                    privacidade</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Categorias -->
+                    <div>
+                        <h3 class="text-xs font-semibold uppercase tracking-wider text-neutral-900 mb-5">
+                            Categorias
+                        </h3>
+                        
+
+                        <ul class="space-y-3 text-sm text-black/[.65]">
+                            <li><a href="/categoria/comedia-stand-up" class="hover:text-black transition-colors duration-200">Comédia Stand-up</a></li>
+                            <li><a href="/categoria/corridas-e-esportes" class="hover:text-black transition-colors duration-200">Corridas e Esportes</a></li>
+                            <li><a href="/categoria/cursos-e-workshops" class="hover:text-black transition-colors duration-200">Cursos e Workshops</a></li>
+                            <li><a href="/categoria/Eventos-religiosos" class="hover:text-black transition-colors duration-200">Eventos Religiosos</a></li>
+                            <li><a href="/categoria/excursoes-e-passeios" class="hover:text-black transition-colors duration-200">Excursões e passeios</a></li>
+                            <li><a href="/categoria/shows-e-festas" class="hover:text-black transition-colors duration-200">Shows e festas</a></li>
+                            <li><a href="/categoria/sociais-e-empresariais" class="hover:text-black transition-colors duration-200">Sociais e Empresariais</a>
+                            </li>
+                            <li><a href="/categoria/teatros-e-cultura" class="hover:text-black transition-colors duration-200">Teatros e Cultura</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Marca -->
+                    <div class="space-y-6 md:w-[240px] lg:w-[240px]">
+                        <Logo :is-gray="true" size="w-[90px] h-auto" />
+
+                        <p class="text-xs text-black/[0.40] leading-[18px]">
+                            © 2025 Piweto Internet Solutions Ltda. - 18.540.147/0001-30 - Av. Vereador Narciso Yague
+                            Guimarães, 1145 - 11º andar - Mogi das Cruzes - São Paulo
+                        </p>
                     </div>
                 </div>
             </div>
         </Container>
-
-    </div>
+    </footer>
 </template>

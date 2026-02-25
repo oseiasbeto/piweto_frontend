@@ -55,7 +55,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div v-if="!loadingGlobal" class="relative">
+    <div class="relative">
         <div class="px-5 xl:px-0">
             <Container>
                 <div class="lg:py-5 pb-2 mb-2 w-full">
@@ -72,13 +72,13 @@ onMounted(async () => {
         </div>
         <div v-if="!newEvents.length" class="mt-8"></div>
 
-        <div class="w-full px-4 mt-8" v-if="topViewedEvents.length">
+        <div class="w-full px-4 mt-8" v-if="!loadingGlobal && topViewedEvents.length">
             <ListEvents title="Eventos em destaque" :error="errorTopViewed" :loading="loadingTopViewed"
                 @onloadmore="TopViewedLoadMore()" :btn-loading-more="topViewedEventsloadingLoadMore"
                 :metadata="topViewedEventsMetadata" :events="topViewedEvents" />
         </div>
     </div>
-    <div v-else class="flex justify-center items-center h-[500px]">
+    <div v-if="loadingGlobal" class="flex justify-center items-center h-[500px]">
         <Spinner />
     </div>
     <!--start for organizers-->

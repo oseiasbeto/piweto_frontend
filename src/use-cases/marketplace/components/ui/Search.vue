@@ -38,7 +38,7 @@ const goToSearch = (keywords) => {
         </button>
 
         <input class="h-12 w-full pl-10 lg:pl-11 
-           placeholder:text-gray-500/90
+           placeholder:text-black/[.46]
            shadow-[0_0_0_0.75px_rgb(0,0,0,0.0),0_20px_24px_-16px_rgb(0,0,0,0.16)]
            text-[15px] 
            rounded-3xl 
