@@ -9,6 +9,7 @@ import Spinner from "@/use-cases/checkout/components/ui/Spinner.vue";
 import ForOrganizers from "../components/ui/ForOrganizers.vue";
 import { useRoute, useRouter } from "vue-router";
 import Container from "../components/ui/Container.vue";
+import HeaderCategories from "../components/ui/HeaderCategories.vue";
 
 const { events: topViewedEvents, getEvents: getTopViewedEvents, loading: loadingTopViewed, error: errorTopViewed, metadata: topViewedEventsMetadata, loadMore: getTopViewedEventsLoadMore, loadingLoadMore: topViewedEventsloadingLoadMore } = useEvents();
 
@@ -55,13 +56,16 @@ onMounted(async () => {
 
 <template>
     <div v-if="!loadingGlobal" class="relative">
-        <div v-if="topViewedEvents.length" class="px-4 xl:px-0">
+        <div class="px-5 xl:px-0">
             <Container>
-                <div class="lg:py-5 pb-4 lg:pb-0 w-full">
+                <div class="lg:py-5 pb-2 mb-2 w-full">
                     <Search @onsearch="goToSearch" />
                 </div>
             </Container>
         </div>
+
+        <HeaderCategories/>
+        
 
         <div class="lg:mb-6" v-if="!loadingNewEvents && newEvents.length">
             <CarosselEvents :events="newEvents" />

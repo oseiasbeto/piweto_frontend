@@ -24,7 +24,7 @@ const toggleSidebar = () => {
 }
 
 const handleScroll = () => {
-    hasScroll.value = window.scrollY > 0;
+    hasScroll.value = window.scrollY > 12;
 };
 
 

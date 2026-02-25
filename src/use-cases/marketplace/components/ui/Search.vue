@@ -45,6 +45,7 @@ const goToSearch = (keywords) => {
            px-4
            pb-0.5
            lg:pb-1
+           truncate
            border border-black/[.16]
            focus:border-brand-primary
            focus:border-2
