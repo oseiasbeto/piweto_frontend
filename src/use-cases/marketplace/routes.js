@@ -41,7 +41,7 @@ export default [
     },
     {
         name: 'How does it work',
-        path: '/como-funciona',
+        path: '/vender-ingressos-online',
         meta: {
             requiresAuth: false,
             rootPage: 'marketplace',

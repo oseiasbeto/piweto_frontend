@@ -6,10 +6,10 @@ import Container from '@/use-cases/marketplace/components/ui/Container.vue'
 <template>
     <footer class="w-full bg-white mt-20">
         <Container>
-            <div class="px-6 border-t border-neutral-200 lg:px-0 pt-14 pb-20">
+            <div class="px-6 xl:px-0 md:px-4 border-t border-neutral-200 pt-14 pb-20">
 
                 <!-- GRID PRINCIPAL -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
+                <div class="grid grid-cols-1 :px-4 sm:grid-cols-2 lg:grid-cols-4 gap-12">
                     
                     <!-- Para o organizador -->
                     <div>
@@ -18,13 +18,13 @@ import Container from '@/use-cases/marketplace/components/ui/Container.vue'
                         </h3>
 
                         <ul class="space-y-3 text-sm text-black/[.65]">
-                            <li><a href="#" class="hover:text-black transition-colors duration-200">Vender
+                            <li><a href="/vender-ingressos-online" class="hover:text-black transition-colors duration-200">Vender
                                     ingressos online</a></li>
-                            <li><a href="#" class="hover:text-black transition-colors duration-200">Área do
+                            <li><a href="/eventos/meus-eventos" class="hover:text-black transition-colors duration-200">Área do
                                     produtor</a></li>
-                            <li><a href="#" class="hover:text-black transition-colors duration-200">Falar com um
+                            <li><a href="https://wa.me/948360831" target="_blank" class="hover:text-black transition-colors duration-200">Falar com um
                                     consultor</a></li>
-                            <li><a href="#" class="hover:text-black transition-colors duration-200">Criar
+                            <li><a href="/eventos/criar-evento" class="hover:text-black transition-colors duration-200">Criar
                                     evento</a></li>
                         </ul>
                     </div>
@@ -36,15 +36,15 @@ import Container from '@/use-cases/marketplace/components/ui/Container.vue'
                         </h3>
 
                         <ul class="space-y-3 text-sm text-black/[.65]">
-                            <li><a href="#" class="hover:text-black transition-colors duration-200">Minhas
-                                    compras</a></li>
-                            <li><a href="#" class="hover:text-black transition-colors duration-200">Central do
+                            <li><a href="/meus-ingressos" class="hover:text-black transition-colors duration-200">Meus 
+                                    ingressos</a></li>
+                            <li><a href="/central-de-participantes" class="hover:text-black transition-colors duration-200">Central do
                                     participante</a></li>
-                            <li><a href="#" class="hover:text-black transition-colors duration-200">Falar com a
+                            <li><a href="https://wa.me/948360831" target="_blank" class="hover:text-black transition-colors duration-200">Falar com a
                                     Piweto</a></li>
-                            <li><a href="#" class="hover:text-black transition-colors duration-200">Termos de
+                            <li><a href="/termos-de-uso" class="hover:text-black transition-colors duration-200">Termos de
                                     uso</a></li>
-                            <li><a href="#" class="hover:text-black transition-colors duration-200">Política de
+                            <li><a href="/politica-de-privacidade" class="hover:text-black transition-colors duration-200">Política de
                                     privacidade</a></li>
                         </ul>
                     </div>
@@ -70,7 +70,7 @@ import Container from '@/use-cases/marketplace/components/ui/Container.vue'
                     </div>
 
                     <!-- Marca -->
-                    <div class="space-y-6 md:w-[240px] lg:w-[240px]">
+                    <div class="space-y-6 xl:w-[240px]">
                         <Logo :is-gray="true" size="w-[90px] h-auto" />
 
                         <p class="text-xs text-black/[0.40] leading-[18px]">
