@@ -82,9 +82,9 @@ function onImageLoad(event) {
 </script>
 
 <template>
-    <div :class="{'pointer-events-none opacity-60' : props.isTicket && isEventOver}" class="bg-white overflow-hidden transition-all rounded-[15px] mb-3.5 md:hover:shadow-lg">
+    <div :class="{'pointer-events-none opacity-60' : props.isTicket && isEventOver}" class="bg-white overflow-hidden transition-all rounded-[15px] mb-3.5">
         <a :href="'/evento/' + props.event.slug">
-            <div class="h-[150px]  overflow-hidden rounded-b-[15px]"
+            <div class="lg:h-[125px] h-[104px] overflow-hidden rounded-b-[15px]"
             :class="isBigCover ? 'lg:h-[285px]': 'lg:h-[150px]'"
             >
                 <img class="w-full h-full object-cover lazy-image" 
@@ -95,8 +95,8 @@ function onImageLoad(event) {
             </div>
         </a>
         <a :href="'/evento/' + props.event.slug">
-            <div class="py-3 px-0 md:px-3 flex flex-col gap-2">
-                <div class="flex text-brand-info text-xs items-center gap-1">
+            <div class="py-3 px-0 md:px-3 flex flex-col gap-1">
+                <div class="flex text-[rgba(255,42,57)] text-xs items-center gap-1">
                     <p class="flex-1 w-64 uppercase font-bold truncate">{{ formatDate(new Date(event.starts_at.date),
                         new
                             Date(event.starts_at.hm)) }}
@@ -104,17 +104,12 @@ function onImageLoad(event) {
                 </div>
                 <div>
                     <h5
-                        class="text-gray-900 text-base font-semibold line-clamp-2 overflow-hidden text-ellipsis break-words"
-                        :class="isBigCover ? 'lg:text-xl' : 'lg:text-base'"
+                        class="text-black text-base font-semibold line-clamp-2 overflow-hidden text-ellipsis break-words"
+                        :class="isBigCover ? 'lg:text-xl' : 'lg:text-[15px]'"
                         >
                         {{ event.name }}</h5>
                 </div>
-                <div class="flex text-gray-600 text-xs items-center gap-1">
-                    <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round"
-                        stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                        <circle cx="12" cy="10" r="3"></circle>
-                    </svg>
+                <div class="flex text-black/[.65] text-xs items-center gap-1">
                     <p class="flex-1 w-64 text-sm truncate">{{ event.address.location }}</p>
                 </div>
                 <div class="my-[1px]"></div>

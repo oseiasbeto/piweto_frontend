@@ -48,7 +48,7 @@ const loadMoreEvents = () => {
             <!-- start header list area-->
             <div class="mx-auto flex justify-between items-center">
                 <div class="w-full">
-                    <h1 class="text-2xl text-gray-900 font-bold">{{ props.title }}</h1>
+                    <h1 class="text-2xl lg:text-3xl text-black font-bold">{{ props.title }}</h1>
                 </div>
             </div>
             <!-- end header list area-->

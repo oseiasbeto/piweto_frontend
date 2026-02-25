@@ -42,13 +42,13 @@ onMounted(() => {
         <Container>
             <section class="w-full mt-7">
                 <Splide ref="splideRef" :options="{
-                    perPage: 2, arrows: true, pagination: true, gap: '1.5rem',
+                    perPage: 4, arrows: true, pagination: true, gap: '1.5rem',
                     autoplay: true, // Ativa o autoplay
     interval: 3000, // Intervalo de 3 segundos entre os slides
     pauseOnHover: true, // Pausa o autoplay ao passar o mouse
                     breakpoints: {
                         1024: {
-                            perPage: 2,
+                            perPage: 4,
                             perMove: 1,
                             gap: '0.8rem',
                             padding: { left: '1.5rem', right: '1.5rem' }
@@ -62,7 +62,7 @@ onMounted(() => {
                     }
                 }">
                     <SplideSlide v-for="event in props.events" :key="event._id">
-                        <event-card :isBigCover="true" :event="event" />
+                        <event-card :isBigCover="false" :event="event" />
                     </SplideSlide>
                 </Splide>
             </section>

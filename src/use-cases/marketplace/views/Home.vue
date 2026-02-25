@@ -73,9 +73,13 @@ onMounted(async () => {
         <div v-if="!newEvents.length" class="mt-8"></div>
 
         <div class="w-full px-4 mt-8" v-if="!loadingGlobal && topViewedEvents.length">
-            <ListEvents title="Eventos em destaque" :error="errorTopViewed" :loading="loadingTopViewed"
-                @onloadmore="TopViewedLoadMore()" :btn-loading-more="topViewedEventsloadingLoadMore"
-                :metadata="topViewedEventsMetadata" :events="topViewedEvents" />
+            <ListEvents 
+                title="Eventos nos principais estados" :error="errorTopViewed" :loading="loadingTopViewed"
+                @onloadmore="TopViewedLoadMore()" 
+                :btn-loading-more="topViewedEventsloadingLoadMore"
+                :metadata="topViewedEventsMetadata" 
+                :events="topViewedEvents" 
+            />
         </div>
     </div>
     <div v-if="loadingGlobal" class="flex justify-center items-center h-[500px]">
