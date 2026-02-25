@@ -10,7 +10,7 @@ import Container from '@/use-cases/marketplace/components/ui/Container.vue'
 
                 <!-- GRID PRINCIPAL -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
-
+                    
                     <!-- Para o organizador -->
                     <div>
                         <h3 class="text-xs font-semibold uppercase tracking-wider text-neutral-900 mb-5">
@@ -74,8 +74,7 @@ import Container from '@/use-cases/marketplace/components/ui/Container.vue'
                         <Logo :is-gray="true" size="w-[90px] h-auto" />
 
                         <p class="text-xs text-black/[0.40] leading-[18px]">
-                            © 2025 Piweto Internet Solutions Ltda. - 18.540.147/0001-30 - Av. Vereador Narciso Yague
-                            Guimarães, 1145 - 11º andar - Mogi das Cruzes - São Paulo
+                           © 2025 Piweto Internet Solutions Ltda. - 18.540.147/0001-30 - Av. 4 de Fevereiro, 1234 - 3º andar - Luanda - Angola
                         </p>
                     </div>
                 </div>
