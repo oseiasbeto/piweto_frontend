@@ -5,7 +5,7 @@
       <div class="flex pt-4 pb-3.5 lg:py-1.5 overflow-x-scroll scrollbar-hide px-6 lg:px-0 lg:overflow-x-hidden items-center gap-4">
 
         <!-- Item -->
-        <a class="rounded-[10px] hover:bg-black/[.04] border border-black/[.16] flex items-center gap-3 pt-2 pr-2.5 pb-2.5 pl-3.5" href="#Shows e festas">
+        <a class="rounded-[10px] hover:bg-black/[.04] border border-black/[.16] flex items-center gap-3 pt-2 pr-2.5 pb-2.5 pl-3.5" href="/categoria/Festas & Shows">
           <div class="w-[18px] h-[18px] lg:w-[22px] lg:h-[22px] flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -18,7 +18,7 @@
         </a>
 
         <!-- Item -->
-        <a class="rounded-[10px] hover:bg-black/[.04] border border-black/[.16] flex items-center gap-3 pt-2 pr-2.5 pb-2.5 pl-3.5" href="#Teatros e Cultura">
+        <a class="rounded-[10px] hover:bg-black/[.04] border border-black/[.16] flex items-center gap-3 pt-2 pr-2.5 pb-2.5 pl-3.5" href="/categoria/Teatro & Espetáculos">
           <div class="w-[18px] h-[18px] lg:w-[22px] lg:h-[22px] flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -26,12 +26,12 @@
             </svg>
           </div>
           <span class="text-xs leading-[14px] font-medium whitespace-nowrap lg:whitespace-normal lg:max-w-[11ch]">
-            Teatros e Cultura
+            Teatros e Espetáculos
           </span>
         </a>
 
         <!-- Item -->
-        <a class="rounded-[10px] hover:bg-black/[.04] border border-black/[.16] flex items-center gap-3 pt-2 pr-2.5 pb-2.5 pl-3.5" href="#Sociais e Empresariais">
+        <a class="rounded-[10px] hover:bg-black/[.04] border border-black/[.16] flex items-center gap-3 pt-2 pr-2.5 pb-2.5 pl-3.5" href="/categoria/Sociais e Empresariais">
           <div class="w-[18px] h-[18px] lg:w-[22px] lg:h-[22px] flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -44,7 +44,7 @@
         </a>
 
         <!-- Item -->
-        <a class="rounded-[10px] hover:bg-black/[.04] border border-black/[.16] flex items-center gap-3 pt-2 pr-2.5 pb-2.5 pl-3.5" href="#Excursões e passeios">
+        <a class="rounded-[10px] hover:bg-black/[.04] border border-black/[.16] flex items-center gap-3 pt-2 pr-2.5 pb-2.5 pl-3.5" href="/categoria/Excursões e passeios">
           <div class="w-[18px] h-[18px] lg:w-[22px] lg:h-[22px] flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -59,7 +59,7 @@
         </a>
 
         <!-- Item -->
-        <a class="rounded-[10px] hover:bg-black/[.04] border border-black/[.16] flex items-center gap-3 pt-2 pr-2.5 pb-2.5 pl-3.5" href="#Cursos e Workshops">
+        <a class="rounded-[10px] hover:bg-black/[.04] border border-black/[.16] flex items-center gap-3 pt-2 pr-2.5 pb-2.5 pl-3.5" href="/categoria/Palestras & Workshops">
           <div class="w-[18px] h-[18px] lg:w-[22px] lg:h-[22px] flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -67,12 +67,12 @@
             </svg>
           </div>
           <span class="text-xs leading-[14px] font-medium whitespace-nowrap lg:whitespace-normal lg:max-w-[11ch]">
-            Cursos e Workshops
+            Palestras e Workshops
           </span>
         </a>
 
         <!-- Item -->
-        <a class="rounded-[10px] hover:bg-black/[.04] border border-black/[.16] flex items-center gap-3 pt-2 pr-2.5 pb-2.5 pl-3.5" href="#Corridas e Esportes">
+        <a class="rounded-[10px] hover:bg-black/[.04] border border-black/[.16] flex items-center gap-3 pt-2 pr-2.5 pb-2.5 pl-3.5" href="/categoria/Corridas e Esportes">
           <div class="w-[18px] h-[18px] lg:w-[22px] lg:h-[22px] flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"

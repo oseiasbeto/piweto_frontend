@@ -17,6 +17,14 @@ const props = defineProps({
         type: Boolean,
         default: true
     },
+    metadata: {
+        type: Object,
+        default: null
+    },
+    autoPlay: {
+        type: Boolean,
+        default: false
+    },
     events: {
         type: Array,
         required: true
@@ -46,11 +54,20 @@ onMounted(() => {
 
 <template>
     <div>
-
-
         <!-- start body carossel area-->
+        <!-- start header list area-->
         <Container>
-            <section v-if="loading || events?.length" class="w-full mt-2 lg:mt-7">
+            <div v-show="props?.title" class="px-6 md:px-4 xl:px-0 flex justify-between items-center">
+                <div class="w-full">
+                    <h1 class="text-2xl lg:text-3xl text-black font-bold">{{ props.title }}</h1>
+                </div>
+            </div>
+        </Container>
+
+        <!-- end header list area-->
+        <section :id="props?.title" v-if="loading || events?.length" class="w-full mt-2 lg:mt-7"
+            :class="{ '!mt-7': props.title }">
+            <Container>
                 <!-- Arrows Personalizados -->
                 <button v-if="!loading" @click="goPrev" class="absolute left-0 top-1/2 -translate-y-1/2 z-10 
                        bg-white shadow-md hover:shadow-lg
@@ -78,28 +95,28 @@ onMounted(() => {
                     perPage: 4,
                     arrows: false,
                     pagination: false,
-                    padding: { left: '1rem', right: '1rem' },
-                    gap: '1.5rem',
-                    autoplay: !loading,
+                    gap: '1rem',
                     interval: 3000,
                     pauseOnHover: true,
+                    autoplay: !loading && props.autoPlay,
                     drag: !loading,
                     swipe: !loading,
                     breakpoints: {
-                        1024: {
-                            perPage: 4,
-                            gap: '1rem',
+                        1280: {  // laptops menores
+                            padding: { left: '1rem', right: '1rem' }
+                        },
+                        1024: {  // tablets grandes
+                            perPage: 3,
                             padding: { left: '1.5rem', right: '1.5rem' }
                         },
-                        768: {
+                        768: {   // tablets
                             perPage: 2,
-                            gap: '1rem',
                             padding: { left: '1.5rem', right: '1.5rem' }
                         },
-                        640: {
+                        640: {   // mobile
                             perPage: 1,
                             gap: '0.75rem',
-                            padding: { left: '24px', right: '24px' },
+                            padding: { left: '24px', right: '24px' }
                         }
                     }
                 }">
@@ -117,9 +134,8 @@ onMounted(() => {
                         </SplideSlide>
                     </template>
                 </Splide>
-            </section>
-        </Container>
-
+            </Container>
+        </section>
         <!-- end body carossel area-->
     </div>
 </template>

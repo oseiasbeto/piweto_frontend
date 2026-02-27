@@ -20,6 +20,16 @@ export default [
         component: () => import('./Layout.vue')
     },
     {
+        name: 'Category',
+        path: '/categoria/:category',
+        meta: {
+            requiresAuth: false,
+            rootPage: 'marketplace',
+            title: 'Categoria'
+        },
+        component: () => import('./Layout.vue')
+    },
+    {
         name: 'My tickets',
         path: '/meus-ingressos',
         meta: {

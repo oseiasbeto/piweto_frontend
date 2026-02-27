@@ -19,6 +19,7 @@ import TermsOfUse from "./views/TermsOfUse.vue";
 import PrivacyPolicy from "./views/PrivacyPolicy.vue";
 import ForgotPassword from "./views/auth/ForgotPassword.vue";
 import CheckEmail from "./views/auth/CheckEmail.vue";
+import Category from "./views/Category.vue";
 
 const route = useRoute()
 const store = useStore()
@@ -38,6 +39,8 @@ const sidebar = computed(() => {
         <!--start views marketplace-->
         <div class="mt-0">
             <Home v-if="route.name == 'Marketplace'" />
+            <Category v-if="route.name == 'Category'" />
+
             <!--start pages-->
             <AuthUser v-if="route.name == 'Auth user'" />
             <RegisterUser v-if="route.name == 'Register user'" />
