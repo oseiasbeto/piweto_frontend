@@ -4,7 +4,7 @@ import Container from '@/use-cases/marketplace/components/ui/Container.vue'
 </script>
 
 <template>
-    <footer class="w-full bg-white mt-20">
+    <footer class="w-full bg-white mt-4 lg:mt-20">
         <Container>
             <div class="px-6 xl:px-0 md:px-4 border-t border-neutral-200 pt-14 pb-20">
 

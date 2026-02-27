@@ -82,10 +82,10 @@ function onImageLoad(event) {
 </script>
 
 <template>
-    <div :class="{'pointer-events-none opacity-60' : props.isTicket && isEventOver}" class="bg-white overflow-hidden transition-all rounded-[15px] mb-3.5">
+    <div :class="{'pointer-events-none opacity-60' : props.isTicket && isEventOver}" 
+        class="bg-white overflow-hidden transition-all rounded-[15px] mb-3.5">
         <a :href="'/evento/' + props.event.slug">
             <div class="lg:h-[125px] h-[104px] overflow-hidden rounded-b-[15px]"
-            :class="isBigCover ? 'lg:h-[285px]': 'lg:h-[150px]'"
             >
                 <img class="w-full h-full object-cover lazy-image" 
                 @load="onImageLoad" 

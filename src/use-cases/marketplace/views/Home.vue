@@ -67,14 +67,17 @@ onMounted(async () => {
         <HeaderCategories/>
         
 
-        <div class="lg:mb-6" v-if="!loadingNewEvents && newEvents.length">
-            <CarosselEvents :events="newEvents" />
+        <div class="lg:mb-6">
+            <CarosselEvents :loading="loadingNewEvents" :events="newEvents" />
         </div>
+
         <div v-if="!newEvents.length" class="mt-8"></div>
 
-        <div class="w-full px-4 mt-8" v-if="!loadingGlobal && topViewedEvents.length">
+        <div class="w-full px-4 mt-2.5 lg:mt-8">
             <ListEvents 
-                title="Eventos nos principais estados" :error="errorTopViewed" :loading="loadingTopViewed"
+                title="Eventos nos principais estados" 
+                :error="errorTopViewed" 
+                :loading="loadingTopViewed"
                 @onloadmore="TopViewedLoadMore()" 
                 :btn-loading-more="topViewedEventsloadingLoadMore"
                 :metadata="topViewedEventsMetadata" 
@@ -82,9 +85,7 @@ onMounted(async () => {
             />
         </div>
     </div>
-    <div v-if="loadingGlobal" class="flex justify-center items-center h-[500px]">
-        <Spinner />
-    </div>
+
     <!--start for organizers-->
     <ForOrganizers />
     <!--end for organizers-->
