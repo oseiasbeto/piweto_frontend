@@ -23,7 +23,7 @@ const sidebar = computed(() => {
 <template>
     <div class="relative min-h-screen bg-white">
         <!--start navbar-->
-        <Navbar v-if="route.name !== 'Cart' && route.name !== 'Order'" />
+        <Navbar :fixed="false" v-if="route.name !== 'Cart' && route.name !== 'Order'" />
         <NavbarCheckout v-else />
         <!--end navbar-->
 

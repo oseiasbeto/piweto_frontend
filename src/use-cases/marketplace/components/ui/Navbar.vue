@@ -9,6 +9,13 @@ import UserTriggerDropdown from "./UserTriggerDropdown.vue";
 
 const hasScroll = ref(false);
 
+defineProps({
+    fixed: {
+        type: Boolean,
+        default: true
+    }
+})
+
 const store = useStore()
 const router = useRouter()
 const route = useRoute()
@@ -42,7 +49,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="sticky top-0 z-[90]">
+    <div class="top-0 z-[90]" :class="{ 'sticky': fixed }">
         <div :class="[
             'px-4 xl:px-0 relative backdrop-blur-md bg-white/[0.92] h-[56px] transition-all duration-200',
             hasScroll ? 'shadow-[0_.5px_rgb(0,0,0,0.16)]' : 'shadow-none'

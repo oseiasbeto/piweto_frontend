@@ -26,7 +26,7 @@
 
                                             <p>{{ formatDate(event.starts_at.date) }} às {{
                                                 formatTime(event.starts_at.hm)
-                                            }}
+                                                }}
                                                 > {{
                                                     formatDate(event.ends_at.date) }} às {{ formatTime(event.ends_at.hm) }}
                                             </p>
@@ -78,7 +78,7 @@
                                 </div> -->
 
                                 <hr class="border-[rgba(0,0,0,.12)]" />
-                                
+
                                 <div class="p-4 lg:p-4 xl:p-0 mt-4">
                                     <div class="mb-3">
                                         <h3 class="text-black-text font-bold mb-3 text-xl lg:text-[20px]">Local</h3>
@@ -587,6 +587,23 @@ function removeCoupon() {
     })
 }
 
+let cleverContainer = null;
+
+const injectCleverScript = () => {
+    const script = document.createElement("script");
+    script.id = "clever-core";
+    script.setAttribute("data-cfasync", "true");
+    script.type = "text/javascript";
+    script.src = "https://scripts.cleverwebserver.com/2881999dd0432b611c83cc80f626c3d1.js";
+    script.async = true;
+    script.setAttribute("data-target", window.name || null);
+    script.setAttribute("data-callback", "put-your-callback-function-here");
+    script.setAttribute("data-callback-url-click", "put-your-click-macro-here");
+    script.setAttribute("data-callback-url-view", "put-your-view-macro-here");
+
+    cleverContainer.appendChild(script);
+}
+
 onMounted(async () => {
     if (!event.value?.slug || event.value?.slug !== route.params.slug) {
         await getEvent(route.params.slug).then(async () => {
@@ -596,7 +613,15 @@ onMounted(async () => {
                 page: 1,
                 visibility: 'public',
                 limit: 10
-            });
+            })
+
+            cleverContainer = document.querySelector(".clever-core-ads");
+
+            if (cleverContainer) {
+                setTimeout(() => {
+                    injectCleverScript();
+                }, 5000);
+            }
         })
     } else {
         loadingEvent.value = false
