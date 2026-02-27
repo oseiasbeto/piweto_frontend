@@ -5,8 +5,11 @@
 html,
 body {
     overscroll-behavior-y: contain;
-    touch-action: pan-x pan-y;
     font-family: "Inter", sans-serif;
+}
+
+button, a, input {
+    user-select: none !important;
 }
 
 .fade-enter-active,

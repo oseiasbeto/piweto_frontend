@@ -99,7 +99,7 @@ onMounted(() => {
                         640: {
                             perPage: 1,
                             gap: '1rem',
-                            padding: { left: '1.25rem', right: '1.25rem' }
+                            padding: { left: '1rem', right: '1rem' },
                         }
                     }
                 }">
