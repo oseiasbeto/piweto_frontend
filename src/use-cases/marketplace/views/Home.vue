@@ -73,7 +73,7 @@ onMounted(async () => {
 
         <div v-if="!newEvents.length" class="mt-8"></div>
 
-        <div class="w-full px-4 mt-2.5 lg:mt-8">
+        <div class="w-full px-6 lg:px-4 mt-2.5 lg:mt-8">
             <ListEvents 
                 title="Eventos nos principais estados" 
                 :error="errorTopViewed" 

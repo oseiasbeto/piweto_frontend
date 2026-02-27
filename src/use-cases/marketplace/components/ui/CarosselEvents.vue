@@ -1,11 +1,12 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { Splide, SplideSlide } from '@splidejs/vue-splide';
+import EventCardSkeleton from "./EventCardSkeleton.vue";
+
 import '@splidejs/splide/dist/css/splide.min.css';
 
 import EventCard from "./EventCard.vue";
 import Container from "./Container.vue";
-import EventCardSkeleton from "./EventCardSkeleton.vue";
 
 const props = defineProps({
     title: {
@@ -35,17 +36,11 @@ const goNext = () => {
 };
 
 onMounted(() => {
-    const splide = splideRef?.value?.splide || null;
-
-    if (!splide) return;
-
-    const updateState = () => {
-        isAtStart.value = splide.index === 0;
-        isAtEnd.value =
-            splide.index >= splide.length - splide.options.perPage;
-    };
-
-    splide.on("mounted moved", updateState);
+    const splide = splideRef.value.splide
+    splide.on('moved', () => {
+        isAtStart.value = splide.index === 0 ? true : false;
+        isAtEnd.value = splide.index === splide.length - splide.options.perPage;
+    });
 })
 </script>
 
@@ -55,7 +50,7 @@ onMounted(() => {
 
         <!-- start body carossel area-->
         <Container>
-            <section :id="title" v-if="loading || events?.length" class="w-full mt-2 lg:mt-7">
+            <section v-if="loading || events?.length" class="w-full mt-2 lg:mt-7">
                 <!-- Arrows Personalizados -->
                 <button v-if="!loading" @click="goPrev" class="absolute left-0 top-1/2 -translate-y-1/2 z-10 
                        bg-white shadow-md hover:shadow-lg
@@ -78,39 +73,49 @@ onMounted(() => {
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                     </svg>
                 </button>
-
-                <Splide v-if="loading || events.length" ref="splideRef" :options="{
+                <Splide :key="loading" ref="splideRef" :options="{
                     type: 'loop',
                     perPage: 4,
                     arrows: false,
                     pagination: false,
+                    padding: { left: '1.5rem', right: '1.5rem' },
                     gap: '1.5rem',
-                    autoplay: loading ? false : true, //
-                    interval: 3000, // Intervalo de 3 segundos entre os slides
-                    pauseOnHover: true, // Pausa o autoplay ao passar o mouse
-                    drag: true,
-
+                    autoplay: !loading,
+                    interval: 3000,
+                    pauseOnHover: true,
+                    drag: !loading,
+                    swipe: !loading,
                     breakpoints: {
                         1024: {
                             perPage: 4,
-                            perMove: 1,
+                            gap: '1rem',
+                            padding: { left: '1.5rem', right: '1.5rem' }
+                        },
+                        768: {
+                            perPage: 2,
                             gap: '1rem',
                             padding: { left: '1.5rem', right: '1.5rem' }
                         },
                         640: {
                             perPage: 1,
-                            perMove: 1,
                             gap: '1rem',
                             padding: { left: '1.25rem', right: '1.25rem' }
                         }
                     }
                 }">
-                    <SplideSlide v-if="!loading" v-for="event in props.events" :key="event._id">
-                        <event-card :isBigCover="false" :event="event" />
-                    </SplideSlide>
-                    <SplideSlide v-else v-for="n in 4" :key="n">
-                        <event-card-skeleton />
-                    </SplideSlide>
+                    <!-- Quando estiver carregando -->
+                    <template v-if="loading">
+                        <SplideSlide v-for="n in 4" :key="'skeleton-' + n">
+                            <EventCardSkeleton />
+                        </SplideSlide>
+                    </template>
+
+                    <!-- Quando já tiver dados -->
+                    <template v-else>
+                        <SplideSlide v-for="event in events" :key="event._id">
+                            <EventCard :isBigCover="false" :event="event" />
+                        </SplideSlide>
+                    </template>
                 </Splide>
             </section>
         </Container>
