@@ -78,7 +78,7 @@ onMounted(() => {
                     perPage: 4,
                     arrows: false,
                     pagination: false,
-                    padding: { left: '1.5rem', right: '1.5rem' },
+                    padding: { left: '1rem', right: '1rem' },
                     gap: '1.5rem',
                     autoplay: !loading,
                     interval: 3000,
