@@ -69,7 +69,7 @@ onMounted(() => {
             :class="{ '!mt-7': props.title }">
             <Container>
                 <!-- Arrows Personalizados -->
-                <button v-if="!loading" @click="goPrev" class="absolute left-0 top-1/2 -translate-y-1/2 z-10 
+                <button v-if="!loading" @click="goPrev" class="absolute left-0 top-[71%] -translate-y-1/2 z-10 
                        bg-white shadow-md hover:shadow-lg
                        w-10 h-10 hidden lg:flex items-center justify-center
                        rounded-full transition">
@@ -80,7 +80,7 @@ onMounted(() => {
                     </svg>
                 </button>
 
-                <button v-if="!loading" @click="goNext" class="absolute right-0 top-1/2 -translate-y-1/2 z-10 
+                <button v-if="!loading" @click="goNext" class="absolute right-0 top-[71%] -translate-y-1/2 z-10 
                        bg-white shadow-md hover:shadow-lg
                        w-10 h-10 hidden lg:flex items-center justify-center
                        rounded-full transition">

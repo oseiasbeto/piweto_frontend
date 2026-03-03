@@ -6,7 +6,7 @@
   <div class="bg-white overflow-hidden rounded-[15px] mb-3.5 animate-pulse">
 
     <!-- Image Skeleton -->
-    <div class="lg:h-[125px] h-[104px] w-full bg-black/[.12] rounded-b-[15px]"></div>
+    <div class="lg:h-[375px] h-[300px] w-full bg-black/[.12] rounded-b-[15px]"></div>
 
     <!-- Content -->
     <div class="py-3 px-0 md:px-3 flex flex-col gap-3">

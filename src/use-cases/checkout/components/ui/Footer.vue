@@ -7,7 +7,7 @@ const route = useRoute()
 </script>
 
 <template>
-    <div class="bg-[rgb(221,224,228)] text-[rgb(132,140,155)] w-full p-6">
+    <div class="bg-[rgb(0,0,0,.08)] text-[rgb(0,0,0,.60)] w-full p-6">
         <Container>
             <div :class="{ 'pb-[72px] lg:pb-0': route.name === 'Cart' }">
                 <div class="mb-4">

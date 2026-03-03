@@ -7,7 +7,7 @@ import DetailsEvent from "./views/DetailsEvent.vue";
 import Footer from "./components/ui/Footer.vue";
 import { useStore } from "vuex";
 import Modal from "./components/ui/Modal.vue";
-import Navbar from "../marketplace/components/ui/Navbar.vue";
+import Navbar from "./components/ui/Navbar.vue";
 import Sidebar from "../marketplace/components/ui/Sidebar.vue";
 import NavbarCheckout from "./components/ui/NavbarCheckout.vue";
 

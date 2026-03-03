@@ -640,7 +640,7 @@ onMounted(async () => {
                                             <div class="shrink-0">
                                                 <input id="reference" v-model="form.paymentMethod" class="appearance-none rounded-full w-4 h-4 border-2 border-gray-400 
                           transition-all duration-200 ease-linear mt-0.5
-                          checked:border-[5px] checked:border-[#0097ff] !important" type="radio"
+                          checked:border-[5px] checked:border-black !important" type="radio"
                                                     value="reference"></input>
                                             </div>
                                             <div>
@@ -675,7 +675,7 @@ onMounted(async () => {
                                             <div class="shrink-0">
                                                 <input id="mul" v-model="form.paymentMethod" class="appearance-none rounded-full w-4 h-4 border-2 border-gray-400 
                           transition-all duration-200 ease-linear mt-0.5
-                          checked:border-[5px] checked:border-[#0097ff] !important" type="radio" value="mul"></input>
+                          checked:border-[5px] checked:border-black !important" type="radio" value="mul"></input>
                                             </div>
                                             <div>
                                                 <svg class="w-[100px] mb-1" xmlns="http://www.w3.org/2000/svg"
@@ -741,7 +741,7 @@ onMounted(async () => {
                                             <div class="shrink-0">
                                                 <input id="paypay" class="appearance-none rounded-full w-4 h-4 border-2 border-gray-400 
                           transition-all duration-200 ease-linear mt-0.5
-                          checked:border-[5px] checked:border-[#0097ff] !important" v-model="form.paymentMethod"
+                          checked:border-[5px] checked:border-black !important" v-model="form.paymentMethod"
                                                     type="radio" value="paypay"></input>
                                             </div>
                                             <div>

@@ -11,7 +11,7 @@
       @wheel.prevent
       @touchmove.prevent
     >
-      <div class="h-8 w-8 animate-spin rounded-full border-[#0097ff] border-b-2"></div>
+      <div class="h-8 w-8 animate-spin rounded-full border-brand-primary border-b-2"></div>
     </div>
   </transition>
 </template>

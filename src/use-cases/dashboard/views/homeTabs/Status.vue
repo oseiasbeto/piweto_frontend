@@ -1,6 +1,6 @@
 <script setup>
 import { useStore } from "vuex";
-import { onMounted, computed, ref } from "vue";
+import { computed, ref } from "vue";
 import formatCount from "@/utils/formatCount";
 import { toast } from "vue3-toastify"
 import QrcodeVue from "qrcode.vue";
