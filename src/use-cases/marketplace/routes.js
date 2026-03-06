@@ -74,7 +74,7 @@ export default [
         path: '/conta/login',
         meta: {
             routeAuth: true,
-            rootPage: 'marketplace',
+            rootPage: 'auth',
             title: 'Piweto | Login'
         },
         component: () => import('./Layout.vue')
@@ -84,7 +84,7 @@ export default [
         path: '/conta/registrar-se',
         meta: {
             routeAuth: true,
-            rootPage: 'marketplace',
+            rootPage: 'auth',
             title: 'Piweto | Registrar-se'
         },
         component: () => import('./Layout.vue')
@@ -94,7 +94,7 @@ export default [
         path: '/conta/esqueci-a-senha',
         meta: {
             requiresAuth: false,
-            rootPage: 'marketplace',
+            rootPage: 'auth',
             title: 'Piweto | Esqueci a palavra-passe'
         },
         component: () => import('./Layout.vue')
@@ -104,7 +104,7 @@ export default [
         path: '/conta/redefinir-senha',
         meta: {
             requiresAuth: false,
-            rootPage: 'marketplace',
+            rootPage: 'auth',
             title: 'Piweto | Redefinir a palavra-passe'
         },
         component: () => import('./Layout.vue')
@@ -114,7 +114,7 @@ export default [
         path: '/conta/verificar-email',
         meta: {
             requiresAuth: true,
-            rootPage: 'marketplace',
+            rootPage: 'auth',
             title: 'Piweto | Verificar email'
         },
         component: () => import('./Layout.vue')

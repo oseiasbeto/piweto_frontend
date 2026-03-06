@@ -33,7 +33,7 @@ const sidebar = computed(() => {
 <template>
     <div class="relative">
         <!--start navbar-->
-        <Navbar />
+        <Navbar v-show="route.meta?.rootPage !== 'auth'" />
         <!--end navbar-->
 
         <!--start views marketplace-->
@@ -63,7 +63,7 @@ const sidebar = computed(() => {
             <Sidebar :isView="sidebar.show" />
 
             <!--start footer-->
-            <Footer/>
+            <Footer v-show="route.meta?.rootPage !== 'auth'"/>
             <!--end footer-->
         </div>
         <!--end views marketplace-->

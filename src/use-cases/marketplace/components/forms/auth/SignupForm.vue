@@ -4,7 +4,7 @@ import { toast } from "vue3-toastify"
 import { useStore } from "vuex";
 import BtnSpinner from "../../spinners/BtnSpinner.vue";
 import { useUsers } from "../../../../../repositories/users-repository";
-import intlTelInput from 'intl-tel-input';
+import Input from "../../ui/Input.vue";
 import { useRoute, useRouter } from "vue-router";
 
 const { register, loading } = useUsers()
@@ -19,8 +19,6 @@ const form = ref({
     viewPassword: false,
     strength: "Fraca"
 })
-
-const intl = ref({})
 
 const store = useStore()
 const router = useRouter()
@@ -96,12 +94,7 @@ function validatePhone() {
         errors.value.phone.show = true
         errors.value.phone.message = "Este campo é obrigatório."
     }
-    else if (!intl.value.isValidNumber()) {
-        errors.value.phone = {
-            show: true,
-            message: "Por favor, digite um número de telefone válido."
-        }
-    } else if (/[^\d\s]/.test(form.value.phone)) {
+    else if (/[^\d\s]/.test(form.value.phone)) {
         errors.value.phone = {
             show: true,
             message: "O número de telefone só pode conter dígitos."
@@ -224,21 +217,14 @@ const resetForm = () => {
     }
 }
 
-onMounted(async () => {
-    const input = document.querySelector("#phone");
-    intl.value = intlTelInput(input, {
-        loadUtilsOnInit: () => import("intl-tel-input/utils"),
-        initialCountry: "ao",
-        onlyCountries: ["ao"]
-    });
-})
-
 </script>
 
 <template>
     <div class="w-auto">
         <div class="flex items-center mb-8 justify-center">
-            <h1 class="font-bold text-gray-800 text-center text-xl">Registrar-se</h1>
+            <h1 class="font-medium text-black text-center text-xl">
+                Criar conta Piweto
+            </h1>
         </div>
         <div class="flex flex-col mt-4 mb-4">
             <label class="text-xs text-gray-500 mb-2 font-bold" for="firstName">Primeiro nome <span

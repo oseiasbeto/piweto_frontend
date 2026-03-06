@@ -10,7 +10,7 @@ const onSended = () => {
 </script>
 
 <template>
-    <div class="lg:w-80 p-4 bg-white lg:shadow-lg my-6 lg:my-12 mx-auto">
+    <div class="lg:w-80 p-4 bg-white my-6 lg:my-12 mx-auto">
         <ForgotPassword v-if="!isSent" @on-sent="onSended()"/>
         <CheckOTPPassword v-else/>
     </div>

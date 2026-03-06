@@ -67,7 +67,7 @@ onUnmounted(() => {
             <div class="w-full h-full max-w-[1000px] mx-auto">
                 <div class="flex h-full px-4 lg:px-0 lg:mx-auto items-center justify-between">
                     <div class="flex items-center gap-5">
-                        <Logo size="w-[84px] ml-[-4px] lg:ml-0 lg:w-[100px]" />
+                        <Logo size="w-[84px] ml-[-4px] lg:ml-[-4px] lg:w-[100px]" />
                     </div>
                     <div class="flex gap-3 items-center">
                          <button @click="copyLink(`https://piweto.it.ao/evento/${route.params?.slug}`)"

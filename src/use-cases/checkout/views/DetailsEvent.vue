@@ -15,10 +15,10 @@
                                             class="font-bold text-3xl lg:text-[30px] text-black mt-2 mb-4 line-clamp-2 break-words leading-8 lg:leading-[40px] tracking-[-0.05rem]">
                                             {{ event?.name }}</h1>
                                         <div class="flex text-sm lg:text-base mb-2 gap-2 text-black">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            <svg class="shrink-0 w-4 h-4 h:w-6 lg:h-6" xmlns="http://www.w3.org/2000/svg" 
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                                                 stroke-linecap="round" stroke-linejoin="round"
-                                                class="lucide lucide-calendar-check-icon">
+                                                >
                                                 <path d="M8 2v4"></path>
                                                 <path d="M16 2v4"></path>
                                                 <rect width="18" height="18" x="3" y="4" rx="2"></rect>
@@ -34,10 +34,9 @@
                                             </p>
                                         </div>
                                         <div class="flex items-center text-sm lg:text-base gap-2 text-black">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0 lg:w-6 lg:h-6"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                                                stroke-linecap="round" stroke-linejoin="round"
-                                                class="lucide lucide-map-pinned-icon">
+                                                stroke-linecap="round" stroke-linejoin="round">
                                                 <path
                                                     d="M18 8c0 3.613-3.869 7.429-5.393 8.795a1 1 0 0 1-1.214 0C9.87 15.429 6 11.613 6 8a6 6 0 0 1 12 0">
                                                 </path>
@@ -68,7 +67,7 @@
                                     id="cart"
                                         class="border border-[rgba(0,0,0,.16)] rounded-[12px] flex-1 bg-white overflow-hidden lg:block select-none">
                                         <div
-                                            class="bg-black text-white flex rounded-t-xl justify-between p-3 text-base font-semibold leading-6">
+                                            class="bg-[#111] text-white flex rounded-t-xl justify-between p-3 text-base font-semibold leading-6">
                                             <span>Ingressos</span>
 
                                         </div>
@@ -164,7 +163,7 @@
                                                 <div class="mb-4">
                                                     <button v-if="!showCouponInput"
                                                         @click="showCouponInput = !showCouponInput"
-                                                        class="flex border border-[rgba(0,0,0,.16)] hover:border-black transition-colors border-dashed w-full justify-center items-center text-sm gap-2 py-2.5 px-3 text-black">
+                                                        class="flex border border-[rgba(0,0,0,.16)] hover:border-black hover:text-black transition-colors border-dashed w-full justify-center items-center text-sm gap-2 py-2.5 px-3 text-[rgb(0,0,0,.65)]">
                                                         <span>Inserir código promocional</span>
                                                     </button>
                                                     <div class="flex relative gap-3 items-center justify-between"
@@ -201,7 +200,7 @@
                                                 </div>
 
                                                 <button style="letter-spacing: 0.5px;"
-                                                    class="bg-[rgb(23,178,106)] hover:bg-[rgb(7,148,85)] transition-colors relative overflow-hidden h-[48px] rounded-[8px] disabled:bg-[rgba(0,0,0,0.08)] disabled:text-[rgb(0,0,0,.60)] disabled:cursor-default w-full font-semibold text-[14px] py-2.5 px-3 text-[#fff] mb-1"
+                                                    class="bg-[rgb(23,178,106)] hover:bg-[rgb(7,148,85)] transition-colors relative overflow-hidden h-[48px] rounded-[8px] disabled:bg-[rgba(0,0,0,0.08)] disabled:text-[rgb(0,0,0,.45)] disabled:cursor-default w-full font-semibold text-[14px] py-2.5 px-3 text-[#fff] mb-1"
                                                     :class="{ 'pointer-events-none cursor-default': loadingCart }"
                                                     @click="sendToCart" :disabled="isEventOver || amount == 0">
                                                     <span v-if="!loadingCart">{{ amount == 0 ? 'Selecione um Ingresso' :
@@ -223,9 +222,41 @@
                                                 </button>
                                             </div>
                                         </div>
-                                        <div v-else class="flex justify-center items-center py-5">
-                                            <BtnSpinner />
-                                        </div>
+                                        <div v-else>
+                                        <div class="max-h-[345px] overflow-y-auto animate-pulse">
+                                     <ul>
+            <li v-for="i in 4" :key="i"
+                class="border-b border-[rgba(0,0,0,.16)] py-3 px-4">
+                
+                <div class="flex justify-between items-center">
+                    <div class="flex-1 space-y-2">
+                        <div class="h-4 w-32 bg-black/[.12]  rounded"></div>
+                        <div class="h-3 w-20 bg-black/[.12]  rounded"></div>
+                        <div class="h-3 w-40 bg-black/[.12]  rounded"></div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <div class="w-[32px] h-[32px] bg-black/[.12]  rounded-[8px]"></div>
+                        <div class="w-[20px] h-4 bg-black/[.12]  rounded"></div>
+                        <div class="w-[32px] h-[32px] bg-black/[.12]  rounded-[8px]"></div>
+                    </div>
+                </div>
+
+            </li>
+        </ul>
+    </div>
+
+    <div class="p-4 animate-pulse">
+        <div class="flex justify-between mb-3">
+            <div class="h-4 w-16 bg-black/[.12]  rounded"></div>
+            <div class="h-4 w-24 bg-black/[.12]  rounded"></div>
+        </div>
+
+        <div class="h-10 w-full bg-black/[.12]  rounded mb-4"></div>
+
+        <div class="h-[48px] w-full bg-black/[.12]  rounded-[8px]"></div>
+    </div>
+</div>
                                     </div>
                                     <!--end start-->
 
