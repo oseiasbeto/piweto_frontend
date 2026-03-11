@@ -16,6 +16,7 @@ import AddBankAccount from "../forms/finance/AddBankAccount.vue"
 import CreatePayout from "../forms/finance/CreatePayout.vue"
 import StaffForm from "../forms/staffs/StaffForm.vue"
 import PartakerInfo from "../forms/partakers/partakerInfo.vue"
+import QRCodeValidate from "../forms/partakers/QRCodeValidate.vue"
 
 // importe as referências necessários para o bom funcionamento deste componente.
 const store = useStore()
@@ -55,6 +56,7 @@ const close = (name) => {
                                 <AddBankAccount @onclose="close(modal.name)" v-if="modal.name == 'add-bank-account'" />
                                 <PartakerInfo :partaker-data="modal.data.partakerData || {}" :partaker-index="modal.data.partakerIndex" @onclose="close(modal.name)" v-if="modal.name == 'partaker-info'" />
                                 <CreatePayout @onclose="close(modal.name)" v-if="modal.name == 'create-payout'" />
+                                <QRCodeValidate :partaker-data="modal.data.partakerData || {}" @onclose="close(modal.name)" v-if="modal.name == 'qr-code-validate'" />
                                 <MyAccount @onclose="close(modal.name)" v-if="modal.name == 'my-account'" />
                                 <ForgotPassword @onclose="close(modal.name)" v-if="modal.name == 'forgot-password'"/>
                                 <StaffForm @onclose="close(modal.name)" v-if="modal.name == 'staff-form'"/>

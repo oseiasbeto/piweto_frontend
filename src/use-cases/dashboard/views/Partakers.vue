@@ -18,9 +18,9 @@
                             </select>
                         </div>
 
-                        <button @click="generatePDF" :disabled="loadingPartakers || !partakers?.data?.length"
+                        <button @click="openQRCodeValidate()" :disabled="loadingPartakers || !partakers?.data?.length"
                             class="px-4 py-2 text-sm font-medium text-white bg-brand-primary border border-transparent w-full rounded-md focus:outline-none focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-                            Gerar Lista em PDF
+                            Realizar check-in
                         </button>
                     </div>
                 </div>
@@ -205,6 +205,16 @@ const openPartakerInfo = (partaker, index) => {
         data: {
             partakerData: partaker,
             partakerIndex: index,
+        }
+    });
+};
+
+const openQRCodeValidate = () => {
+    store.dispatch("setModal", {
+        show: true,
+        name: "qr-code-validate",
+        data: {
+            // Você pode passar dados específicos do partaker aqui, se necessário
         }
     });
 };

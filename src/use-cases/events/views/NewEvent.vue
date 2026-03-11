@@ -11,6 +11,10 @@ import { useRouter, useRoute } from "vue-router";
 import 'vue-multiselect/dist/vue-multiselect.css';
 import { useEvents } from "@/repositories/events-repository";
 import Multiselect from 'vue-multiselect'
+import { toast } from "vue3-toastify"
+import { v4 as uuidv4 } from 'uuid';
+import axios from 'axios';
+import CryptoJS from 'crypto-js';
 
 const store = useStore()
 const categories = ref([
@@ -39,6 +43,20 @@ loadingEvent.value = false
 const startsTimePickerRef = ref(null);
 const endsTimePickerRef = ref(null);
 
+// Constantes do Cloudinary
+const CLOUD_NAME = 'daujoblcc';
+const UPLOAD_PRESET = 'social_media_upload';
+const API_KEY = '686559434489718';
+const API_SECRET = 'oAYl12OIZf2HkieFNDQQk2romHM';
+
+// Refs para upload
+const mediaPreviews = ref([]);
+const uploadProgress = ref({});
+const cancelTokens = ref({});
+const selectFileLoading = ref(false);
+const uploadedMediaIds = ref([]);
+const mediaContainer = ref(null);
+
 const router = useRouter()
 const route = useRoute()
 
@@ -60,8 +78,6 @@ function calcularValorComTaxa(valor) {
     const valorComTaxa = valor * (1 - taxa);
     return parseFloat(valorComTaxa.toFixed(2));
 }
-
-
 
 // define as nomeclaturas dos ingressos.
 const nameclatures = ref([
@@ -161,6 +177,27 @@ const disabledEndsDate = computed(() => {
     const today = new Date(form.value.starts_at.date ?? new Date());
     today.setHours(0, 0, 0, 0); // Zera as horas para garantir que apenas a data seja comparada
     return (date) => date < today; // Retorna true para datas passadas
+});
+
+// Computed properties para upload
+const isUploading = computed(() => {
+    return Object.values(uploadProgress.value).some(progress => progress < 100);
+});
+
+const uploadProgressPercentage = computed(() => {
+    const progresses = Object.values(uploadProgress.value);
+    if (progresses.length === 0) return 0;
+    const totalProgress = progresses.reduce((sum, progress) => sum + progress, 0);
+    return Math.round(totalProgress / progresses.length);
+});
+
+const dashArrayUploadProgress = computed(() => {
+    const circumference = 2 * Math.PI * 12.5;
+    if (isUploading.value) {
+        const dash = (uploadProgressPercentage.value / 100) * circumference;
+        return `${dash} ${circumference - dash}`;
+    }
+    return `0 ${circumference}`;
 });
 
 // Esta função computada tem como finalidade retornar o tipo do evento a ser criado.
@@ -266,6 +303,115 @@ function validateForm() {
     }
 }
 
+// Funções do Cloudinary
+const deleteMediaFromCloudinary = async (publicId, resourceType = 'image') => {
+    try {
+        const timestamp = Math.round(new Date().getTime() / 1000);
+        const signatureString = `public_id=${publicId}&timestamp=${timestamp}${API_SECRET}`;
+        const signature = CryptoJS.SHA1(signatureString).toString();
+
+        await axios.post(
+            `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/destroy`,
+            {
+                public_id: publicId,
+                api_key: API_KEY,
+                timestamp: timestamp,
+                signature: signature,
+            }
+        );
+        uploadedMediaIds.value = uploadedMediaIds.value.filter(id => id !== publicId);
+    } catch (error) {
+        console.error('Erro ao excluir mídia do Cloudinary:', error);
+    }
+};
+
+const uploadMedia = async (media) => {
+    const source = axios.CancelToken.source();
+    cancelTokens.value[media.id] = source;
+
+    try {
+        const formData = new FormData();
+        formData.append('file', media.file);
+        formData.append('upload_preset', UPLOAD_PRESET);
+        formData.append('cloud_name', CLOUD_NAME);
+        formData.append('folder', 'event_covers');
+
+        const response = await axios.post(
+            `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`,
+            formData,
+            {
+                cancelToken: source.token,
+                onUploadProgress: (progressEvent) => {
+                    const progress = Math.round(
+                        (progressEvent.loaded * 100) / progressEvent.total
+                    );
+                    uploadProgress.value = {
+                        ...uploadProgress.value,
+                        [media.id]: progress
+                    };
+                },
+            }
+        );
+
+        delete cancelTokens.value[media.id];
+
+        if (!response.data) {
+            const newProgress = { ...uploadProgress.value };
+            delete newProgress[media.id];
+            uploadProgress.value = newProgress;
+            return null;
+        }
+
+        media.public_id = response.data.public_id;
+        uploadedMediaIds.value.push(response.data.public_id);
+
+        const newProgress = { ...uploadProgress.value };
+        delete newProgress[media.id];
+        uploadProgress.value = newProgress;
+
+        return {
+            public_id: response.data.public_id,
+            url: `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,q_80,w_1200/${response.data.public_id}`,
+            type: 'image',
+            format: response.data.format,
+            width: response.data.width,
+            height: response.data.height,
+        };
+    } catch (err) {
+        if (axios.isCancel(err)) {
+            const newProgress = { ...uploadProgress.value };
+            delete newProgress[media.id];
+            uploadProgress.value = newProgress;
+            return null;
+        } else {
+            const newProgress = { ...uploadProgress.value };
+            delete newProgress[media.id];
+            uploadProgress.value = newProgress;
+            throw err;
+        }
+    }
+};
+
+const removeMedia = async (index) => {
+    const media = mediaPreviews.value[index];
+
+    if (uploadProgress.value[media.id] !== undefined && cancelTokens.value[media.id]) {
+        cancelTokens.value[media.id].cancel('Upload cancelado pelo usuário');
+        delete cancelTokens.value[media.id];
+    }
+
+    mediaPreviews.value.splice(index, 1);
+
+    const newProgress = { ...uploadProgress.value };
+    delete newProgress[media.id];
+    uploadProgress.value = newProgress;
+
+    if (media.public_id) {
+        await deleteMediaFromCloudinary(media.public_id, 'image');
+    }
+
+    form.value.file = null;
+};
 
 // Esta função tem como finalidade realizar um drop da imagem.
 function dropCover(e) {
@@ -347,16 +493,67 @@ function selectCover(e) {
 }
 
 // Esta função tem como finalidade validar a imagem selecionada.
+// Função de validação da imagem
 function validateCover(file) {
-    const allowedTypes = ['image/jpg',
-        'image/png',
-        'image/jpeg'];
+    const allowedTypes = ['image/jpg', 'image/png', 'image/jpeg'];
     const MAX_SIZE = 5 * 1024 * 1024;
     const sizeOk = file.size < MAX_SIZE;
-    const typeOk = allowedTypes.includes(file.type)
+    const typeOk = allowedTypes.includes(file.type);
 
     if (typeOk && sizeOk) {
-        form.value.file = file;
+        selectFileLoading.value = true;
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const id = uuidv4();
+            const media = {
+                id,
+                url: e.target.result,
+                type: 'image',
+                format: file.type.split('/')[1],
+                file
+            };
+
+            mediaPreviews.value = [media];
+            uploadProgress.value[id] = 0;
+
+            try {
+                const uploadedMedia = await uploadMedia(media);
+                if (uploadedMedia) {
+                    mediaPreviews.value[0] = {
+                        ...mediaPreviews.value[0],
+                        ...uploadedMedia
+                    };
+                    // Armazena apenas o objeto da mídia completa, não apenas o file
+                    form.value.file = mediaPreviews.value[0];
+                }
+            } catch (err) {
+                Swal.fire({
+                    title: "Erro!",
+                    text: err.message || 'Erro ao fazer upload da imagem. Tente novamente.',
+                    icon: 'error'
+                });
+                mediaPreviews.value = [];
+                form.value.file = null;
+                
+                // LIMPA O VALOR DO INPUT FILE - SOLUÇÃO PARA O PROBLEMA
+                if (dropzoneRef.value) {
+                    dropzoneRef.value.clearInput();
+                }
+            } finally {
+                selectFileLoading.value = false;
+            }
+        };
+        reader.onerror = () => {
+            Swal.fire({
+                title: "Erro!",
+                text: 'Erro ao carregar a imagem. Tente novamente.',
+                icon: 'error'
+            });
+            selectFileLoading.value = false;
+            form.value.file = null;
+        };
+        reader.readAsDataURL(file);
     } else {
         form.value.file = null
         if (typeOk && !sizeOk) {
@@ -375,9 +572,60 @@ function validateCover(file) {
     }
 }
 
+const cancelUpload = () => {
+    // Encontra a mídia que está em upload
+    const uploadingMedia = mediaPreviews.value.find(media => uploadProgress.value[media.id] !== undefined);
+
+    if (uploadingMedia && cancelTokens.value[uploadingMedia.id]) {
+        // Cancela o upload
+        cancelTokens.value[uploadingMedia.id].cancel('Upload cancelado pelo usuário');
+
+        // Remove o token
+        delete cancelTokens.value[uploadingMedia.id];
+
+        // Remove o progresso
+        const newProgress = { ...uploadProgress.value };
+        delete newProgress[uploadingMedia.id];
+        uploadProgress.value = newProgress;
+
+        // Remove a mídia da prévia
+        const index = mediaPreviews.value.findIndex(m => m.id === uploadingMedia.id);
+        if (index !== -1) {
+            mediaPreviews.value.splice(index, 1);
+        }
+
+        // Reseta o estado de loading
+        selectFileLoading.value = false;
+
+        // Reseta o form.file
+        form.value.file = null;
+
+        // LIMPA O VALOR DO INPUT FILE - SOLUÇÃO PARA O PROBLEMA
+        if (dropzoneRef.value) {
+            dropzoneRef.value.clearInput();
+        }
+
+        toast("O upload da imagem foi cancelado.", {
+            theme: "colored",
+            position: "top-right",
+            autoClose: 2517,
+            type: "info"
+        })
+    }
+};
+
 // Esta função tem como finalidade remover a imagem selecionada.
 function replaceCover() {
-    form.value.file = null
+    if (mediaPreviews.value.length > 0) {
+        removeMedia(0);
+        form.value.file = null;
+    } else {
+        form.value.file = null;
+    }
+    // LIMPA O VALOR DO INPUT FILE - SOLUÇÃO PARA O PROBLEMA
+    if (dropzoneRef.value) {
+        dropzoneRef.value.clearInput();
+    }
 }
 
 function openBatchModal(type) {
@@ -571,22 +819,81 @@ onBeforeUnmount(() => {
                                     class="flex items-center gap-[3px] text-[12px] mb-1 text-gray-600 font-medium required flex-row">
                                     Imagem de divulgação (opcional)</label>
                                 <div class="flex flex-col lg:flex-row items-center gap-4 lg:gap-8 mt-2">
-                                    <div class="w-full md:w-auto">
+                                    <div class="w-full md:w-auto relative">
+                                        <!-- Overlay de loading com barra de progresso e botão cancelar -->
+                                        <div v-if="selectFileLoading"
+                                            class="absolute inset-0 w-full lg:w-[280px] h-[144px] bg-black bg-opacity-50 rounded-lg flex flex-col items-center justify-center z-10">
+                                            <div class="bg-white p-4 rounded-lg shadow-lg w-48">
+                                                <p class="text-sm text-center mb-2 font-medium">Uploading...</p>
+                                                <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                                                    <div class="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                                                        :style="{ width: uploadProgressPercentage + '%' }">
+                                                    </div>
+                                                </div>
+                                                <p class="text-xs text-center text-gray-600">
+                                                    {{ uploadProgressPercentage }}% concluído
+                                                </p>
+
+                                                <!-- Botão Cancelar -->
+                                                <button @click="cancelUpload"
+                                                    class="mt-3 w-full bg-red-500 hover:bg-red-600 text-white text-xs font-medium py-2 px-3 rounded-full transition-colors duration-200 flex items-center justify-center gap-1">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3"
+                                                        viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fill-rule="evenodd"
+                                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                            clip-rule="evenodd" />
+                                                    </svg>
+                                                    Cancelar Upload
+                                                </button>
+                                            </div>
+                                        </div>
+
                                         <DropzoneImage ref="dropzoneRef" @drop.prevent="dropCover" @change="selectCover"
+                                            :class="{ 'opacity-50 pointer-events-none': selectFileLoading }"
                                             v-if="!form.file" />
                                         <PreviewImage v-else :image="form.file" />
                                     </div>
                                     <div class="w-full md:w-auto">
                                         <div class="flex gap-3 mb-3 items-center" v-if="form.file">
                                             <button
-                                                class="border cursor-pointer border-[#0097ff] text-[#0097ff] text-[10px] font-medium  uppercase rounded-full py-[6px] px-3 hover:bg-[#0097ff] hover:border-[#0097ff] hover:text-white"
+                                                class="border cursor-pointer border-[#0097ff] text-[#0097ff] text-[10px] font-medium uppercase rounded-full py-[6px] px-3 hover:bg-[#0097ff] hover:border-[#0097ff] hover:text-white"
+                                                :disabled="selectFileLoading"
+                                                :class="{ 'opacity-50 cursor-not-allowed': selectFileLoading }"
                                                 @click="handleLabelClick">
                                                 Trocar de imagem
                                             </button>
                                             <button
-                                                class="border cursor-pointer border-[#0097ff] text-[#0097ff] text-[10px] font-medium  uppercase rounded-full py-[6px] px-3 hover:bg-[#0097ff] hover:border-[#0097ff] hover:text-white"
+                                                class="border cursor-pointer border-[#0097ff] text-[#0097ff] text-[10px] font-medium uppercase rounded-full py-[6px] px-3 hover:bg-[#0097ff] hover:border-[#0097ff] hover:text-white"
+                                                :disabled="selectFileLoading"
+                                                :class="{ 'opacity-50 cursor-not-allowed': selectFileLoading }"
                                                 @click="replaceCover">Remover</button>
                                         </div>
+
+                                        <!-- Barra de progresso alternativa para quando já tem imagem -->
+                                        <div v-if="selectFileLoading && form.file" class="w-48 mb-3">
+                                            <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                                <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                                    :style="{ width: uploadProgressPercentage + '%' }">
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <p class="text-xs text-gray-600">
+                                                    {{ uploadProgressPercentage }}% - Atualizando...
+                                                </p>
+                                                <!-- Botão Cancelar pequeno -->
+                                                <button @click="cancelUpload"
+                                                    class="text-red-500 hover:text-red-700 text-xs font-medium flex items-center gap-1">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3"
+                                                        viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fill-rule="evenodd"
+                                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                            clip-rule="evenodd" />
+                                                    </svg>
+                                                    Cancelar
+                                                </button>
+                                            </div>
+                                        </div>
+
                                         <p class="text-sm text-gray-500">A dimensão recomendada é de <strong>1600 x
                                                 838</strong><br>(mesma proporção do formato utilizado nas páginas de
                                             evento
@@ -598,6 +905,7 @@ onBeforeUnmount(() => {
                                     </div>
                                 </div>
                             </div>
+
                             <div class="form-group">
                                 <label
                                     class="flex items-center gap-[3px] text-[12px] mb-1 text-gray-600 font-medium required flex-row">
@@ -737,7 +1045,7 @@ onBeforeUnmount(() => {
                                         <small class="text-xs text-red-500"
                                             :class="{ danger: errors.starts_time_At.show }">
                                             <span v-if="errors.starts_time_At.show">{{ errors.starts_time_At.message
-                                            }}</span>
+                                                }}</span>
                                         </small>
                                     </div>
                                 </div>
@@ -772,7 +1080,7 @@ onBeforeUnmount(() => {
                                         <small class="text-xs text-red-500"
                                             :class="{ danger: errors.ends_time_at.show }">
                                             <span v-if="errors.ends_time_at.show">{{ errors.ends_time_at.message
-                                            }}</span>
+                                                }}</span>
                                         </small>
                                     </div>
                                 </div>
@@ -833,7 +1141,7 @@ onBeforeUnmount(() => {
                                                 <td class="px-4 py-3 text-center text-sm hidden sm:table-cell">
                                                     {{ batch.quantity }}</td>
                                                 <td class="px-4 py-3 text-center text-sm">{{ formatAmount(batch.price)
-                                                }}</td>
+                                                    }}</td>
                                                 <td class="px-4 py-3 text-center text-sm hidden md:table-cell">
                                                     4%</td>
                                                 <td class="px-4 py-3 text-center text-sm hidden md:table-cell">
