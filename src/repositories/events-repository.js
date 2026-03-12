@@ -101,13 +101,9 @@ export function useEvents() {
     }
 
     const newEvent = async (data) => {
-        try {
+        try {  
             loading.value = true
-            const response = await api.post("/events", data, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                }
-            });
+            const response = await api.post("/events", data);
 
             const newEvent = response.data.event
 
@@ -120,6 +116,7 @@ export function useEvents() {
             loading.value = false;
         }
     }
+    
     const editEvent = async (data) => {
         try {
             loading.value = true

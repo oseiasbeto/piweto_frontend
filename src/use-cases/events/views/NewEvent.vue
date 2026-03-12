@@ -167,6 +167,8 @@ const form = computed(() => {
     return store.getters.eventForm
 })
 
+const cover = ref(null) 
+
 const disabledStartsDate = computed(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Zera as horas para garantir que apenas a data seja comparada
@@ -362,8 +364,8 @@ const uploadMedia = async (media) => {
             return null;
         }
 
-        media.public_id = response.data.public_id;
-        uploadedMediaIds.value.push(response.data.public_id);
+        media.public_id = response.data?.asset_id;
+        uploadedMediaIds.value.push(response.data?.asset_id);
 
         const newProgress = { ...uploadProgress.value };
         delete newProgress[media.id];
@@ -525,6 +527,7 @@ function validateCover(file) {
                         ...uploadedMedia
                     };
                     // Armazena apenas o objeto da mídia completa, não apenas o file
+                    cover.value = mediaPreviews.value[0];
                     form.value.file = mediaPreviews.value[0];
                 }
             } catch (err) {
@@ -535,7 +538,7 @@ function validateCover(file) {
                 });
                 mediaPreviews.value = [];
                 form.value.file = null;
-                
+
                 // LIMPA O VALOR DO INPUT FILE - SOLUÇÃO PARA O PROBLEMA
                 if (dropzoneRef.value) {
                     dropzoneRef.value.clearInput();
@@ -551,6 +554,7 @@ function validateCover(file) {
                 icon: 'error'
             });
             selectFileLoading.value = false;
+            cover.value = null;
             form.value.file = null;
         };
         reader.readAsDataURL(file);
@@ -619,8 +623,10 @@ function replaceCover() {
     if (mediaPreviews.value.length > 0) {
         removeMedia(0);
         form.value.file = null;
+        cover.value = null
     } else {
         form.value.file = null;
+        cover.value = null
     }
     // LIMPA O VALOR DO INPUT FILE - SOLUÇÃO PARA O PROBLEMA
     if (dropzoneRef.value) {
@@ -657,82 +663,96 @@ function openModalEditTicket(batch, index) {
 const createEvent = async (status) => {
     validateForm()
     if (hasError.value || loadingEvent.value) return
-    else {
-        const formatToISO = (dateString) => {
-            return new Date(dateString).toISOString();
-        };
 
-        function createEventFormData(eventForm) {
-            const formData = new FormData();
+    const formatToISO = (dateString) => {
+        return dateString ? new Date(dateString).toISOString() : null
+    }
 
-            formData.append("name", eventForm.name || "");
-            formData.append("category", eventForm.category || "");
-            formData.append("description", eventForm.description || "");
-            formData.append("status", String(eventForm.status || "pending"));
-            formData.append("visibility", eventForm.visibility || "public");
-            formData.append("nameclature", eventForm.nameclature || "ticket");
-            formData.append("type", "presencial");
-            formData.append("showOnMap", String(eventForm.showOnMap));
+    function createEventPayload(eventForm) {
+        const payload = {
+            name: eventForm.name || "",
+            cover: cover.value || null,
+            category: eventForm.category || "",
+            description: eventForm.description || "",
+            status: eventForm.status || "pending",
+            visibility: eventForm.visibility || "public",
+            nameclature: eventForm.nameclature || "ticket",
+            type: "presencial",
+            showOnMap: Boolean(eventForm.showOnMap),
 
-            if (eventForm.file) {
-                formData.append("file", eventForm.file);
-            }
+            starts_at: {
+                date: formatToISO(eventForm.starts_at?.date),
+                hm: formatToISO(eventForm.starts_at?.hm)
+            },
 
-            // ✅ Corrigindo starts_at e ends_at
-            formData.append("starts_at[date]", formatToISO(eventForm.starts_at.date) || "");
-            formData.append("starts_at[hm]", formatToISO(eventForm.starts_at.hm) || "");
-            formData.append("ends_at[date]", formatToISO(eventForm.ends_at.date) || "");
-            formData.append("ends_at[hm]", formatToISO(eventForm.ends_at.hm) || "");
+            ends_at: {
+                date: formatToISO(eventForm.ends_at?.date),
+                hm: formatToISO(eventForm.ends_at?.hm)
+            },
 
-            // ✅ Corrigindo address
-            Object.keys(eventForm.address).forEach(key => {
-                formData.append(`address[${key}]`, eventForm.address[key] || "");
-            });
+            address: {
+                ...eventForm.address
+            },
 
-            // ✅ Corrigindo batches (se houver)
-            if (Array.isArray(eventForm.batches) && eventForm.batches.length > 0) {
-                eventForm.batches.forEach((batch, index) => {
-                    formData.append(`batches[${index}][name]`, batch.name);
-                    formData.append(`batches[${index}][type]`, batch.type);
-                    formData.append(`batches[${index}][nomenclature]`, batch.nomenclature);
-                    formData.append(`batches[${index}][available_tickets]`, batch.available_tickets);
-                    formData.append(`batches[${index}][description]`, batch.description);
-                    formData.append(`batches[${index}][visibility]`, batch.visibility);
-                    formData.append(`batches[${index}][quantity]`, batch.quantity ? Number(batch.quantity) : 0);
-                    formData.append(`batches[${index}][price]`, batch.price ? Number(batch.price) : 0);
-                    formData.append(`batches[${index}][starts_at.date]`, formatToISO(batch.starts_at?.date));
-                    formData.append(`batches[${index}][starts_at.hm]`, formatToISO(batch.starts_at?.hm));
-                    formData.append(`batches[${index}][ends_at.date]`, formatToISO(batch.ends_at?.date));
-                    formData.append(`batches[${index}][ends_at.hm]`, formatToISO(batch.ends_at?.hm));
-                    formData.append(`batches[${index}][quantity_for_purchase.min]`, batch.quantity_for_purchase?.min ? Number(batch.quantity_for_purchase.min) : 1);
-                    formData.append(`batches[${index}][quantity_for_purchase.max]`, batch.quantity_for_purchase?.max ? Number(batch.quantity_for_purchase.max) : 1);
-                });
-            }
+            batches: Array.isArray(eventForm.batches)
+                ? eventForm.batches.map((batch) => ({
+                    name: batch.name,
+                    type: batch.type,
+                    nomenclature: batch.nomenclature,
+                    available_tickets: batch.available_tickets,
+                    description: batch.description,
+                    visibility: batch.visibility,
+                    quantity: batch.quantity ? Number(batch.quantity) : 0,
+                    price: batch.price ? Number(batch.price) : 0,
 
-            return formData;
+                    starts_at: {
+                        date: formatToISO(batch.starts_at?.date),
+                        hm: formatToISO(batch.starts_at?.hm)
+                    },
+
+                    ends_at: {
+                        date: formatToISO(batch.ends_at?.date),
+                        hm: formatToISO(batch.ends_at?.hm)
+                    },
+
+                    quantity_for_purchase: {
+                        min: batch.quantity_for_purchase?.min
+                            ? Number(batch.quantity_for_purchase.min)
+                            : 1,
+                        max: batch.quantity_for_purchase?.max
+                            ? Number(batch.quantity_for_purchase.max)
+                            : 1
+                    }
+                }))
+                : []
         }
+        return payload
+    }
 
-        form.value.status = status
-        const formData = createEventFormData(form.value)
+    form.value.status = status
+    const payload = createEventPayload(form.value)
 
-        await newEvent(formData).then(() => {
+    await newEvent(payload)
+        .then(() => {
             router.replace(`/gerenciador-de-eventos/pagina-inicial/${currentEvent.value.id}`)
+
             store.dispatch("setToast", {
                 show: true,
                 message: "Evento criado com sucesso.",
                 type: "success",
                 timeout: 3000
             })
-        }).then(() => {
+        })
+        .then(() => {
             store.dispatch("resetEventForm")
         })
-    }
 }
 
 const handleLabelClick = async () => {
     if (form.value.file) {
         // Se há uma imagem, resetamos form.file para mostrar o DropzoneImage
         form.value.file = null;
+        cover.value = null
         // Aguarda o próximo tick para garantir que o DropzoneImage seja montado
         await nextTick();
     }
@@ -1045,7 +1065,7 @@ onBeforeUnmount(() => {
                                         <small class="text-xs text-red-500"
                                             :class="{ danger: errors.starts_time_At.show }">
                                             <span v-if="errors.starts_time_At.show">{{ errors.starts_time_At.message
-                                                }}</span>
+                                            }}</span>
                                         </small>
                                     </div>
                                 </div>
@@ -1080,7 +1100,7 @@ onBeforeUnmount(() => {
                                         <small class="text-xs text-red-500"
                                             :class="{ danger: errors.ends_time_at.show }">
                                             <span v-if="errors.ends_time_at.show">{{ errors.ends_time_at.message
-                                                }}</span>
+                                            }}</span>
                                         </small>
                                     </div>
                                 </div>
@@ -1141,7 +1161,7 @@ onBeforeUnmount(() => {
                                                 <td class="px-4 py-3 text-center text-sm hidden sm:table-cell">
                                                     {{ batch.quantity }}</td>
                                                 <td class="px-4 py-3 text-center text-sm">{{ formatAmount(batch.price)
-                                                    }}</td>
+                                                }}</td>
                                                 <td class="px-4 py-3 text-center text-sm hidden md:table-cell">
                                                     4%</td>
                                                 <td class="px-4 py-3 text-center text-sm hidden md:table-cell">
@@ -1200,7 +1220,7 @@ onBeforeUnmount(() => {
                             </div>
                             <div>
                                 <div class="flex items-center gap-3">
-                                    <button :disabled="loadingEvent" @click="createEvent('p')"
+                                    <button :disabled="loadingEvent || selectFileLoading" @click="createEvent('p')"
                                         class="btn disabled:bg-gray-300 disabled:text-gray-500 bg-brand-primary text-sm font-bold hover:opacity-80 py-2 px-4 text-white rounded-full">
                                         {{ loadingEvent ? 'Publicando...' : 'Publicar evento' }}
                                     </button>

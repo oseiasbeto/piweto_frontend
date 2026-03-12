@@ -18,10 +18,12 @@
                             </select>
                         </div>
 
+                        <!-- 
                         <button @click="openQRCodeValidate()" :disabled="loadingPartakers || !partakers?.data?.length"
                             class="px-4 py-2 text-sm font-medium text-white bg-brand-primary border border-transparent w-full rounded-md focus:outline-none focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
                             Realizar check-in
                         </button>
+                        -->
                     </div>
                 </div>
                 <!--end header-->

@@ -37,10 +37,10 @@ const positionClass = computed(() => {
         </button>
         <div class="flex items-center">
             <Logo size="w-[80px] lg:w-[110px]" />
-            <router-link to="/eventos/meus-eventos"
+            <A href="/eventos/meus-eventos"
                 class="hidden lg:block text-gray-500 border-l-2 px-2 ml-2 cursor-pointer border-gray-200 text-sm uppercase">
                 <p>Área do produtor</p>
-            </router-link>
+            </A>
         </div>
         <!--end left area-->
 

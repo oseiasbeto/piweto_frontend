@@ -33,6 +33,10 @@ const getCurrentUser = computed(() => {
     return store.getters.currentUser
 })
 
+const validEvents = computed(() => {
+  return events.value.data?.filter(e => e?.event?._id) || []
+})
+
 const truncateText = (text, maxLength) => {
     if (text.length > maxLength) {
         return text.substring(0, maxLength) + '...';
@@ -241,58 +245,72 @@ onMounted(async () => {
                                 </tr>
                             </thead>
                             <tbody v-if="!loadingEvents">
-                                <tr @click="goToDashboard(event?.event?.id)" v-if="events.data.length"
-                                    v-for="(event, index) in events.data" :key="event._id"
-                                    class=" bg-white cursor-pointer border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                <tr v-if="validEvents?.length" v-for="eventWrapper in validEvents"
+                                    :key="eventWrapper.event._id" @click="goToDashboard(eventWrapper.event.id)"
+                                    class="bg-white cursor-pointer border-b border-gray-100 hover:bg-gray-50 transition-colors">
                                     <td class="px-4 py-3 text-gray-500">
                                         <div class="flex items-center gap-2">
-                                            <div class="w-[12px] h-[12px] rounded-full bg-green-400"
-                                                :class="statusColor(event?.event?.status || 'r')"></div>
-                                            <p class="text-sm text-gray-500 !bg-transparent"
-                                                :class="statusColor(event?.event?.status || 'r')"> {{
-                                                    statusLegends(event?.event?.status || 'r') }}</p>
+                                            <div class="w-[12px] h-[12px] rounded-full"
+                                                :class="statusColor(eventWrapper.event.status || 'r')"></div>
+
+                                            <p class="text-sm !bg-transparent"
+                                                :class="statusColor(eventWrapper.event.status || 'r')">
+                                                {{ statusLegends(eventWrapper.event.status || 'r') }}
+                                            </p>
                                         </div>
                                     </td>
 
                                     <td class="px-4 py-3 text-nowrap text-gray-500">
-                                        {{
-                                            truncateText(event?.event?.name || 'Evento', 30)
-                                        }}
+                                        {{ truncateText(eventWrapper.event.name || "Evento", 30) }}
                                     </td>
 
                                     <td class="px-4 py-3 text-gray-500">
-                                        {{ moment(event?.event?.starts_at?.date || null).format("DD/MM/YYYY") }}
+                                        {{ moment(eventWrapper.event.starts_at?.date).format("DD/MM/YYYY") }}
                                     </td>
 
-                                    <td class="px-4 py-3 text-gray-500 text-nowrap">
-                                        {{ event?.event?.address?.location || "Indefinido" }}
+                                    <td class="px-4 py-3 text-nowrap text-gray-500">
+                                        {{ eventWrapper.event.address?.location || "Indefinido" }}
                                     </td>
+
                                     <td class="px-4 py-3 text-gray-500">
                                         <div
-                                            class="h-full w-[130px] relative overflow-hidden flex  text-xs bg-gray-100 rounded-lg font-medium py-[4px] px-2">
-                                            <div class="relative z-10 w-full items-center flex justify-between">
-                                                <span>{{ event?.event?.tickets_purchased_count }}</span>
-                                                <span>{{ event?.event?.tickets_available_count }}</span>
+                                            class="h-full w-[130px] relative overflow-hidden flex text-xs bg-gray-100 rounded-lg font-medium py-[4px] px-2">
+                                            <div class="relative z-10 w-full flex justify-between">
+                                                <span>{{ eventWrapper.event.tickets_purchased_count }}</span>
+                                                <span>{{ eventWrapper.event.tickets_available_count }}</span>
                                             </div>
-                                            <span class="absolute top-0 left-0 h-full bg-green-300"
-                                                :style="`width: ${calculateProgress(event?.event?.tickets_purchased_count, event?.event?.tickets_available_count)}%`"></span>
+
+                                            <span class="absolute top-0 left-0 h-full bg-green-300" :style="`width: ${calculateProgress(
+                                                eventWrapper.event.tickets_purchased_count,
+                                                eventWrapper.event.tickets_available_count
+                                            )}%`"></span>
                                         </div>
                                     </td>
+
                                     <td @click.stop class="px-4 py-3 flex items-center justify-end gap-2 text-gray-500">
-                                        <router-link :to="'/eventos/' + event?.event?._id">
-                                            <button class="border border-blue-400 hover:bg-blue-400 hover:text-white transition-colors text-blue-400 py-2 px-3 text-xs font-bold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none">Editar</button>
+                                        <router-link :to="`/eventos/${eventWrapper.event._id}`">
+                                            <button
+                                                class="border border-blue-400 hover:bg-blue-400 hover:text-white transition-colors text-blue-400 py-2 px-3 text-xs font-bold rounded-lg">
+                                                Editar
+                                            </button>
                                         </router-link>
 
-                                        <button class="border border-red-500 hover:bg-red-500 hover:text-white transition-colors text-red-500 py-2 px-3 text-xs font-bold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none" @click="confirmDelete(event?.event?._id)">Excluir</button>
+                                        <button
+                                            class="border border-red-500 hover:bg-red-500 hover:text-white transition-colors text-red-500 py-2 px-3 text-xs font-bold rounded-lg"
+                                            @click="confirmDelete(eventWrapper.event._id)">
+                                            Excluir
+                                        </button>
                                     </td>
                                 </tr>
-                                <tr v-else>
-                                    <td class="px-4 py-3 text-nowrap">Nenhum evento encotrado</td>
+
+                                <tr v-if="!validEvents.length">
+                                    <td class="px-4 py-3 text-nowrap">Nenhum evento encontrado</td>
                                 </tr>
                             </tbody>
-                            <tbody class="w-full" v-else>
-                                <tr class="w-full">
-                                    <td class="p-4 mx-auto">
+
+                            <tbody v-else>
+                                <tr>
+                                    <td class="p-4 text-center">
                                         <BtnSpinner />
                                     </td>
                                 </tr>

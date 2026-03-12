@@ -19,7 +19,7 @@ instance.interceptors.response.use(
     error => {
         if (!error.response) {
             // Erro de rede (ex: API offline, sem internet, CORS bloqueado, etc.)
-            window.location.href = '/500';
+           // window.location.href = '/500';
         }
         return Promise.reject(error);
     }

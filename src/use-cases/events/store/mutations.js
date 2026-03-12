@@ -8,6 +8,7 @@ export default {
         state.eventForm = {
             name: "",
             file: null,
+            cover: null,
             category: "",
             description: "",
             showPreviewCover: true,
