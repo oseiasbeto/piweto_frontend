@@ -1,7 +1,8 @@
 <script setup>
 import { useBookings } from "@/repositories/bookings-repository";
 import BtnSpinner from "@/use-cases/marketplace/components/spinners/BtnSpinner.vue";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
 import { toast } from "vue3-toastify";
 const { getOrderByIdAndPin, loading: loadingGetBooking } = useBookings()
 
@@ -10,6 +11,8 @@ const form = ref({
     pin: "",
     viewPin: false
 })
+
+const route = useRoute()
 
 const hasValidForm = computed(() => form.value?.id?.length > 0 && form.value?.pin?.length > 0)
 
@@ -46,13 +49,23 @@ const handleAuth = async () => {
         }
     })
 }
+
+onMounted(() => {
+    const id = route.query?.id || null
+    const pin = route.query?.pin || null
+    console.log(id)
+    if (id && pin) {
+        form.value.id = id
+        form.value.pin = pin
+    }
+})
 </script>
 
 <template>
     <div class="w-auto">
         <div class="flex flex-col mb-4">
             <div class="flex flex-col">
-                <label class="text-xs text-gray-500 mb-2 font-bold" for="id">Nº da reserva <span
+                <label class="text-xs text-gray-500 mb-2 font-bold" for="id">Id da reserva <span
                         class="text-brand-danger">*</span></label>
                 <input :readonly="loadingGetBooking"
                     class="outline-none w-full h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4"
@@ -66,7 +79,7 @@ const handleAuth = async () => {
             <div class="relative flex items-center">
                 <input :readonly="loadingGetBooking"
                     class="w-full outline-none h-10 focus:border-brand-info text-sm border border-gray-300 rounded p-4 pr-12"
-                    :type="form.viewPin ? 'text' : 'password'" id="pin" v-model="form.pin">
+                    :type="form.viewPin ? 'text' : 'password'" id="pin" v-model="form.pin" autocomplete="new-password">
                 <button v-if="form.pin.length > 0"
                     class="absolute flex justify-center items-center text-brand-primary w-[24px] h-[24px] right-[16px]"
                     @click="form.viewPin = !form.viewPin">

@@ -10,7 +10,10 @@ import copyToClipboard from "../../../utils/copyToClipboard"
 import formatAmount from "@/utils/formatAmount";
 import moment from "moment";
 import { useInvoiceGenerator } from "@/utils/useInvoiceGenerator";
+import { useAccessCredentialGenerator, } from "@/utils/useAccessCredentialGenerator";
+
 const { generateInvoicePDF, isLoading: loadingGenerateInvoce } = useInvoiceGenerator();
+const { generateAccessCredentialPDF, isLoading: loadingGenerateAccessCredential } = useAccessCredentialGenerator();
 
 const { getOrderById, loading } = useOrders()
 loading.value = true
@@ -27,6 +30,11 @@ const order = computed(() => {
 const hasLogged = computed(() => {
     return store.getters.hasLogged
 })
+
+const isPaid = computed(() => {
+    return order.value?.status === 'a' // 'a' for approved/paid status
+})
+
 const formattedExpiresDate = computed(() => {
     return moment(order.value.expires_at).add("1", "h").format("YYYY/MM/DD HH:mm")
 })
@@ -69,11 +77,13 @@ onMounted(async () => {
         <Container>
             <div class="mt-7 mb-20 lg:mt-10 px-4">
                 <div class="mb-5 lg:mb-10">
+                    <div class="lg:hidden flex justify-center py-0.5" v-if="isPaid">
+                        <svg width="54px" height="54px" xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 122.88 116.87"><defs></defs><title>verified-symbol</title><polygon class="cls-3" points="61.37 8.24 80.43 0 90.88 17.79 111.15 22.32 109.15 42.85 122.88 58.43 109.2 73.87 111.15 94.55 91 99 80.43 116.87 61.51 108.62 42.45 116.87 32 99.08 11.73 94.55 13.73 74.01 0 58.43 13.68 42.99 11.73 22.32 31.88 17.87 42.45 0 61.37 8.24 61.37 8.24"/><path class="cls-2" d="M37.92,65c-6.07-6.53,3.25-16.26,10-10.1,2.38,2.17,5.84,5.34,8.24,7.49L74.66,39.66C81.1,33,91.27,42.78,84.91,49.48L61.67,77.2a7.13,7.13,0,0,1-9.9.44C47.83,73.89,42.05,68.5,37.92,65Z"/></svg>
+                    </div>
                     <h1
                         class="text-[34px] text-center leading-9 lg:text-left lg:text-[2.625rem] font-bold my-2 lg:my-4">
-                        Pedido realizado com sucesso!
+                        {{ isPaid ? 'Pedido confirmado e pago!' : 'Pedido realizado com sucesso!' }}
                     </h1>
-
 
                     <div class="hidden lg:flex items-center justify-between">
                         <div class="flex items-center gap-3">
@@ -81,22 +91,20 @@ onMounted(async () => {
                             <span class="font-bold text-[22px] text-[#191f28]">{{ order.id }}</span>
                         </div>
 
-                        <div class="text-[#ff9036] flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-[33px] h-[33px]" viewBox="0 0 24 24"
-                                fill="none">
-                                <path
-                                    d="M5.06152 12C5.55362 8.05369 8.92001 5 12.9996 5C17.4179 5 20.9996 8.58172 20.9996 13C20.9996 17.4183 17.4179 21 12.9996 21H8M13 13V9M11 3H15M3 15H8M5 18H10"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" />
+                        <div :class="isPaid ? 'text-[#28a745]' : 'text-[#ff9036]'" class="flex items-center gap-2">
+                            <svg v-if="isPaid" xmlns="http://www.w3.org/2000/svg" class="w-[33px] h-[33px]" viewBox="0 0 24 24" fill="none">
+                                <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                            <span class="font-bold">Aguardando pagamento</span>
+                            <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-[33px] h-[33px]" viewBox="0 0 24 24" fill="none">
+                                <path d="M5.06152 12C5.55362 8.05369 8.92001 5 12.9996 5C17.4179 5 20.9996 8.58172 20.9996 13C20.9996 17.4183 17.4179 21 12.9996 21H8M13 13V9M11 3H15M3 15H8M5 18H10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span class="font-bold">{{ isPaid ? 'Pago' : 'Aguardando pagamento' }}</span>
                         </div>
-
                     </div>
-
                 </div>
 
-                <div class="!bg-[#f5f7f8] mb-8 border-[#dde0e4] border rounded-[16px]">
+                <!-- Show payment instructions only for non-paid orders -->
+                <div v-if="!isPaid" class="!bg-[#f5f7f8] mb-8 border-[#dde0e4] border rounded-[16px]">
                     <h1 class="p-4 py-6 text-base lg:text-lg text-center font-bold mx-auto text-[#4c576c]">Agora só
                         falta confirmar
                         seu pagamento!</h1>
@@ -323,7 +331,7 @@ onMounted(async () => {
                         <!--end reference pay-->
 
                         <!--start express pay-->
-                        <div v-if="order?.data?.payment_method === 'mul'"
+                        <div v-if="order?.data?.payment_method === 'GPO'"
                             class="flex flex-col lg:flex-row items-center gap-8">
                             <!--start icon emis box-->
                             <div
@@ -405,6 +413,62 @@ onMounted(async () => {
                     </div>
                 </div>
 
+                <!-- Show ticket credentials for paid orders -->
+                <div v-if="isPaid && order?.data" class="!bg-[#f5f7f8] mb-8 border-[#dde0e4] border rounded-[16px]">
+                    <h1 class="p-4 py-6 text-base lg:text-lg text-center font-bold mx-auto text-[#4c576c]">
+                        Suas credenciais de acesso
+                    </h1>
+
+                    <div class="bg-white rounded-lg p-6 m-4 mt-0">
+                        <div class="flex flex-col items-center justify-center gap-6">
+                            <!-- ID da Reserva -->
+                            <div class="w-full text-center">
+                                <p class="text-sm text-[#848c9b] mb-1">ID da Reserva</p>
+                                <div class="flex items-center justify-center gap-2">
+                                    <p class="text-2xl font-bold text-[#191f28]">{{ order?.id }}</p>
+                                    <button @click="copyToClipboard(order.id)" 
+                                        class="text-xs font-semibold outline-none bg-[#f0861f] text-white py-1.5 px-3 rounded-lg">
+                                        Copiar
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- PIN de Acesso -->
+                            <div v-if="order?.pin" class="w-full text-center">
+                                <p class="text-sm text-[#848c9b] mb-1">PIN de Acesso</p>
+                                <div class="flex items-center justify-center gap-2">
+                                    <p class="text-2xl font-bold text-[#191f28]">{{ order?.pin }}</p>
+                                    <button @click="copyToClipboard(order?.pin)" 
+                                        class="text-xs font-semibold outline-none bg-[#f0861f] text-white py-1.5 px-3 rounded-lg">
+                                        Copiar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                               <a  :href="`/reserva?id=${order?.id}&pin=${order?.pin}`"
+                            target="_blank"
+                                class="flex py-2 px-4 lg:w-auto w-full justify-center items-center gap-2 rounded-lg h-10 font-bold normal-case text-sm mt-1 bg-brand-primary text-white disabled:bg-[rgb(221,224,228)] disabled:text-[rgb(132,140,155)] disabled:cursor-default">Acessar minha reserva</a> 
+                                
+
+                                 <button
+                                    class="flex py-2 px-4 lg:w-auto w-full justify-center items-center gap-2 rounded-lg h-10 font-bold normal-case text-sm mt-1 transition-colors bg-[rgb(0,151,255)] text-white"
+                                    :disabled="loadingGenerateAccessCredential"
+                                    @click="generateAccessCredentialPDF(order)">
+                                    
+                                    <p> {{ loadingGenerateAccessCredential ? 'Guardando...' : 'Guardar credenciais' }}</p>
+                                </button>
+                            </div>
+                            
+                            <!-- Instruções de uso -->
+                            <div class="w-full mt-4 p-4 bg-[#f0861f]/5 rounded-lg border border-dotted border-[#f0861f]">
+                                <p class="text-sm text-[#4c576c] text-center">
+                                 <strong>Use estas credenciais para acessar seus ingressos.</strong><br>
+                                    Guarde o ID e PIN em local seguro. Eles serão necessários para acessar e confirmar sua reserva.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="!bg-[#f5f7f8] mb-8 border-[#dde0e4] border rounded-[16px]">
                     <h1 class="p-4 py-4 w-60 lg:w-full text-sm text-center font-bold mx-auto text-[#4c576c]">
                         Ações do pedido
@@ -464,11 +528,8 @@ onMounted(async () => {
                     </div>
                 </div>
 
-
-
                 <div class="!bg-[#f5f7f8] mb-10 border-[#dde0e4] border rounded-[16px]">
-                    <h1 class="p-4 py-6  text-lg text-center font-bold mx-auto text-[#4c576c]">Como acessar seus
-                        ingressos</h1>
+                    <h1 class="p-4 py-6  text-lg text-center font-bold mx-auto text-[#4c576c]">{{ isPaid ? 'Como acessar seus ingressos' : 'Como acessar seus ingressos após o pagamento' }}</h1>
 
                     <div class="bg-white rounded-lg py-3 p-5 m-4 mt-0">
                         <div class="text-[#4c576c]">
@@ -556,4 +617,5 @@ onMounted(async () => {
     stroke-miterlimit: 10;
     stroke-width: 1.91px;
 }
+.cls-3{fill:#10a64a;fill-rule:evenodd;}.cls-2{fill:#fff;}
 </style>

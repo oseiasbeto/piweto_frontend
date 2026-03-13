@@ -21,6 +21,8 @@ export function useInvoiceGenerator() {
             const primary = [50, 187, 120];    // verde mais agradável
             const dark = [44, 62, 80];
             const gray = [120, 120, 120];
+            const orange = [255, 144, 54];     // para pendente
+            const red = [220, 53, 69];          // para cancelado
 
             // Helpers
             const formatAmount = (amount) =>
@@ -41,6 +43,15 @@ export function useInvoiceGenerator() {
                 return map[method] || method;
             };
 
+            const getStatusInfo = (status) => {
+                const map = {
+                    'a': { text: 'PAGO', color: primary },
+                    'p': { text: 'PENDENTE', color: orange },
+                    'c': { text: 'CANCELADO', color: red }
+                };
+                return map[status] || { text: status?.toUpperCase() || 'DESCONHECIDO', color: gray };
+            };
+
             // Cabeçalho
             doc.setFont("helvetica", "bold");
             doc.setFontSize(22);
@@ -52,6 +63,21 @@ export function useInvoiceGenerator() {
             doc.text(`FACTURA Nº ${orderData.id}`, pageWidth - margin, y + 8, { align: "right" });
 
             y += 22;
+
+            // STATUS DO PEDIDO - Nova seção
+            const statusInfo = getStatusInfo(orderData.status);
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(...statusInfo.color);
+            
+            // Adiciona um fundo suave para o status
+            doc.setFillColor(...statusInfo.color.map(c => Math.min(c + 200, 255))); // versão mais clara da cor
+            doc.roundedRect(margin, y - 6, pageWidth - margin * 2, 10, 2, 2, 'F');
+            
+            doc.setTextColor(...statusInfo.color);
+            doc.text(`STATUS: ${statusInfo.text}`, pageWidth / 2, y, { align: "center" });
+            
+            y += 16;
 
             // EVENTO
             doc.setFontSize(13);
@@ -188,17 +214,41 @@ export function useInvoiceGenerator() {
             doc.text(`Nº Reserva: ${orderData.reservation_number}`, margin + 4, y);
             y += lineHeight;
 
-            if (orderData.data.payment_method === "reference" && orderData.biz_content) {
-                doc.text(`Entidade: ${orderData.biz_content.entity_id}`, margin + 4, y);
+            // Mostra informações adicionais baseadas no status
+            if (orderData.status === 'a') {
+                doc.setTextColor(...primary);
+                doc.setFont("helvetica", "bold");
+                doc.text("✓ Pagamento confirmado", margin + 4, y);
                 y += lineHeight;
-                doc.text(`Referência: ${orderData.biz_content.reference_id}`, margin + 4, y);
-                y += lineHeight;
-            }
+                doc.setFont("helvetica", "normal");
+                doc.setTextColor(...dark);
+            } else if (orderData.status === 'p') {
+                if (orderData.data.payment_method === "reference" && orderData.biz_content) {
+                    doc.text(`Entidade: ${orderData.biz_content.entity_id}`, margin + 4, y);
+                    y += lineHeight;
+                    doc.text(`Referência: ${orderData.biz_content.reference_id}`, margin + 4, y);
+                    y += lineHeight;
+                }
 
-            if (orderData.expires_at) {
-                const expires = moment(orderData.expires_at).format("DD/MM/YYYY HH:mm");
-                doc.text(`Válido até: ${expires}`, margin + 4, y);
+                if (orderData.expires_at) {
+                    const expires = moment(orderData.expires_at).format("DD/MM/YYYY HH:mm");
+                    doc.text(`Válido até: ${expires}`, margin + 4, y);
+                    y += lineHeight;
+                }
+                
+                doc.setTextColor(...orange);
+                doc.setFont("helvetica", "bold");
+                doc.text("⏱ Aguardando pagamento", margin + 4, y);
                 y += lineHeight;
+                doc.setFont("helvetica", "normal");
+                doc.setTextColor(...dark);
+            } else if (orderData.status === 'c') {
+                doc.setTextColor(...red);
+                doc.setFont("helvetica", "bold");
+                doc.text("✗ Pedido cancelado", margin + 4, y);
+                y += lineHeight;
+                doc.setFont("helvetica", "normal");
+                doc.setTextColor(...dark);
             }
 
             // Rodapé
@@ -212,7 +262,10 @@ export function useInvoiceGenerator() {
             doc.text(`Gerado em: ${moment().format("DD/MM/YYYY HH:mm")}`, margin, footerY + 10);
 
             // Nome do ficheiro
-            const fileName = `factura_${orderData.id}_${orderData.data.full_name.replace(/\s+/g, "_")}.pdf`;
+            const statusPrefix = orderData.status === 'a' ? 'paga' : 
+                               orderData.status === 'p' ? 'pendente' : 
+                               orderData.status === 'c' ? 'cancelada' : 'factura';
+            const fileName = `factura_${statusPrefix}_${orderData.id}_${orderData.data.full_name.replace(/\s+/g, "_")}.pdf`;
             doc.save(fileName);
 
         } catch (err) {

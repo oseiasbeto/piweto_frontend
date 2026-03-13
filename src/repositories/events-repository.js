@@ -74,6 +74,7 @@ export function useEvents() {
             loading.value = false;
         }
     }
+    
     const getEventById = async (id) => {
         try {
             const response = await api.get("/events/preview/" + id)

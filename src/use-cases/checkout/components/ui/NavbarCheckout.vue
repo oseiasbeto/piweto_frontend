@@ -59,7 +59,7 @@ const showTimeUpAlert = () => {
         allowEscapeKey: false
     }).then(() => {
         // Redirecionar para a página anterior
-        router.replace('/evento/' + route.params.slug)
+        router.replace('/')
     })
 }
 

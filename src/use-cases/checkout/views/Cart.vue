@@ -1,5 +1,3 @@
-
-
 <script setup>
 import SplashScreen from "../components/ui/SplashScreen.vue";
 import ProcessingModalPayment from "../components/modals/ProcessingPaymentModal.vue";
@@ -22,19 +20,14 @@ import Cookies from "js-cookie";
 import createRippleAnimation from "@/utils/createRippleAnimation";
 
 const { newOrder, loading: loadingOrder } = useOrders()
-const { googleAuth, loading: loadingAuthGoogle } = useUsers()
 const { logout, loading: logoutLoading } = useUsers()
 
 const route = useRoute()
 const router = useRouter()
 const store = useStore()
 
-
 const intl = ref({})
 const inputPhone = ref(null);
-const googleButtonRef = ref(null)
-const googleApiReady = ref(false)
-const googleInitialized = ref(false)
 const isLoading = ref(true)
 const openPPM = ref(false)
 
@@ -98,126 +91,6 @@ const user = computed(() => {
 const hasLogged = computed(() => {
     return store.getters.hasLogged
 })
-
-// Substitua pelo seu ID de cliente do Google
-const CLIENT_ID = '914842748542-mc9j2ltt0no88mqlu144u1q1hu19lhq1.apps.googleusercontent.com';
-
-// Configurações (substitua pelo seu Client ID)
-const config = {
-    client_id: CLIENT_ID,
-    callback: async (response) => {
-        // Aqui você processa o token JWT
-        const userData = parseJwt(response.credential);
-
-        if (userData && !loadingAuthGoogle.value) {
-            try {
-                await googleAuth(userData).then(res => {
-                    const user = res.data.user;
-                    form.value = {
-                        fullName: `${user.first_name.replace(/\s/g, '')} ${user.last_name.replace(/\s/g, '')}`,
-                        paymentMethod: 'mul',
-                        phone: user.phone?.toString() || '',
-                        email: user.email
-                    }
-                    validateAllFields()
-                })
-            } catch (err) {
-                toast(err?.response?.data?.message || 'Algo deu errado!', {
-                    theme: "colored",
-                    autoClose: 2000,
-                    position: "top-right",
-                    transition: "bounce",
-                    type: 'error'
-                })
-            }
-        }
-    }
-};
-// Função para decodificar o JWT
-const parseJwt = (token) => {
-    try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(
-            atob(base64)
-                .split('')
-                .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-                .join('')
-        );
-        return JSON.parse(jsonPayload);
-    } catch (e) {
-        console.error('Erro ao decodificar JWT:', e);
-        return null;
-    }
-};
-
-// Modifique esta função para ser reutilizável
-const initGoogleButton = () => {
-    if (!window.google?.accounts?.id || googleInitialized.value) return;
-
-    try {
-        // Limpa qualquer botão existente
-        if (googleButtonRef.value.firstChild) {
-            googleButtonRef.value.removeChild(googleButtonRef.value.firstChild);
-        }
-
-        window.google.accounts.id.initialize({
-            client_id: CLIENT_ID,
-            callback: (response) => {
-                if (!loadingAuthGoogle.value) {
-                    config.callback(response);
-                } else {
-                    toast("Por favor aguarde...", {
-                        theme: "colored",
-                        autoClose: 1000,
-                        position: "top-right",
-                        transition: "bounce",
-                        type: 'info'
-                    });
-                }
-            }
-        });
-
-        // Adiciona um atributo para controle de estado
-        const buttonConfig = {
-            type: 'standard',
-            size: 'large',
-            theme: 'outline',
-            text: 'sign_in_with',
-            shape: 'rectangular',
-            width: '100%',
-        };
-
-        // Se estiver carregando, desativa o botão
-        if (loadingAuthGoogle.value) {
-            buttonConfig.attributes = {
-                'data-login_pending': 'true'
-            };
-        }
-
-        window.google.accounts.id.renderButton(
-            googleButtonRef.value,
-            buttonConfig
-        );
-
-        googleInitialized.value = true;
-    } catch (e) {
-        console.error('Erro no botão Google:', e);
-        return false;
-    }
-};
-
-// Função para verificar e inicializar a API do Google
-const checkAndInitGoogle = () => {
-    if (window.google?.accounts?.id) {
-        if (initGoogleButton()) {
-            googleApiReady.value = true
-        }
-    } else {
-        // Tenta novamente após um pequeno delay
-        setTimeout(checkAndInitGoogle, 300)
-    }
-}
 
 function validatePhone() {
     const phone = form.value.phone?.toString().trim() || '';
@@ -313,6 +186,27 @@ function validatePaymentMethod() {
     }
 }
 
+// Método para lidar com timeout do GPO
+function handlePaymentTimeout() {
+    // Fecha o modal
+    openPPM.value = false;
+
+    // Mostra mensagem de timeout
+    Swal.fire({
+        title: 'Pagamento Excedeu o Limite',
+        text: 'O tempo para confirmar o pagamento via Multicaixa Express expirou. Por favor, inicie um novo pedido.',
+        icon: 'error',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'OK'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Volta para a página anterior
+            router.back()
+        }
+    })
+
+}
+
 function validateAllFields() {
     const validations = [
         validateFullName(),
@@ -352,40 +246,67 @@ async function finishPurchase(e) {
         return
     } else {
         loadingOrder.value = true
-        setTimeout(async () => {
-            openPPM.value = true
-            await newOrder({
-                cart: cart?.value,
-                eventId: cart?.value.event?._id,
-                paymentMethod: form.value.paymentMethod,
-                data: {
-                    fullName: form.value.fullName,
-                    email: form.value.email,
-                    phone: form.value.phone
-                }
-            }).then(res => {
-                const { newOrder } = res.data
-                router.replace(`/checkout/detalhes-do-pedido/${newOrder.id}`)
+        openPPM.value = true
+        await newOrder({
+            cart: cart?.value,
+            eventId: cart?.value.event?._id,
+            paymentMethod: form.value.paymentMethod,
+            data: {
+                fullName: form.value.fullName,
+                email: form.value.email,
+                phone: form.value.phone
+            }
+        }).then(res => {
+            const { newOrder } = res.data
+            router.replace(`/checkout/detalhes-do-pedido/${newOrder.id}`)
+        })
+            .finally(() => {
+                openPPM.value = false
             })
-                .finally(() => {
-                    openPPM.value = false
-                })
-                .catch(err => {
+            .catch(err => {
+                if (form.value.paymentMethod === 'GPO') {
                     if (err.response.status === 400) {
-                        if (form.value.paymentMethod === 'mul') {
+                        const data = err?.response?.data?.responseStatus;
+                        const status = data?.status;
+
+                        if (status == 'failed') {
+                            Swal.fire({
+                                title: 'Pagamento Cancelado',
+                                text: 'O pagamento via Multicaixa Express foi cancelado ou excedeu o tempo limite. Por favor, inicie um novo pedido.',
+                                icon: 'error',
+                                confirmButtonColor: '#3085d6',
+                                confirmButtonText: 'OK'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    resetForm()
+                                    // Volta para a página anterior
+                                    router.back()
+                                }
+                            })
+                        } else {
                             resetForm()
                             validateAllFields()
                             window.scrollTo(0, 0)
                             toast('Falha na Execução do Processo.', {
                                 theme: "colored",
-                                position: "bottom-right",
-                                autoClose: 2500,
+                                position: "top-right",
+                                autoClose: 3500,
                                 type: 'error'
                             })
                         }
                     }
-                })
-        }, 500)
+                } else {
+                    resetForm()
+                    validateAllFields()
+                    window.scrollTo(0, 0)
+                    toast('Falha na Execução do Processo.', {
+                        theme: "colored",
+                        position: "top-right",
+                        autoClose: 3500,
+                        type: 'error'
+                    })
+                }
+            })
     }
 }
 
@@ -417,7 +338,6 @@ watch(() => hasLogged.value, async (newValue) => {
         validateAllFields()
 
         await nextTick()
-        checkAndInitGoogle()
 
         if (window.scrollY > 0) {
             // Scroll suave para o topo da página
@@ -447,14 +367,6 @@ onMounted(async () => {
                 paymentMethod: 'reference',
                 phone: user.value.phone?.toString() || '',
                 email: user.value.email
-            }
-        } else {
-
-            try {
-                // Verifica se a API do Google já está carregada
-                checkAndInitGoogle()
-            } catch (e) {
-                console.error('Erro na autenticação Google:', e);
             }
         }
 
@@ -640,8 +552,7 @@ onMounted(async () => {
                                             <div class="shrink-0">
                                                 <input id="reference" v-model="form.paymentMethod" class="appearance-none rounded-full w-4 h-4 border-2 border-gray-400 
                           transition-all duration-200 ease-linear mt-0.5
-                          checked:border-[5px] checked:border-black !important" type="radio"
-                                                    value="reference"></input>
+                          checked:border-[5px] checked:border-black !important" type="radio" value="reference"></input>
                                             </div>
                                             <div>
                                                 <svg class="w-[100px] mb-1" xmlns="http://www.w3.org/2000/svg"
@@ -669,13 +580,13 @@ onMounted(async () => {
                                                 <p class="text-xs text-gray-500">Pagamento por referência</p>
                                             </div>
                                         </label>
-                                        <!--
-                                        <label for="mul"
+
+                                        <label for="GPO"
                                             class="p-4 cursor-pointer mb-4 flex gap-2 bg-white border border-gray-300 rounded-sm">
                                             <div class="shrink-0">
-                                                <input id="mul" v-model="form.paymentMethod" class="appearance-none rounded-full w-4 h-4 border-2 border-gray-400 
+                                                <input id="GPO" v-model="form.paymentMethod" class="appearance-none rounded-full w-4 h-4 border-2 border-gray-400 
                           transition-all duration-200 ease-linear mt-0.5
-                          checked:border-[5px] checked:border-black !important" type="radio" value="mul"></input>
+                          checked:border-[5px] checked:border-black !important" type="radio" value="GPO"></input>
                                             </div>
                                             <div>
                                                 <svg class="w-[100px] mb-1" xmlns="http://www.w3.org/2000/svg"
@@ -735,7 +646,7 @@ onMounted(async () => {
                                                 <p class="text-xs text-gray-500">Multicaixa Express</p>
                                             </div>
                                         </label>
--->
+
                                         <label for="paypay"
                                             class="p-4 cursor-pointer mb-4 flex gap-2 bg-white border border-gray-300 rounded-sm">
                                             <div class="shrink-0">
@@ -899,7 +810,8 @@ onMounted(async () => {
             <!--end drawers-->
 
             <!--start processing payment modal-->
-            <ProcessingModalPayment :is-open="openPPM" />
+            <ProcessingModalPayment :is-open="openPPM" :payment-method="form.paymentMethod"
+                @timeout="handlePaymentTimeout" />
             <!--end processing payment modal-->
         </div>
     </div>
