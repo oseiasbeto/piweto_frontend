@@ -26,12 +26,12 @@ const store = useStore()
             <Events v-if="route.name == 'My events'" />
             <NewEvent v-if="route.name == 'New event'" />
             <EditEvent v-if="route.name == 'Edit event'" />
-            <Footer/>
+           
         </div>
         <!--end views dashboard-->
 
         <!--start chat-->
-        <a class="w-[60px] z-40 rounded-full shadow-2xl text-white fixed right-10 bottom-10 h-[60px] flex justify-center items-center bg-[#25d366]"
+        <a class="w-[60px] z-[100] rounded-full shadow-2xl text-white fixed right-10 bottom-10 h-[60px] flex justify-center items-center bg-[#25d366]"
             href="https://wa.me/948360831" target="_blank">
             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#fff" version="1.1"
                 id="Capa_1" width="28px" height="28px" viewBox="0 0 30.667 30.667" xml:space="preserve">

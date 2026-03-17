@@ -183,3 +183,20 @@ button.ql-active .ql-stroke,
   -ms-overflow-style: none;  /* IE e Edge */
   scrollbar-width: none;     /* Firefox */
 }
+
+.tippy-box[data-theme~='custom-card'] {
+  background-color: #3c3d46; /* cinza escuro (tailwind gray-800) */
+  color: #fff;
+  font-size: 12px;
+  padding: 0;
+}
+
+/* conteúdo interno */
+.tippy-box[data-theme~='custom-card'] .tippy-content {
+  padding: 12px 18px;
+}
+
+/* seta (arrow) */
+.tippy-box[data-theme~='custom-card'] .tippy-arrow {
+  color: #3c3d46; /* mesma cor do fundo */
+}

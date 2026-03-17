@@ -186,27 +186,6 @@ function validatePaymentMethod() {
     }
 }
 
-// Método para lidar com timeout do GPO
-function handlePaymentTimeout() {
-    // Fecha o modal
-    openPPM.value = false;
-
-    // Mostra mensagem de timeout
-    Swal.fire({
-        title: 'Pagamento Excedeu o Limite',
-        text: 'O tempo para confirmar o pagamento via Multicaixa Express expirou. Por favor, inicie um novo pedido.',
-        icon: 'error',
-        confirmButtonColor: '#3085d6',
-        confirmButtonText: 'OK'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Volta para a página anterior
-            router.back()
-        }
-    })
-
-}
-
 function validateAllFields() {
     const validations = [
         validateFullName(),

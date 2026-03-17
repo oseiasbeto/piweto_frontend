@@ -11,8 +11,8 @@
       class="flex-1 text-[13px] h-full text-[#50525f] bg-transparent outline-none" @input="handleInput" @keydown.enter="handleSearch" />
 
     <!-- Ícone à direita: limpar ou spinner -->
-    <div class="shrink-0 w-[36px] h-full">
-      <div class="w-full flex items-center justify-center h-full cursor-pointer text-gray-600 hover:text-inherit" v-if="searchQuery">
+    <div v-show="searchQuery.length" class="shrink-0 w-[36px] h-full">
+      <div class="w-full flex items-center justify-center h-full cursor-pointer text-gray-600 hover:text-[#0097ff] transition-colors hover:text-inherit" v-if="searchQuery">
         <svg @click="clearSearch" class="w-5 h-5 "
           xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
