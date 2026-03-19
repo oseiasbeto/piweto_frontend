@@ -26,15 +26,15 @@ function getFirstAndLastInitials(name) {
 </script>
 
 <template>
-    <div class="bg-[#848c9b] border-[2.8px] flex justify-center items-center shadow-sm rounded-full"
+    <div class="bg-[#8d909a] border-[2.8px] flex justify-center items-center shadow-sm rounded-full"
         :class="`${size } ${!showBorder ? 'border-transparent shadow-none' : 'ssc border-white'}` ">
         <img class="w-full h-full object-cover" v-if="url" v-lazy="url" :alt="name || 'Avatar'">
-        <p class="text-white font-semibold uppercase" v-else> {{ getFirstAndLastInitials(name) }} </p>
+        <p class="text-white text-sm lg:text-base font-semibold uppercase" v-else> {{ getFirstAndLastInitials(name) }} </p>
     </div>
 </template>
 
 <style scoped>
 .ssc {
-    box-shadow: rgba(25, 31, 40, 0.15) 0px 1px 2px 0px;
+    box-shadow: rgba(25, 31, 40, 0.15) 0px 0px 0px 1px;
 }
 </style>

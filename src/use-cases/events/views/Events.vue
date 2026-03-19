@@ -5,7 +5,7 @@
         <div class="p-0 lg:p-5 pb-32 lg:pb-36">
             <!--start content result -->
             <div class="data">
-                <!-- Header -->
+                <!-- start Header -->
                 <div
                     class="w-full mb-6 px-4 py-4 lg:py-6 lg:px-8 bg-white rounded-none lg:rounded-md lg:shadow-[0_2px_10px_0_rgba(0,0,0,0.05)]">
                     <div>
@@ -16,7 +16,7 @@
                         </div>
                         <div class="flex flex-col lg:flex-row items-center gap-4">
                             <router-link
-                                class="border border-brand-primary bg-brand-primary w-full text-[13px] font-semibold text-white rounded-md py-[7px] px-4 hover:bg-green-500 text-center lg:w-auto"
+                                class="border border-brand-primary bg-brand-primary w-full text-[13px] font-semibold text-white rounded-md py-[7px] px-4 hover:border-brand-primary-dark hover:bg-brand-primary-dark text-center lg:w-auto"
                                 :to="{
                                     path: '/eventos/novo-evento',
                                     query: {
@@ -28,7 +28,8 @@
                         </div>
                     </div>
                 </div>
-                <!--end header content result empty -->
+                <!--end header-->
+
 
                 <div class="flex bg-white rounded-md flex-col flex-wrap shadow-[0_2px_10px_0_rgba(0,0,0,0.05)]">
                     <!-- Filtros para dispositivos móveis/disktop -->
@@ -405,7 +406,7 @@
                                     </p>
                                     <!-- MENU -->
                                     <Menu as="div" class="relative">
-                                        <MenuButton @click.stop
+                                        <MenuButton @click.stop="handleMenuClick(eventWrapper.event._id)"
                                             class="w-8 h-8 flex text-[#d8d8d8] items-center justify-center rounded-lg transition">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 20 20"
                                                 fill="currentColor">
@@ -420,8 +421,8 @@
                                             leave-active-class="transition duration-75 ease-in"
                                             leave-from-class="transform scale-100 opacity-100"
                                             leave-to-class="transform scale-95 opacity-0">
-                                            <MenuItems
-                                                class="absolute right-0 top-[110%] z-50 w-[210px] origin-top-right bg-white shadow-lg ring-1 ring-black/5 focus:outline-none ">
+                                            <MenuItems v-if="openMenuId === eventWrapper.event._id" static
+                                                class="absolute p-2 right-0 top-[110%] z-50 w-[210px] origin-top-right bg-white shadow-lg ring-1 ring-black/5 focus:outline-none ">
 
                                                 <!-- Seta -->
                                                 <div
@@ -432,7 +433,7 @@
                                                 <MenuItem v-slot="{ active }">
                                                 <button @click.stop="goToDashboard(eventWrapper.event.id)" :class="[
                                                     active ? 'bg-gray-100' : '',
-                                                    'flex w-full items-center gap-3 px-4 py-3 text-sm text-brand-gray-500 transition'
+                                                    'flex w-full mt-[2.5px] items-center gap-3 px-4 py-3 text-sm text-brand-gray-500 transition'
                                                 ]">
                                                     <span>Painel de controle</span>
                                                 </button>
@@ -544,7 +545,6 @@
 
                         </ul>
                     </div>
-c
 
                     <!-- Controles de paginação -->
                     <div v-if="validEvents?.length" class="w-full">
@@ -622,8 +622,6 @@ c
                     </div>
                 </div>
             </div>
-
-
             <!--end content result -->
         </div>
         <!--end body -->
@@ -641,6 +639,7 @@ import { toast } from "vue3-toastify"
 import moment from "moment";
 import DynamicSearch from "@/use-cases/dashboard/components/dynamics/DynamicSearch.vue";
 import BtnSpinner from "../components/spinners/BtnSpinner.vue";
+
 import {
     Listbox,
     ListboxButton,
@@ -689,7 +688,7 @@ const status = ref(null);
 const staffType = ref(null)
 const q = ref(null);
 const searchRef = ref(null)
-
+const openMenuId = ref(null)
 
 // Esta função computada tem como finalidade retornar os dados do usuário logado.
 const getCurrentUser = computed(() => {
@@ -769,7 +768,13 @@ const handleNextPage = () => {
     }
 };
 
+const handleMenuClick = (id, isOpen) => {
+    openMenuId.value = openMenuId.value === id ? null : id
+}
 
+const handleClickOutside = () => {
+    openMenuId.value = null
+}
 
 const fetchStaffs = async () => {
     loadingEvents.value = true;

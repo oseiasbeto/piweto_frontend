@@ -31,14 +31,14 @@ const positionClass = computed(() => {
         :class="positionClass">
         <!--start left area-->
         <button class="w-8 h-8 text-brand-primary block lg:hidden">
-           
+
         </button>
         <div class="flex items-center">
             <Logo size="w-[80px] lg:w-[100px]" />
-            <A href="/eventos/meus-eventos"
+            <a href="/eventos/meus-eventos"
                 class="hidden lg:block text-brand-gray-500 border-l-2 px-2 ml-2 cursor-pointer border-gray-200 text-xs uppercase">
                 <p>Área do produtor</p>
-            </A>
+            </a>
         </div>
         <!--end left area-->
 

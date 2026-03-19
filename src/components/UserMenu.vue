@@ -83,7 +83,7 @@ async function handlelogout() {
     <Menu v-if="hasLogged" as="div" class="relative border-none z-[1000] inline-block text-left">
         <div>
             <MenuButton class="flex items-center gap-3.5">
-                <Avatar :showBorder="showBorder" size="w-[38px] h-[38px]" :url="user.avatar.url"
+                <Avatar :showBorder="showBorder" size="w-[30px] h-[30px] lg:w-[38px] lg:h-[38px]" :url="user.avatar.url"
                     :name="user.full_name" />
                 <p v-if="showName" class="w-[130px] text-gray-900 font-normal text-base uppercase truncate">{{
                     user.full_name
