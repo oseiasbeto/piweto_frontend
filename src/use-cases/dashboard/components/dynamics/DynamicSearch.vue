@@ -40,7 +40,7 @@ const props = defineProps({
 });
 
 // Emits
-const emit = defineEmits(['update:search', 'search']);
+const emit = defineEmits(['update:search', 'clearInput', 'search']);
 
 // Estado reativo
 const searchQuery = ref('');
@@ -62,6 +62,7 @@ const handleSearch = () => {
 const clearSearch = () => {
   searchQuery.value = '';
   emit('update:search', '');
+  emit('clearInput');
 };
 
 defineExpose({

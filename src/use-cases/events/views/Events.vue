@@ -75,8 +75,13 @@
                                         pelo
                                         nome do
                                         evento</p>
-                                    <DynamicSearch ref="searchRef" placeholder="Buscar pelo nome do evento"
-                                        v-model:search="q" :loading="loadingEvents" @search="applyFilters" />
+                                    <DynamicSearch 
+                                        ref="searchRef" 
+                                        placeholder="Buscar pelo nome do evento"
+                                        v-model:search="q" 
+                                        :loading="loadingEvents" 
+                                        @search="applyFilters"
+                                    />
                                 </div>
                                 <!-- Filtrar por compartilhamento -->
                                 <div class="lg:max-w-60 w-full">
@@ -269,17 +274,34 @@
                                     </td>
 
                                     <td class="px-4 py-2 text-brand-gray-500">
-                                        <div
-                                            class="h-full w-[130px] relative overflow-hidden flex text-xs bg-gray-100 group-hover:bg-white rounded-lg font-medium py-[4px] px-2">
-                                            <div class="relative z-[99] w-full flex justify-between">
-                                                <span>{{ eventWrapper.event.tickets_purchased_count }}</span>
-                                                <span>{{ eventWrapper.event.tickets_available_count }}</span>
+                                        <div class="flex gap-3 items-center">
+                                            <div
+                                                class="h-full w-[130px] relative overflow-hidden flex text-xs bg-gray-100 group-hover:bg-white rounded-lg font-medium py-[4px] px-2">
+                                                <div class="relative z-[99] w-full flex justify-between">
+                                                    <span>{{ eventWrapper.event.tickets_purchased_count }}</span>
+                                                    <span>{{ eventWrapper.event.tickets_available_count }}</span>
+                                                </div>
+
+                                                <span class="absolute top-0 left-0 h-full bg-[#6AD9D1]" :style="`width: ${calculateProgress(
+                                                    eventWrapper.event.tickets_purchased_count,
+                                                    eventWrapper.event.tickets_available_count
+                                                )}%`"></span>
                                             </div>
 
-                                            <span class="absolute top-0 left-0 h-full bg-[#6AD9D1]" :style="`width: ${calculateProgress(
-                                                eventWrapper.event.tickets_purchased_count,
-                                                eventWrapper.event.tickets_available_count
-                                            )}%`"></span>
+                                            <button v-tippy="{
+                                                content: `TOTAL VENDIDO<br>Online: ${formatAmount(eventWrapper.event.balance)} Kz`, maxWidth: 180, placement: 'top', theme: 'custom-card'
+                                            }"
+                                                class="w-auto shrink-0 h-full flex text-[#0097ff] items-center justify-center rounded-ful">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-[22px] h-[22px]"
+                                                    viewBox="0 0 24 24" fill="none">
+                                                    <circle cx="12" cy="12" r="10" stroke="currentColor"
+                                                        stroke-width="1.2" />
+                                                    <path d="M12 17V11" stroke="currentColor" stroke-width="1.5"
+                                                        stroke-linecap="round" />
+                                                    <circle cx="1" cy="1" r="1" transform="matrix(1 0 0 -1 11 9)"
+                                                        fill="currentColor" />
+                                                </svg>
+                                            </button>
                                         </div>
                                     </td>
 
@@ -317,27 +339,18 @@
                                             </router-link>
                                         </div>
 
-                                        <!-- 
-                                        <button
-                                            v-tippy="{ content: 'Eliminar', maxWidth: 350, placement: 'top', theme: 'custom-card' }"
-                                            @click="confirmDelete(eventWrapper.event._id)"
-                                            class="w-6 h-6 flex text-[#0097ff] items-center justify-center rounded-ful">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-[22px] h-[22px]"
-                                                viewBox="0 0 1024 1024">
-                                                <path fill="currentColor"
-                                                    d="M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32V256zm448-64v-64H416v64h192zM224 896h576V256H224v640zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32zm192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32z" />
-                                            </svg>
-                                        </button>-->
-
                                         <a :href="`/evento/${eventWrapper.event.slug}`" target="_blank" @click.stop>
                                             <button
                                                 v-tippy="{ content: 'Ir à página do evento', maxWidth: 350, placement: 'top', theme: 'custom-card' }"
                                                 class="w-6 h-6 flex text-[#0097ff] items-center justify-center rounded-ful">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"
-                                                    class="w-5 h-5" viewBox="0 0 32 32" version="1.1">
-
-                                                    <path
-                                                        d="M26 15.036c-0.69 0-1.25 0.56-1.25 1.25v12.464h-21.5v-21.5h12.464c0.69 0 1.25-0.56 1.25-1.25s-0.56-1.25-1.25-1.25v0h-13.714c-0.69 0-1.25 0.56-1.25 1.25v0 24c0 0.69 0.56 1.25 1.25 1.25h24c0.69-0.001 1.249-0.56 1.25-1.25v-13.714c-0-0.69-0.56-1.25-1.25-1.25h-0zM31.248 1.917c-0.046-0.648-0.578-1.158-1.231-1.167h-10.017c-0.69 0-1.25 0.56-1.25 1.25s0.56 1.25 1.25 1.25v0h6.982l-15.866 15.865c-0.227 0.226-0.367 0.539-0.367 0.885 0 0.691 0.56 1.251 1.251 1.251 0.345 0 0.658-0.14 0.884-0.366v0l15.866-15.867v6.982c0 0.69 0.56 1.25 1.25 1.25s1.25-0.56 1.25-1.25v0-9.991c0-0.031 0-0.062-0.002-0.092z" />
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full"
+                                                    viewBox="0 0 24 24" fill="none">
+                                                    <g id="Interface / External_Link">
+                                                        <path id="Vector"
+                                                            d="M10.0002 5H8.2002C7.08009 5 6.51962 5 6.0918 5.21799C5.71547 5.40973 5.40973 5.71547 5.21799 6.0918C5 6.51962 5 7.08009 5 8.2002V15.8002C5 16.9203 5 17.4801 5.21799 17.9079C5.40973 18.2842 5.71547 18.5905 6.0918 18.7822C6.5192 19 7.07899 19 8.19691 19H15.8031C16.921 19 17.48 19 17.9074 18.7822C18.2837 18.5905 18.5905 18.2839 18.7822 17.9076C19 17.4802 19 16.921 19 15.8031V14M20 9V4M20 4H15M20 4L13 11"
+                                                            stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+                                                            stroke-linejoin="round" />
+                                                    </g>
                                                 </svg>
                                             </button>
                                         </a>
@@ -393,6 +406,7 @@
                             </tbody>
                         </table>
                     </div>
+
 
                     <div v-if="!loadingEvents">
                         <!-- Lista de eventos para dispositivos móveis -->
@@ -638,7 +652,7 @@ import Swal from "sweetalert2"
 import { toast } from "vue3-toastify"
 import moment from "moment";
 import DynamicSearch from "@/use-cases/dashboard/components/dynamics/DynamicSearch.vue";
-import BtnSpinner from "../components/spinners/BtnSpinner.vue";
+import formatAmount from "@/utils/formatAmount";
 
 import {
     Listbox,
