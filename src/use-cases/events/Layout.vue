@@ -1,14 +1,11 @@
 <script setup>
 import { useRoute } from "vue-router"
-import { onMounted, computed } from "vue"
 import { useStore } from "vuex";
-import { toast } from "vue3-toastify"
 import Modal from "./components/ui/Modal.vue";
 import Navbar from "./components/ui/Navbar.vue";
 import Events from "./views/Events.vue";
 import NewEvent from "./views/NewEvent.vue";
 import EditEvent from "./views/EditEvent.vue";
-import Footer from "../marketplace/components/ui/Footer.vue";
 
 const route = useRoute()
 
@@ -16,7 +13,7 @@ const store = useStore()
 </script>
 
 <template>
-    <div class="relative">
+    <div class="relative evently !font-tertiary">
         <!--start navbar-->
         <Navbar />
         <!--end navbar-->
@@ -26,7 +23,7 @@ const store = useStore()
             <Events v-if="route.name == 'My events'" />
             <NewEvent v-if="route.name == 'New event'" />
             <EditEvent v-if="route.name == 'Edit event'" />
-           
+
         </div>
         <!--end views dashboard-->
 
@@ -42,9 +39,16 @@ const store = useStore()
             </svg>
         </a>
         <!--end chat-->
-        
+
         <!--start modal dashboard-->
         <Modal />
         <!--end modal dashboard-->
     </div>
 </template>
+
+<style>
+.evently {
+    line-height: 1.846 !important;
+    font-size: 13px !important;
+}
+</style>

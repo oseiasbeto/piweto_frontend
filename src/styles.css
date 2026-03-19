@@ -5,7 +5,7 @@
 html,
 body {
     overscroll-behavior-y: contain;
-    font-family: "Inter", sans-serif;
+    color: #50525f !important   ;
 }
 
 button, a, input {

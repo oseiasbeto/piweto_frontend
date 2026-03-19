@@ -56,10 +56,10 @@ const positionClass = computed(() => {
         </div>
         <div class="flex items-center">
             <Logo size="w-[80px] lg:w-[110px]" />
-            <router-link to="/eventos/meus-eventos"
-                class="hidden lg:block text-gray-500 border-l-2 px-2 ml-2 cursor-pointer border-gray-200 text-sm uppercase">
+            <a href="/eventos/meus-eventos"
+                class="hidden lg:block text-brand-gray-500 border-l-2 px-2 ml-2 cursor-pointer border-gray-200 text-sm uppercase">
                 <p>Área do produtor</p>
-            </router-link>
+            </a>
         </div>
         <div>
             <!--start avatar area-->
