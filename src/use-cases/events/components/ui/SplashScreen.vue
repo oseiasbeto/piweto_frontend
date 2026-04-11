@@ -1,7 +1,7 @@
 <template>
     <div v-if="isVisible" class="fixed inset-0 z-[9998] flex items-center justify-center bg-white" @wheel.prevent
         @touchmove.prevent>
-        <div class="loader"></div>
+        <div class="loader w-[40px] lg:w-[70px] before:w-[4px] lg:before:w-[8px]"></div>
     </div>
 </template>
 
@@ -45,7 +45,6 @@ onBeforeUnmount(() => {
 <style scoped>
 /* HTML: <div class="loader"></div> */
 .loader {
-    width: 70px;
     aspect-ratio: 1;
     background:
         radial-gradient(farthest-side, #ffcd35 90%, #0000) center/16px 16px,
@@ -58,7 +57,7 @@ onBeforeUnmount(() => {
 .loader::before {
     content: "";
     position: absolute;
-    width: 8px;
+    
     aspect-ratio: 1;
     inset: auto 0 16px;
     margin: auto;

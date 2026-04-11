@@ -63,8 +63,8 @@
                         <div :class="[
                             showFilters
                                 ? 'max-h-[500px] opacity-100'
-                                : 'max-h-0 opacity-0',
-                            'lg:max-h-none transition-all lg:opacity-100'
+                                : 'max-h-0 pointer-events-none opacity-0',
+                            'lg:max-h-none transition-all lg:pointer-events-auto lg:opacity-100'
                         ]">
                             <div
                                 class="flex flex-col pb-4 lg:pb-0 lg:py-4 px-4 lg:flex-row items-center lg:border-none lg:mb-8 gap-4">
@@ -75,13 +75,8 @@
                                         pelo
                                         nome do
                                         evento</p>
-                                    <DynamicSearch 
-                                        ref="searchRef" 
-                                        placeholder="Buscar pelo nome do evento"
-                                        v-model:search="q" 
-                                        :loading="loadingEvents" 
-                                        @search="applyFilters"
-                                    />
+                                    <DynamicSearch ref="searchRef" placeholder="Buscar pelo nome do evento"
+                                        v-model:search="q" :loading="loadingEvents" @search="applyFilters" />
                                 </div>
                                 <!-- Filtrar por compartilhamento -->
                                 <div class="lg:max-w-60 w-full">
@@ -193,18 +188,17 @@
                                 <div
                                     class="w-full mt-4 lg:mt-9 flex flex-col lg:flex-row gap-2 lg:gap-1.5 items-center">
                                     <button @click="applyFilters"
-                                        class="border border-[#0097ff] w-full lg:w-auto hover:bg-[#0097ff] hover:text-white transition-colors text-[#0097ff] py-2 px-8 text-xs font-medium uppercase rounded-full">
+                                        class="border border-[#0097ff] w-full lg:w-auto hover:bg-[#0097ff] hover:text-white transition-colors text-[#0097ff] lg:py-2 py-2.5 px-8 text-xs font-medium uppercase rounded-full">
                                         Filtrar
                                     </button>
 
                                     <button @click="clearFilters"
-                                        class="border border-transparent w-full lg:w-auto hover:bg-[#f1f1f1] transition-colors text-[#0097ff] py-2 px-5 text-xs font-medium uppercase whitespace-nowrap rounded-full">
+                                        class="border border-transparent w-full lg:w-auto hover:bg-[#f1f1f1] transition-colors text-[#0097ff] lg:py-2 py-2.5 px-5 text-xs font-medium uppercase whitespace-nowrap rounded-full">
                                         Limpar filtros
                                     </button>
                                 </div>
                             </div>
                         </div>
-
                     </div>
 
                     <!-- Tabela de eventos para dispositivos desktop -->
@@ -289,7 +283,7 @@
                                             </div>
 
                                             <button v-tippy="{
-                                                content: `TOTAL VENDIDO<br>Online: ${formatAmount(eventWrapper.event.balance)} Kz`, maxWidth: 180, placement: 'top', theme: 'custom-card'
+                                                content: `TOTAL VENDIDO<br>Online: ${formatAmount(eventWrapper.event.balance)}`, maxWidth: 180, placement: 'top', theme: 'custom-card'
                                             }"
                                                 class="w-auto shrink-0 h-full flex text-[#0097ff] items-center justify-center rounded-ful">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[22px] h-[22px]"
@@ -348,8 +342,8 @@
                                                     <g id="Interface / External_Link">
                                                         <path id="Vector"
                                                             d="M10.0002 5H8.2002C7.08009 5 6.51962 5 6.0918 5.21799C5.71547 5.40973 5.40973 5.71547 5.21799 6.0918C5 6.51962 5 7.08009 5 8.2002V15.8002C5 16.9203 5 17.4801 5.21799 17.9079C5.40973 18.2842 5.71547 18.5905 6.0918 18.7822C6.5192 19 7.07899 19 8.19691 19H15.8031C16.921 19 17.48 19 17.9074 18.7822C18.2837 18.5905 18.5905 18.2839 18.7822 17.9076C19 17.4802 19 16.921 19 15.8031V14M20 9V4M20 4H15M20 4L13 11"
-                                                            stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
-                                                            stroke-linejoin="round" />
+                                                            stroke="currentColor" stroke-width="1.4"
+                                                            stroke-linecap="round" stroke-linejoin="round" />
                                                     </g>
                                                 </svg>
                                             </button>
@@ -410,7 +404,8 @@
 
                     <div clas="w-full" v-if="!loadingEvents">
                         <!-- Lista de eventos para dispositivos móveis -->
-                        <ul class="flex flex-col lg:hidden items-center" v-if="validEvents?.length">
+                        <ul class="flex w-full flex-col lg:hidden items-center"
+                            v-if="validEvents?.length">
                             <li class="w-full py-[10px] px-[20px] border-b-[5px] border-[#eee]"
                                 v-for="eventWrapper in validEvents" :key="eventWrapper.event._id"
                                 @click="goToDashboard(eventWrapper.event.id)">
@@ -478,7 +473,7 @@
                                     </Menu>
                                 </div>
 
-                                <div class="flex py-2 text-xs justify-between items-center">
+                                <div class="flex py-2 text-xs w-full justify-between items-center">
                                     <span class="text-brand-gray-500 min-w-[80px]">
                                         <div class="flex items-center gap-2">
                                             <div class="w-[12px] h-[12px] rounded-full"
@@ -502,14 +497,15 @@
 
                                         <p> {{ moment(eventWrapper.event.starts_at?.date).format("DD/MM/YYYY") }}</p>
                                     </span>
-                                    <span class="flex text-[#50525f] items-center">
-                                        <svg class=" shrink-0" xmlns="http://www.w3.org/2000/svg" width="28" height="28"
+                                    <span class="flex w-full text-[#50525f] items-center">
+                                        <svg class="shrink-0" xmlns="http://www.w3.org/2000/svg" width="28" height="28"
                                             viewBox="0 0 24 24">
                                             <path fill="#848C9B" fill-rule="evenodd"
                                                 d="M12 3c3.942 0 7.412 3.462 7.412 7.412a7.373 7.373 0 0 1-2.174 5.237l-.494.491-.431.43a.53.53 0 0 1-.748-.748l.928-.92a6.296 6.296 0 0 0 1.86-4.49A6.515 6.515 0 0 0 12 4.059a6.353 6.353 0 0 0-4.493 10.839L12 19.39l.935-.943a.533.533 0 0 1 .752.752l-1.316 1.313a.526.526 0 0 1-.749 0L6.76 15.649A7.412 7.412 0 0 1 12 3zm2.266 14.118a.53.53 0 0 1 .72-.04.522.522 0 0 1 .039.746v.02a.519.519 0 0 1-.73.01.526.526 0 0 1-.03-.736zM12 7.508a2.901 2.901 0 1 1-.007 5.802A2.901 2.901 0 0 1 12 7.506zm.703 1.199a1.842 1.842 0 1 0-1.413 3.403 1.842 1.842 0 0 0 1.413-3.403z" />
                                         </svg>
 
-                                        <p class="truncate max-w-[100px]"> {{ eventWrapper.event.address?.location || "Indefinido" }}
+                                        <p class="trunc max-w-full"> {{
+                                            eventWrapper.event.address?.location || "Indefinido" }}
                                         </p>
                                     </span>
                                 </div>
@@ -928,5 +924,13 @@ watch(limit, async () => {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
+}
+
+.trunc {
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    display: -webkit-box;
+    overflow: hidden;
 }
 </style>
