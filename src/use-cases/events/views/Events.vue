@@ -10,7 +10,7 @@
                     class="w-full mb-6 px-4 py-4 lg:py-6 lg:px-8 bg-white rounded-none lg:rounded-md lg:shadow-[0_2px_10px_0_rgba(0,0,0,0.05)]">
                     <div>
                         <div class="mb-4">
-                            <h1 class="font-bold text-brand-gray-500 text-[20px]">Olá,
+                            <h1 class="font-bold text-brand-gray-500 leading-8 text-[18px] lg:text-[20px]">Olá,
                                 {{ getCurrentUser.full_name }} </h1>
                             <p class="font-medium text-gray-400">Já publicou o seu evento?</p>
                         </div>
@@ -408,7 +408,7 @@
                     </div>
 
 
-                    <div v-if="!loadingEvents">
+                    <div clas="w-full" v-if="!loadingEvents">
                         <!-- Lista de eventos para dispositivos móveis -->
                         <ul class="flex flex-col lg:hidden items-center" v-if="validEvents?.length">
                             <li class="w-full py-[10px] px-[20px] border-b-[5px] border-[#eee]"
@@ -502,14 +502,14 @@
 
                                         <p> {{ moment(eventWrapper.event.starts_at?.date).format("DD/MM/YYYY") }}</p>
                                     </span>
-                                    <span class="flex text-[#50525f] items-center max-w-[146px]">
+                                    <span class="flex text-[#50525f] items-center">
                                         <svg class=" shrink-0" xmlns="http://www.w3.org/2000/svg" width="28" height="28"
                                             viewBox="0 0 24 24">
                                             <path fill="#848C9B" fill-rule="evenodd"
                                                 d="M12 3c3.942 0 7.412 3.462 7.412 7.412a7.373 7.373 0 0 1-2.174 5.237l-.494.491-.431.43a.53.53 0 0 1-.748-.748l.928-.92a6.296 6.296 0 0 0 1.86-4.49A6.515 6.515 0 0 0 12 4.059a6.353 6.353 0 0 0-4.493 10.839L12 19.39l.935-.943a.533.533 0 0 1 .752.752l-1.316 1.313a.526.526 0 0 1-.749 0L6.76 15.649A7.412 7.412 0 0 1 12 3zm2.266 14.118a.53.53 0 0 1 .72-.04.522.522 0 0 1 .039.746v.02a.519.519 0 0 1-.73.01.526.526 0 0 1-.03-.736zM12 7.508a2.901 2.901 0 1 1-.007 5.802A2.901 2.901 0 0 1 12 7.506zm.703 1.199a1.842 1.842 0 1 0-1.413 3.403 1.842 1.842 0 0 0 1.413-3.403z" />
                                         </svg>
 
-                                        <p class="truncate"> {{ eventWrapper.event.address?.location || "Indefinido" }}
+                                        <p class="truncate max-w-[100px]"> {{ eventWrapper.event.address?.location || "Indefinido" }}
                                         </p>
                                     </span>
                                 </div>
