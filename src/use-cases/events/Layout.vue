@@ -27,7 +27,7 @@ const store = useStore()
     <div class="relative evently !font-tertiary">
         <div v-if="!loading" class="relative">
             <!--start navbar-->
-            <Navbar />
+            <Navbar :sticked="route.name !== 'New event'" />
             <!--end navbar-->
 
             <!--start views dashboard-->

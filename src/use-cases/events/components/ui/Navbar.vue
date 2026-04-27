@@ -26,7 +26,7 @@ const positionClass = computed(() => {
 
 <template>
     <!--start navbar component-->
-    <div class="bg-white border-b z-[100] lg:border-none border-[#dfe0df] px-[20px] lg:px-8 
+    <div class="bg-white border-b z-[999] lg:border-none border-[#dfe0df] px-[20px] lg:px-8 
     lg:shadow-[0_1px_4px_0_rgba(0,0,0,0.2)] flex justify-between items-center w-[100%] h-[47px] lg:h-[70px]"
         :class="positionClass">
         <!--start left area-->

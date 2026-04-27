@@ -57,10 +57,10 @@ export default {
 </script>
 
 <template>
-    <div class="relative border border-gray-400 float-left text-left">
-        <div class="w-full lg:w-[280px] h-[144px]">
+    <div class="relative w-full border border-[#dfe0df] float-left text-left">
+        <div class="w-full flex justify-center lg:w-[280px] h-[144px]">
             <img 
-                class="w-full h-full object-cover" 
+                class="h-full object-cover" 
                 :src="createUrl ? createURLMedia(image) : (typeof image === 'string' ? image : image?.url)" 
                 :alt="title" 
                 :title="title"

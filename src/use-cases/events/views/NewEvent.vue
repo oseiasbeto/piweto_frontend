@@ -167,7 +167,7 @@ const form = computed(() => {
     return store.getters.eventForm
 })
 
-const cover = ref(null) 
+const cover = ref(null)
 
 const disabledStartsDate = computed(() => {
     const today = new Date();
@@ -801,7 +801,15 @@ onBeforeUnmount(() => {
 
 
 <template>
-    <div class="min-h-screen">
+    <div class="min-h-screen relative">
+        <!--header-->
+        <div
+            class="sticky top-0 z-[888] mb-4 mt-5 lg:m-0 shadow-[0_2px_10px_0_rgba(25,31,40,.15)] bg-white w-full">
+            <div class="lg:max-w-[1100px] py-4 px-4 lg:px-6 h-full mx-auto flex items-center">
+               <h1 class="text-[24px] leading-8 lg:text-[28px] text-[#494b57]">Criar <strong>Evento Presencial</strong></h1>
+            </div>
+        </div>
+        
         <!--start body -->
         <div class="lg:max-w-[1100px] relative z-10 lg:mx-auto">
             <div class="w-full mb-6 lg:p-6">
@@ -817,7 +825,7 @@ onBeforeUnmount(() => {
                             </div>
                             <div class="flex flex-col">
                                 <label
-                                    class="flex items-center gap-[3px] text-[12px] mb-1 text-gray-600 font-medium required flex-row"
+                                    class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f] required flex-row"
                                     for="titleField">
                                     Titulo do evento
 
@@ -836,57 +844,34 @@ onBeforeUnmount(() => {
                             </div>
                             <div class="form-group mt-4 mb-5">
                                 <label
-                                    class="flex items-center gap-[3px] text-[12px] mb-1 text-gray-600 font-medium required flex-row">
+                                    class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f] required flex-row">
                                     Imagem de divulgação (opcional)</label>
                                 <div class="flex flex-col lg:flex-row items-center gap-4 lg:gap-8 mt-2">
-                                    <div class="w-full md:w-auto relative">
-                                        <!-- Overlay de loading com barra de progresso e botão cancelar -->
-                                        <div v-if="selectFileLoading"
-                                            class="absolute inset-0 w-full lg:w-[280px] h-[144px] bg-black bg-opacity-50 rounded-lg flex flex-col items-center justify-center z-10">
-                                            <div class="bg-white p-4 rounded-lg shadow-lg w-48">
-                                                <p class="text-sm text-center mb-2 font-medium">Uploading...</p>
-                                                <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
-                                                    <div class="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
-                                                        :style="{ width: uploadProgressPercentage + '%' }">
-                                                    </div>
-                                                </div>
-                                                <p class="text-xs text-center text-gray-600">
-                                                    {{ uploadProgressPercentage }}% concluído
-                                                </p>
-
-                                                <!-- Botão Cancelar -->
-                                                <button @click="cancelUpload"
-                                                    class="mt-3 w-full bg-red-500 hover:bg-red-600 text-white text-xs font-medium py-2 px-3 rounded-full transition-colors duration-200 flex items-center justify-center gap-1">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3"
-                                                        viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fill-rule="evenodd"
-                                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                                            clip-rule="evenodd" />
-                                                    </svg>
-                                                    Cancelar Upload
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <DropzoneImage ref="dropzoneRef" @drop.prevent="dropCover" @change="selectCover"
-                                            :class="{ 'opacity-50 pointer-events-none': selectFileLoading }"
+                                    <div class="w-full lg:w-auto relative">
+                                        <DropzoneImage :loading="selectFileLoading" ref="dropzoneRef" @drop.prevent="dropCover" @change="selectCover"
                                             v-if="!form.file" />
                                         <PreviewImage v-else :image="form.file" />
                                     </div>
-                                    <div class="w-full md:w-auto">
-                                        <div class="flex gap-3 mb-3 items-center" v-if="form.file">
+                                    <div class="w-full lg:w-auto">
+                                        <div class="flex gap-3 mb-3 items-center" v-if="form.file || selectFileLoading">
                                             <button
                                                 class="border cursor-pointer border-[#0097ff] text-[#0097ff] text-[10px] font-medium uppercase rounded-full py-[6px] px-3 hover:bg-[#0097ff] hover:border-[#0097ff] hover:text-white"
                                                 :disabled="selectFileLoading"
-                                                :class="{ 'opacity-50 cursor-not-allowed': selectFileLoading }"
+                                                :class="{ 'opacity-50 pointer-events-none cursor-not-allowed': selectFileLoading }"
                                                 @click="handleLabelClick">
                                                 Trocar de imagem
                                             </button>
                                             <button
                                                 class="border cursor-pointer border-[#0097ff] text-[#0097ff] text-[10px] font-medium uppercase rounded-full py-[6px] px-3 hover:bg-[#0097ff] hover:border-[#0097ff] hover:text-white"
                                                 :disabled="selectFileLoading"
-                                                :class="{ 'opacity-50 cursor-not-allowed': selectFileLoading }"
-                                                @click="replaceCover">Remover</button>
+                                                :class="{ 'opacity-50 pointer-events-none cursor-not-allowed': selectFileLoading }"
+                                                @click="replaceCover">Remover
+                                            </button>
+                                            <button
+                                                class="border cursor-pointer border-[#0097ff] text-[#0097ff] text-[10px] font-medium uppercase rounded-full py-[6px] px-3 hover:bg-[#0097ff] hover:border-[#0097ff] hover:text-white"
+                                                v-if="selectFileLoading"
+                                                @click="cancelUpload">Cancelar envio
+                                            </button>
                                         </div>
 
                                         <!-- Barra de progresso alternativa para quando já tem imagem -->
@@ -914,13 +899,8 @@ onBeforeUnmount(() => {
                                             </div>
                                         </div>
 
-                                        <p class="text-sm text-gray-500">A dimensão recomendada é de <strong>1600 x
-                                                838</strong><br>(mesma proporção do formato utilizado nas páginas de
-                                            evento
-                                            no
-                                            <b>Facebook</b>).<br>Formato <strong>JPEG, GIF ou PNG de no máximo
-                                                5MB.</strong><br>Imagens
-                                            com dimensões diferentes serão redimensionadas.
+                                        <p class="text-xs lg:max-w-[500px] leading-5 text-[#50525f]">
+                                            Formatos aceitos: JPEG, GIF ou PNG de até 2MB. Dimensão recomendada: 1600 x 838 pixels.
                                         </p>
                                     </div>
                                 </div>
@@ -928,7 +908,7 @@ onBeforeUnmount(() => {
 
                             <div class="form-group">
                                 <label
-                                    class="flex items-center gap-[3px] text-[12px] mb-1 text-gray-600 font-medium required flex-row">
+                                    class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f] required flex-row">
                                     Categoria
                                     <span class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
                                 </label>
@@ -958,7 +938,7 @@ onBeforeUnmount(() => {
                                 <div>
                                     <div class="w-full">
                                         <label
-                                            class="flex items-center gap-[3px] text-[12px] mb-1 text-gray-600 font-medium reqitems-center">
+                                            class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f] reqitems-center">
                                             Nome do Local
                                             <span
                                                 class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
@@ -1201,7 +1181,7 @@ onBeforeUnmount(() => {
                                 <strong style="position: relative; top: 1px;">Visibilidade do evento:</strong>
                                 <div class="flex items-center gap-4">
                                     <label
-                                        class="flex cursor-pointer text-sm items-center gap-1.5 mb-1 text-gray-600 font-medium reqility__label"
+                                        class="flex cursor-pointer text-sm items-center gap-1.5 mb-1 font-semibold text-[#50525f] reqility__label"
                                         style="vertical-align: baseline;">
                                         <input
                                             class="p-[10px] border !rounded-sm border-gray-300 h-[40px] scale-[1.3] text-[13px] focus:outline-none !text-gray-600  placeholder:text-gray-400"
@@ -1209,7 +1189,7 @@ onBeforeUnmount(() => {
                                         Público
                                     </label>
                                     <label
-                                        class="flex cursor-pointer text-sm items-center gap-1.5 mb-1 text-gray-600 font-medium reqility__label"
+                                        class="flex cursor-pointer text-sm items-center gap-1.5 mb-1 font-semibold text-[#50525f] reqility__label"
                                         style="vertical-align: baseline;">
                                         <input
                                             class="p-[10px] border !rounded-sm border-gray-300 h-[40px] scale-[1.3] text-[13px] focus:outline-none !text-gray-600  placeholder:text-gray-400"
@@ -1218,17 +1198,7 @@ onBeforeUnmount(() => {
                                     </label>
                                 </div>
                             </div>
-                            <div>
-                                <div class="flex items-center gap-3">
-                                    <button :disabled="loadingEvent || selectFileLoading" @click="createEvent('p')"
-                                        class="btn disabled:bg-gray-300 disabled:text-gray-500 bg-brand-primary text-sm font-bold hover:opacity-80 py-2 px-4 text-white rounded-full">
-                                        {{ loadingEvent ? 'Publicando...' : 'Publicar evento' }}
-                                    </button>
-                                    <button @click="router.back()"
-                                        class="bg-brand-info disabled:bg-gray-300 disabled:text-gray-500 text-sm font-bold hover:opacity-80 text-white py-2 px-4 rounded-full">
-                                        Voltar</button>
-                                </div>
-                            </div>
+
                         </div>
                     </div>
                     <!--end status information group form -->
@@ -1236,8 +1206,29 @@ onBeforeUnmount(() => {
                 <!--end new event form -->
             </div>
         </div>
+        
         <!--end body -->
         <div class="fixed top-0 h-screen w-screen bg-gray-50"></div>
+
+        <!--footer-->
+        <div
+            class="fixed bottom-0 z-[888] border-t border-[#dde0e4] shadow-[0_-2px_10px_0_rgba(0,0,0,.05)] bg-white lg:h-[77px] w-full">
+            <div class="lg:max-w-[1100px] p-4 lg:py-0 lg:px-6 h-full mx-auto flex-row justify-end flex items-center">
+                <div class="flex flex-nowrap">
+                    <button :disabled="loadingEvent || selectFileLoading" @click="router.back()"
+                        class="p-[8px_16px] mr-4 transition-colors font-medium lg:font-semibold leading-5 rounded-lg text-sm disabled:pointer-events-none disabled:bg-[#ccc] disabled:border-[#ccc] disabled:text-white lg:text-base bg-transparent text-brand-info lg:leading-6">
+                        Voltar
+                    </button>
+                    <button :disabled="loadingEvent || selectFileLoading" @click="createEvent('d')"
+                        class="p-[8px_16px] mr-4 transition-colors font-medium lg:font-semibold leading-5 rounded-lg text-sm disabled:pointer-events-none disabled:bg-[#ccc] disabled:border-[#ccc] disabled:text-white lg:text-base bg-transparent border text-brand-info border-brand-info hover:bg-brand-info hover:text-white lg:leading-6">
+                        Salvar rascunho
+                    </button>
+                    <button :disabled="loadingEvent || selectFileLoading" @click="createEvent('p')"
+                        class="p-[8px_16px] transition-colors font-medium lg:font-semibold leading-5 rounded-lg text-sm disabled:pointer-events-none disabled:bg-[#ccc] disabled:border-[#ccc] disabled:text-white lg:text-base text-white bg-brand-primary border border-brand-primary hover:border-brand-primary-dark hover:bg-brand-primary-dark lg:leading-6">Publicar
+                        evento</button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
