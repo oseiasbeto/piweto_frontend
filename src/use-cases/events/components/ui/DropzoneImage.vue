@@ -14,8 +14,8 @@ const props = defineProps({
 // Computed property
 const onDropClass = computed(() => {
   return isDroping.value
-    ? "bg-[#0097ff] !text-white !border-white"
-    : "bg-gray-50 text-gray-500 border-gray-400";
+    ? "bg-[#0097ff] text-white border-white"
+    : "bg-[#fbfbfb] text-[#50525f] border-[#bdcadb]";
 });
 
 // Métodos

@@ -39,9 +39,9 @@ const { newEvent, loading: loadingEvent } = useEvents()
 
 loadingEvent.value = false
 
-// Referências para os DatePickers de horário
-const startsTimePickerRef = ref(null);
-const endsTimePickerRef = ref(null);
+// Referências para os DatePickers
+const startsDateTimePickerRef = ref(null);
+const endsDateTimePickerRef = ref(null);
 
 // Constantes do Cloudinary
 const CLOUD_NAME = 'daujoblcc';
@@ -74,29 +74,25 @@ const langConfig = computed(() => {
 })
 
 function calcularValorComTaxa(valor) {
-    const taxa = 0.04; // 4% de taxa
+    const taxa = 0.04;
     const valorComTaxa = valor * (1 - taxa);
     return parseFloat(valorComTaxa.toFixed(2));
 }
 
-// define as nomeclaturas dos ingressos.
 const nameclatures = ref([
     'ticket',
     'inscription'
 ])
 
-// Esta função computada tem como finalidade retornar os dados do corrente evento.
 const currentEvent = computed(() => {
     return store.getters.event
 })
 
-// Crie os eventos de emissão deste componente.
 const emit = defineEmits(["oncreate", "on-clear-error"])
 
 const editorContainer = ref(null);
-let quillInstance = null; // Instância do Quill
+let quillInstance = null;
 
-// crie as props deste componente.
 const props = defineProps({
     type: String
 })
@@ -149,20 +145,11 @@ const errors = ref({
     ends_at: {
         show: false,
         message: ""
-    },
-    starts_time_At: {
-        show: false,
-        message: ""
-    },
-    ends_time_at: {
-        show: false,
-        message: ""
     }
 })
 
 const dropzoneRef = ref(null);
 
-// esta funcao computada deve retornar os dados do formulario de criacao de um evento.
 const form = computed(() => {
     return store.getters.eventForm
 })
@@ -184,20 +171,119 @@ function initializeDateTime() {
     // Inicializa os valores se estiverem vazios
     if (!form.value.starts_at?.date) {
         form.value.starts_at.date = now;
-        form.value.starts_at.hm = now;
     }
 
     if (!form.value.ends_at?.date) {
         form.value.ends_at.date = twoDaysLater;
-        form.value.ends_at.hm = twoDaysLater;
     }
 }
 
-const disabledStartsDate = computed(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Zera as horas para garantir que apenas a data seja comparada
-    return (date) => date < today; // Retorna true para datas passadas
+
+// Função para quando a data/hora de início muda
+function handleStartsDateTimeChange() {
+    errors.value.starts_at = {
+        show: false,
+        message: ""
+    };
+
+    if (form.value.starts_at?.date) {
+        // Remove os segundos da data
+        const startDate = new Date(form.value.starts_at.date);
+        startDate.setSeconds(0, 0);
+        form.value.starts_at.date = startDate;
+    }
+
+    // Valida se a data/hora de término é válida
+    if (form.value.starts_at?.date && form.value.ends_at?.date) {
+        const startDate = new Date(form.value.starts_at.date);
+        const endDate = new Date(form.value.ends_at.date);
+
+        // Verifica se o término é menor ou igual ao início
+        if (endDate <= startDate) {
+            errors.value.ends_at = {
+                show: true,
+                message: "A data e hora de término deve ser maior que a data e hora de início"
+            };
+        } else {
+            errors.value.ends_at = {
+                show: false,
+                message: ""
+            };
+        }
+    }
+
+    const event = new MouseEvent('mousedown', {
+        view: window,
+        bubbles: true,
+        cancelable: true,
+        clientX: 0,
+        clientY: 0
+    });
+    document.body.dispatchEvent(event);
+}
+
+// Função para quando a data/hora de término muda
+function handleEndsDateTimeChange() {
+    errors.value.ends_at = {
+        show: false,
+        message: ""
+    };
+
+    if (form.value.ends_at?.date) {
+        // Remove os segundos da data
+        const endDate = new Date(form.value.ends_at.date);
+        endDate.setSeconds(0, 0);
+        form.value.ends_at.date = endDate;
+    }
+
+    // Valida se a data/hora de término é maior que a data/hora de início
+    if (form.value.starts_at?.date && form.value.ends_at?.date) {
+        const startDate = new Date(form.value.starts_at.date);
+        const endDate = new Date(form.value.ends_at.date);
+
+        if (endDate <= startDate) {
+            errors.value.ends_at = {
+                show: true,
+                message: "A data e hora de término deve ser maior que a data e hora de início"
+            };
+        } else {
+            errors.value.ends_at = {
+                show: false,
+                message: ""
+            };
+        }
+    }
+
+    if (endsDateTimePickerRef.value) {
+        endsDateTimePickerRef.value.blur();
+    }
+}
+
+
+// Computed property para data mínima do término (2 dias após início)
+const minEndsDateTime = computed(() => {
+    if (form.value.starts_at?.date) {
+        const minDate = new Date(form.value.starts_at.date);
+        minDate.setHours(0, 0, 0, 0);
+        return minDate;
+    }
+    return new Date();
 });
+
+
+// Função para desabilitar datas no término (apenas datas anteriores ao início)
+function disabledEndsDateTime(date) {
+    if (!form.value.starts_at?.date) return true;
+
+    const startDate = new Date(form.value.starts_at.date);
+    startDate.setHours(0, 0, 0, 0);
+
+    const compareDate = new Date(date);
+    compareDate.setHours(0, 0, 0, 0);
+
+    // Desabilita apenas datas anteriores ao dia de início
+    return compareDate < startDate;
+}
 
 // Função para desabilitar horas e minutos para o início
 function disabledStartsTime(date) {
@@ -220,117 +306,25 @@ function disabledStartsTime(date) {
     return false;
 }
 
-const disabledEndsDate = computed(() => {
-    const today = new Date(form.value.starts_at.date ?? new Date());
-    today.setHours(0, 0, 0, 0); // Zera as horas para garantir que apenas a data seja comparada
-    return (date) => date < today; // Retorna true para datas passadas
-});
+// Função para desabilitar datas passadas
+function disabledStartsDateTime(date) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const compareDate = new Date(date);
+    compareDate.setHours(0, 0, 0, 0);
 
-const disabledEndsTime = computed(() => {
-    return (date) => {
-
-        if (!date) return false;
-
-        const startsDate = form.value.starts_at?.date;
-        const startsTime = form.value.starts_at?.hm;
-        const _endsDate = form.value.ends_at?.date;
-        const endsDate = date;
-
-        // Verifica se é o mesmo dia
-        const isSameDay = startsDate.toDateString() === _endsDate.toDateString();
-
-        if (isSameDay && startsTime) {
-            // Pega as horas e minutos do horário de início
-            const startsHours = startsTime.getHours();
-            const startsMinutes = startsTime.getMinutes();
-
-            // Pega as horas e minutos do horário de término selecionado
-            const endsHours = endsDate.getHours();
-            const endsMinutes = endsDate.getMinutes();
-
-            // Desabilita se o horário de término for menor ou igual ao de início
-            if (endsHours < startsHours) return true;
-            if (endsHours === startsHours && endsMinutes <= startsMinutes) return true;
-        }
-
-        return false;
-    };
-});
-
-function handleStartsDateChange() {
-    errors.value.starts_at = {
-        show: false,
-        message: ""
-    }
-}
-
-function handleEndsDateChange() {
-    errors.value.ends_at = {
-        show: false,
-        message: ""
-    }
-}
-
-function handleStartsTimeDateChange(e) {
-    errors.value.starts_time_At = {
-        show: false,
-        message: ""
-    }
-
-    const event = new MouseEvent('mousedown', {
-        view: window,
-        bubbles: true,
-        cancelable: true,
-        clientX: 0,
-        clientY: 0
-    });
-    document.body.dispatchEvent(event);
+    // Desabilita apenas dias anteriores ao dia atual
+    return compareDate < today;
 }
 
 
-function handleEndsTimeDateChange(e) {
-    errors.value.ends_time_at = {
-        show: false,
-        message: ""
-    }
-    const event = new MouseEvent('mousedown', {
-        view: window,
-        bubbles: true,
-        cancelable: true,
-        clientX: 0,
-        clientY: 0
-    });
-    document.body.dispatchEvent(event);
-}
 
+// Função para calcular e formatar a duração do evento
 function getEventDuration() {
-    if (!form.value.starts_at?.date || !form.value.ends_at?.date ||
-        !form.value.starts_at?.hm || !form.value.ends_at?.hm) return '';
+    if (!form.value.starts_at?.date || !form.value.ends_at?.date) return '';
 
-    // Combina data e hora para criar objetos Date completos
-    const startDate = new Date(form.value.starts_at.date);
-    const startTime = new Date(form.value.starts_at.hm);
-    const endDate = new Date(form.value.ends_at.date);
-    const endTime = new Date(form.value.ends_at.hm);
-
-    // Cria datetime completo combinando data e hora
-    const start = new Date(
-        startDate.getFullYear(),
-        startDate.getMonth(),
-        startDate.getDate(),
-        startTime.getHours(),
-        startTime.getMinutes(),
-        0, 0
-    );
-
-    const end = new Date(
-        endDate.getFullYear(),
-        endDate.getMonth(),
-        endDate.getDate(),
-        endTime.getHours(),
-        endTime.getMinutes(),
-        0, 0
-    );
+    const start = new Date(form.value.starts_at.date);
+    const end = new Date(form.value.ends_at.date);
 
     if (end <= start) return '';
 
@@ -366,22 +360,15 @@ function getEventDuration() {
         }
     }
 
-    return durationText;
+    return `⏱️ O seu evento vai durar ${durationText}`;
 }
 
-const uploadProgressPercentage = computed(() => {
-    const progresses = Object.values(uploadProgress.value);
-    if (progresses.length === 0) return 0;
-    const totalProgress = progresses.reduce((sum, progress) => sum + progress, 0);
-    return Math.round(totalProgress / progresses.length);
-});
 
-// Esta função computada tem como finalidade retornar o tipo do evento a ser criado.
 const type = computed(() => {
     return route.query.tipo
 })
 
-// Esta função tem como finalidade validar o formulário da criação do evento.
+// Função de validação do formulário
 function validateForm() {
     if (form.value.name == '') {
         errors.value.name = {
@@ -432,36 +419,18 @@ function validateForm() {
     else if (form.value.starts_at.date == null) {
         errors.value.starts_at = {
             show: true,
-            message: "Informe a data de Início do seu evento."
+            message: "Informe a data e hora de início do seu evento."
         }
         const fieldToScroll = document.querySelector("#starts_atDateField")
-        fieldToScroll.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        hasError.value = true
-    }
-    else if (form.value.starts_at.hm == null) {
-        errors.value.starts_time_At = {
-            show: true,
-            message: "Informe o horario de Início do seu evento."
-        }
-        const fieldToScroll = document.querySelector("#starts_atHmField")
         fieldToScroll.scrollIntoView({ behavior: 'smooth', block: 'center' })
         hasError.value = true
     }
     else if (form.value.ends_at.date == null) {
         errors.value.ends_at = {
             show: true,
-            message: "Informe a data de término do seu evento."
+            message: "Informe a data e hora de término do seu evento."
         }
         const fieldToScroll = document.querySelector("#ends_atDateField")
-        fieldToScroll.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        hasError.value = true
-    }
-    else if (form.value.ends_at.hm == null) {
-        errors.value.ends_time_at = {
-            show: true,
-            message: "Informe o horario de término do seu evento."
-        }
-        const fieldToScroll = document.querySelector("#ends_atHmField")
         fieldToScroll.scrollIntoView({ behavior: 'smooth', block: 'center' })
         hasError.value = true
     }
@@ -589,7 +558,6 @@ const removeMedia = async (index) => {
     form.value.file = null;
 };
 
-// Esta função tem como finalidade realizar um drop da imagem.
 function dropCover(e) {
     const file = e.dataTransfer.files[0];
     if (file) {
@@ -603,9 +571,6 @@ function dropCover(e) {
     }
 }
 
-
-
-// Esta função tem como finalidade eliminar um lote de ingressos através de um index específico.
 function deleteTicket(index) {
     Swal.fire({
         title: "Você tem certeza?",
@@ -626,7 +591,6 @@ function deleteTicket(index) {
     })
 }
 
-// Esta função tem como finalidade selecionar a imagem de capa.
 function selectCover(e) {
     const file = e.target.files[0];
     if (file) {
@@ -640,8 +604,6 @@ function selectCover(e) {
     }
 }
 
-// Esta função tem como finalidade validar a imagem selecionada.
-// Função de validação da imagem
 function validateCover(file) {
     const allowedTypes = ['image/jpg', 'image/png', 'image/jpeg'];
     const MAX_SIZE = 5 * 1024 * 1024;
@@ -672,7 +634,6 @@ function validateCover(file) {
                         ...mediaPreviews.value[0],
                         ...uploadedMedia
                     };
-                    // Armazena apenas o objeto da mídia completa, não apenas o file
                     cover.value = mediaPreviews.value[0];
                     form.value.file = mediaPreviews.value[0];
                 }
@@ -685,7 +646,6 @@ function validateCover(file) {
                 mediaPreviews.value = [];
                 form.value.file = null;
 
-                // LIMPA O VALOR DO INPUT FILE - SOLUÇÃO PARA O PROBLEMA
                 if (dropzoneRef.value) {
                     dropzoneRef.value.clearInput();
                 }
@@ -723,34 +683,24 @@ function validateCover(file) {
 }
 
 const cancelUpload = () => {
-    // Encontra a mídia que está em upload
     const uploadingMedia = mediaPreviews.value.find(media => uploadProgress.value[media.id] !== undefined);
 
     if (uploadingMedia && cancelTokens.value[uploadingMedia.id]) {
-        // Cancela o upload
         cancelTokens.value[uploadingMedia.id].cancel('Upload cancelado pelo usuário');
-
-        // Remove o token
         delete cancelTokens.value[uploadingMedia.id];
 
-        // Remove o progresso
         const newProgress = { ...uploadProgress.value };
         delete newProgress[uploadingMedia.id];
         uploadProgress.value = newProgress;
 
-        // Remove a mídia da prévia
         const index = mediaPreviews.value.findIndex(m => m.id === uploadingMedia.id);
         if (index !== -1) {
             mediaPreviews.value.splice(index, 1);
         }
 
-        // Reseta o estado de loading
         selectFileLoading.value = false;
-
-        // Reseta o form.file
         form.value.file = null;
 
-        // LIMPA O VALOR DO INPUT FILE - SOLUÇÃO PARA O PROBLEMA
         if (dropzoneRef.value) {
             dropzoneRef.value.clearInput();
         }
@@ -764,7 +714,6 @@ const cancelUpload = () => {
     }
 };
 
-// Esta função tem como finalidade remover a imagem selecionada.
 function replaceCover() {
     if (mediaPreviews.value.length > 0) {
         removeMedia(0);
@@ -774,7 +723,6 @@ function replaceCover() {
         form.value.file = null;
         cover.value = null
     }
-    // LIMPA O VALOR DO INPUT FILE - SOLUÇÃO PARA O PROBLEMA
     if (dropzoneRef.value) {
         dropzoneRef.value.clearInput();
     }
@@ -805,13 +753,12 @@ function openModalEditTicket(batch, index) {
     })
 }
 
-// Esta função tem como finalidade emitir um evento de 'criação de evento' para o componente pai.
 const createEvent = async (status) => {
     validateForm()
     if (hasError.value || loadingEvent.value) return
 
-    const formatToISO = (dateString) => {
-        return dateString ? new Date(dateString).toISOString() : null
+    const formatToISO = (dateTimeString) => {
+        return dateTimeString ? new Date(dateTimeString).toISOString() : null
     }
 
     function createEventPayload(eventForm) {
@@ -823,18 +770,11 @@ const createEvent = async (status) => {
             status: eventForm.status || "pending",
             visibility: eventForm.visibility || "public",
             nameclature: eventForm.nameclature || "ticket",
-            type: "presencial",
+            type: type.value || "presencial",
             showOnMap: Boolean(eventForm.showOnMap),
 
-            starts_at: {
-                date: formatToISO(eventForm.starts_at?.date),
-                hm: formatToISO(eventForm.starts_at?.hm)
-            },
-
-            ends_at: {
-                date: formatToISO(eventForm.ends_at?.date),
-                hm: formatToISO(eventForm.ends_at?.hm)
-            },
+            starts_at: formatToISO(eventForm.starts_at?.date),
+            ends_at: formatToISO(eventForm.ends_at?.date),
 
             address: {
                 ...eventForm.address
@@ -896,10 +836,8 @@ const createEvent = async (status) => {
 
 const handleLabelClick = async () => {
     if (form.value.file) {
-        // Se há uma imagem, resetamos form.file para mostrar o DropzoneImage
         form.value.file = null;
         cover.value = null
-        // Aguarda o próximo tick para garantir que o DropzoneImage seja montado
         await nextTick();
     }
     if (dropzoneRef.value && typeof dropzoneRef.value.triggerInput === 'function') {
@@ -915,11 +853,12 @@ onMounted(() => {
     } else {
         store.dispatch("resetEventForm")
 
-        initializeDateTime()
+        // INICIALIZA AS DATAS
+        initializeDateTime();
 
         quillInstance = new Quill(editorContainer.value, {
-            theme: 'snow', // Tema: snow ou bubble
-            placeholder: 'Adicione aqui a descrição do seu evento...',
+            theme: 'snow',
+            placeholder: 'Digite algo aqui...',
             modules: {
                 toolbar: [
                     [{ header: [1, 2, false] }],
@@ -931,7 +870,7 @@ onMounted(() => {
         });
 
         quillInstance.on('text-change', () => {
-            form.value.description = quillInstance.root.innerHTML; // Atualiza o conteúdo do v-model
+            form.value.description = quillInstance.root.innerHTML;
             if (quillInstance.root.innerHTML == "" || quillInstance.root.innerHTML == '<p><br></p>') {
                 errors.value.description.show = true
             } else {
@@ -947,7 +886,6 @@ onBeforeUnmount(() => {
     }
 });
 </script>
-
 
 <template>
     <div class="min-h-screen relative">
@@ -965,7 +903,7 @@ onBeforeUnmount(() => {
                 <!--start new event form -->
                 <div>
                     <!--start basics information group form -->
-                    <div class="w-full mb-5 lg:p-6 bg-white lg:rounded-md shadow-[0_2px_10px_0_rgba(0,0,0,0.05)]">
+                    <div class="w-full mb-6 lg:p-6 bg-white lg:rounded-md shadow-md">
                         <div class="py-4 px-4 lg:py-0 lg:px-0">
                             <div class="mb-4">
                                 <h3 class="text-xl mb-1 font-semibold text-[#0097ff]">1. Informações básicas</h3>
@@ -982,7 +920,7 @@ onBeforeUnmount(() => {
                                     <span class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
                                 </label>
                                 <input
-                                    class="p-[10px] border !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600  placeholder:text-gray-400"
+                                    class="p-[10px] border !rounded-sm border-gray-300 h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-gray-400"
                                     @input="form.name != '' ? errors.name.show = false : errors.name.show = true"
                                     id="titleField" type="text" v-model="form.name"
                                     :class="{ 'border-red-500': errors.name.show }">
@@ -1024,6 +962,7 @@ onBeforeUnmount(() => {
                                         </div>
 
 
+
                                         <p class="text-xs lg:max-w-[500px] leading-5 text-[#50525f]">
                                             Formatos aceitos: JPEG, GIF ou PNG de até 2MB. Dimensão recomendada: 1600 x
                                             838 pixels.
@@ -1053,7 +992,7 @@ onBeforeUnmount(() => {
 
                     </div>
                     <!--end basics information group form -->
-                    <div class="w-full mb-5 lg:p-6 bg-white lg:rounded-md shadow-[0_2px_10px_0_rgba(0,0,0,0.05)]">
+                    <div class="w-full mb-6 lg:p-6 bg-white lg:rounded-md shadow-md">
                         <div class="py-4 px-4 lg:py-0 lg:px-0">
                             <div class="mb-4">
                                 <h3 class="text-xl mb-1 font-semibold text-[#0097ff]">2. Onde o seu evento vai
@@ -1071,7 +1010,7 @@ onBeforeUnmount(() => {
                                                 class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
                                         </label>
                                         <input
-                                            class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600  placeholder:text-gray-400"
+                                            class="p-[10px] border w-full !rounded-sm border-gray-300 h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-gray-400"
                                             id="locationField"
                                             @input="form.address.location != '' ? errors.address.location.show = false : errors.address.location.show = true"
                                             v-model="form.address.location" maxlength="100" type="text"
@@ -1095,7 +1034,7 @@ onBeforeUnmount(() => {
                             <div v-else>
                                 <div class="form-group">
                                     <input
-                                        class="p-[10px] border !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600  placeholder:text-gray-400"
+                                        class="p-[10px] border !rounded-sm border-gray-300 h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-gray-400"
                                         v-model="form.meeting.url" maxlength="100" type="text" placeholder="Link"
                                         :class="{ 'border-red-500': errors.meeting.url.show }">
                                     <small class="text-xs text-red-500" :class="{ danger: errors.meeting.url.show }">
@@ -1110,115 +1049,76 @@ onBeforeUnmount(() => {
                     </div>
 
                     <!--start date and times information group form -->
-                    <div class="w-full mb-5 lg:p-6 bg-white lg:rounded-md shadow-[0_2px_10px_0_rgba(0,0,0,0.05)]">
+                    <div class="w-full mb-6 lg:p-6 bg-white lg:rounded-md shadow-md">
                         <div class="py-4 px-4 lg:py-0 lg:px-0">
                             <div class="mb-4">
                                 <h3 class="text-xl mb-1 font-semibold text-[#0097ff]">3. Data e horário</h3>
                                 <p class="ml-[22px] text-[13px] text-[#50525f]">Informe aos participantes quando seu
-                                    evento
-                                    vai acontecer.</p>
+                                    evento vai acontecer.</p>
                             </div>
-                            <div class="flex flex-col lg:flex-row">
-                                <div class="w-full flex flex-col lg:flex-row items-center mb-2 lg:mb-0 gap-2 lg:gap-4">
-                                    <div class="w-full lg:w-auto">
-                                        <label for="starts_atDate"
-                                            class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
-                                            Data de Início
-                                            <span
-                                                class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
-                                        </label>
-                                        <div id="starts_atDateField" class="w-full">
-                                            <date-picker :clearable="false" @change="handleStartsDateChange"
-                                                :disabled-date="disabledStartsDate" 
-                                                :lang="langConfig"
-                                                format="DD/MM/YYYY"
-                                                v-model:value="form.starts_at.date"
-                                                class="responsive-datepicker"></date-picker>
-                                        </div>
-                                        <small class="text-xs text-red-500" :class="{ danger: errors.starts_at.show }">
-                                            <span v-if="errors.starts_at.show">{{ errors.starts_at.message }}</span>
-                                        </small>
-                                    </div>
-                                    <div class="w-full lg:w-auto">
-                                        <label for="starts_atHm"
-                                            class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
-                                            Hora de Início
-                                            <span
-                                                class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
-                                        </label>
-                                        <div id="starts_atHmField" class="w-full">
-                                            <date-picker ref="startsTimePickerRef" :clearable="false"
-                                                @change="handleStartsTimeDateChange" v-model:value="form.starts_at.hm"
-                                                format="HH:mm" :disabled-time="disabledStartsTime" type="time"
-                                                class="responsive-datepicker">
-                                            </date-picker>
-                                        </div>
-                                        <small class="text-xs text-red-500"
-                                            :class="{ danger: errors.starts_time_At.show }">
-                                            <span v-if="errors.starts_time_At.show">{{ errors.starts_time_At.message
-                                            }}</span>
-                                        </small>
-                                    </div>
-                                </div>
-                                <div class="w-full flex flex-col lg:flex-row items-center gap-2 lg:gap-4">
-                                    <div class="w-full lg:w-auto">
-                                        <label for="ends_atDate"
-                                            class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
-                                            Data de Término
-                                            <span
-                                                class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
-                                        </label>
-                                        <div id="ends_atDateField" class="w-full">
-                                            <date-picker 
-                                                :clearable="false" 
-                                                @change="handleEndsDateChange"
-                                                :disabled-date="disabledEndsDate" 
-                                                :lang="langConfig"
-                                                v-model:value="form.ends_at.date"
-                                                format="DD/MM/YYYY"
-                                                class="responsive-datepicker">
-                                            </date-picker>
-                                        </div>
-                                        <small class="text-xs text-red-500" :class="{ danger: errors.ends_at.show }">
-                                            <span v-if="errors.ends_at.show">{{ errors.ends_at.message }}</span>
-                                        </small>
-                                    </div>
 
-                                    <div class="w-full lg:w-auto">
-                                        <label for="ends_atHm"
-                                            class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
-                                            Hora de Término
-                                            <span
-                                                class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
-                                        </label>
-                                        <div id="ends_atHmField" class="w-full">
-                                            <date-picker ref="endsTimePickerRef" :clearable="false"
-                                                @change="handleEndsTimeDateChange" v-model:value="form.ends_at.hm"
-                                                format="HH:mm" type="time" :disabled-time="disabledEndsTime"
-                                                class="responsive-datepicker">
-                                            </date-picker>
-                                        </div>
-                                        <small class="text-xs text-red-500"
-                                            :class="{ danger: errors.ends_time_at.show }">
-                                            <span v-if="errors.ends_time_at.show">{{ errors.ends_time_at.message
-                                            }}</span>
-                                        </small>
+                            <div class="flex flex-col lg:flex-row gap-4">
+                                <!-- Data de Início -->
+                                <div class="flex-1">
+                                    <label for="starts_atDateTime"
+                                        class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
+                                        Data e Hora de Início
+                                        <span class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
+                                    </label>
+                                    <div id="starts_atDateField">
+                                        <date-picker ref="startsDateTimePickerRef" :clearable="false"
+                                            @change="handleStartsDateTimeChange" :disabled-date="disabledStartsDateTime"
+                                            :disabled-time="disabledStartsTime" :lang="langConfig" type="datetime"
+                                            :min-date="new Date()" v-model:value="form.starts_at.date"
+                                            format="DD/MM/YYYY HH:mm" :appendToBody="true"
+                                            class="responsive-datepicker">
+                                        </date-picker>
                                     </div>
+                                    <small class="text-xs text-red-500" :class="{ danger: errors.starts_at.show }">
+                                        <span v-if="errors.starts_at.show">{{ errors.starts_at.message }}</span>
+                                    </small>
+                                </div>
+
+                                <!-- Data de Término -->
+                                <div class="flex-1">
+                                    <label for="ends_atDateTime"
+                                        class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
+                                        Data e Hora de Término
+                                        <span class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
+                                    </label>
+                                    <div id="ends_atDateField">
+                                        <date-picker ref="endsDateTimePickerRef" :clearable="false"
+                                            @change="handleEndsDateTimeChange" :disabled-date="disabledEndsDateTime"
+                                            :min-date="minEndsDateTime" :lang="langConfig"
+                                            v-model:value="form.ends_at.date" type="datetime" format="DD/MM/YYYY HH:mm"
+                                            :appendToBody="true" class="responsive-datepicker">
+                                        </date-picker>
+                                    </div>
+                                    <small class="text-xs text-red-500" :class="{ danger: errors.ends_at.show }">
+                                        <span v-if="errors.ends_at.show">{{ errors.ends_at.message }}</span>
+                                    </small>
                                 </div>
                             </div>
 
                             <!-- Div de Duração do Evento -->
                             <div v-if="form.starts_at?.date && form.ends_at?.date && !errors.ends_at.show && !errors.starts_at.show"
-                                class="py-4 text-[#424D62] text-[13px]">
-                               
-                                <p>Seu evento vai durar <strong class="text-[#0097ff]">{{ getEventDuration() || '...' }}</strong></p>
+                                class="mt-4 p-3 bg-blue-50 rounded-md border border-blue-200">
+                                <div class="flex items-center gap-2 text-blue-800">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    <span class="font-medium">{{ getEventDuration() }}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <!--end date and times information group form -->
 
                     <!--start description group form -->
-                    <div class="w-full mb-5 lg:p-6 bg-white lg:rounded-md shadow-[0_2px_10px_0_rgba(0,0,0,0.05)]">
+                    <div class="w-full mb-6 lg:p-6 bg-white lg:rounded-md shadow-md">
                         <div class="py-4 px-4 lg:py-0 lg:px-0">
                             <div class="mb-4">
                                 <h3 class="text-xl mb-1 font-semibold text-[#0097ff]">4. Descrição do evento</h3>
@@ -1242,10 +1142,8 @@ onBeforeUnmount(() => {
                     </div>
                     <!--end description group form -->
 
-
-
                     <!--start tickets information group form -->
-                    <div class="w-full mb-5 lg:p-6 bg-white lg:rounded-md shadow-[0_2px_10px_0_rgba(0,0,0,0.05)]">
+                    <div class="w-full mb-6 lg:p-6 bg-white lg:rounded-md shadow-md">
                         <div class="py-4 px-4 lg:py-0 lg:px-0">
                             <div class="mb-4">
                                 <h3 class="text-xl mb-1 font-semibold text-[#0097ff]">5. Ingressos</h3>
@@ -1260,7 +1158,7 @@ onBeforeUnmount(() => {
                                 <div id="ticketsField"
                                     class="flex mb-5 flex-col lg:flex-row w-full justify-center gap-4">
                                     <button
-                                        class="border border-[#0097ff] text-[#0097ff] text-sm font-medium  uppercase rounded-full py-[10px] px-10 hover:bg-[#0097ff] hover:border-[#0097ff] hover:text-white"
+                                        class="border border-[#0097ff] text-[#0097ff] text-sm font-medium uppercase rounded-full py-[10px] px-10 hover:bg-[#0097ff] hover:border-[#0097ff] hover:text-white"
                                         @click="openBatchModal('premium')">
                                         + INGRESSO PAGO
                                     </button>
@@ -1339,7 +1237,7 @@ onBeforeUnmount(() => {
                                         class="flex cursor-pointer text-sm items-center gap-1.5 mb-1 font-semibold text-[#50525f] reqility__label"
                                         style="vertical-align: baseline;">
                                         <input
-                                            class="p-[10px] border !rounded-sm border-[#dfe0df] h-[40px] scale-[1.3] text-[13px] focus:outline-none !text-gray-600  placeholder:text-gray-400"
+                                            class="p-[10px] border !rounded-sm border-gray-300 h-[40px] scale-[1.3] text-[13px] focus:outline-none !text-gray-600 placeholder:text-gray-400"
                                             type="radio" v-model="form.visibility" value="public">
                                         Público
                                     </label>
@@ -1347,7 +1245,7 @@ onBeforeUnmount(() => {
                                         class="flex cursor-pointer text-sm items-center gap-1.5 mb-1 font-semibold text-[#50525f] reqility__label"
                                         style="vertical-align: baseline;">
                                         <input
-                                            class="p-[10px] border !rounded-sm border-[#dfe0df] h-[40px] scale-[1.3] text-[13px] focus:outline-none !text-gray-600  placeholder:text-gray-400"
+                                            class="p-[10px] border !rounded-sm border-gray-300 h-[40px] scale-[1.3] text-[13px] focus:outline-none !text-gray-600 placeholder:text-gray-400"
                                             type="radio" v-model="form.visibility" value="private">
                                         Privado
                                     </label>
@@ -1363,7 +1261,7 @@ onBeforeUnmount(() => {
         </div>
 
         <!--end body -->
-        <div class="fixed top-0 h-screen w-screen bg-gray-50"></div>
+        <div id="bg_screen_create_event" class="fixed top-0 h-screen w-screen bg-gray-50"></div>
 
         <!--footer-->
         <div
@@ -1387,21 +1285,26 @@ onBeforeUnmount(() => {
     </div>
 </template>
 
-
 <style>
 /* Personalizando a borda e fundo */
 .multiselect {
-    border: 1px solid #dfe0df !important;
-    /* Cor da borda */
+    border: 1px solid rgb(209 213 219 / 1) !important;
     border-radius: 2px !important;
-    /* Cantos arredondados */
     background-color: #fff !important;
-    /* Fundo */
     font-size: 13px !important;
     box-shadow: none !important;
     height: 40px;
 }
 
+.mx-input-wrapper input {
+    border: 1px solid rgb(209 213 219 / 1) !important;
+    border-radius: 2px !important;
+    background-color: #fff !important;
+    font-size: 14px !important;
+    font-family: inherit !important;
+    box-shadow: none !important;
+    height: 40px;
+}
 
 /* Personalizando o texto e a seta */
 .multiselect__single {
@@ -1415,7 +1318,6 @@ onBeforeUnmount(() => {
 
 .multiselect__select {
     color: #0097ff !important;
-    /* Cor da seta */
 }
 
 /* Estilizando as opções do dropdown */
@@ -1437,20 +1339,18 @@ onBeforeUnmount(() => {
 
 .responsive-datepicker {
     width: 100% !important;
-    /* Largura total por padrão */
 }
 
 /* Ajusta o container principal do DatePicker */
 .mx-datepicker {
     width: 100% !important;
-    max-width: 210px;
-    /* Largura máxima em telas maiores */
+    max-width: 100%;
 }
 
 /* Ajusta o input dentro do DatePicker */
 .mx-input-wrapper input {
     width: 100% !important;
-    border: 1px solid #dfe0df !important;
+    border: 1px solid rgb(209 213 219 / 1) !important;
     border-radius: 2px !important;
     background-color: #fff !important;
     font-size: 13px !important;
@@ -1458,21 +1358,18 @@ onBeforeUnmount(() => {
     height: 40px;
 }
 
+/* Corrige o formato da data no input */
+.mx-input {
+    font-family: monospace !important;
+}
+
 /* Ajusta o popup do DatePicker em telas menores */
 @media (max-width: 768px) {
-    .mx-datepicker {
-        max-width: 100% !important;
-        /* Ocupa toda a largura em mobile */
-    }
-
     .mx-datepicker-popup {
         width: 90vw !important;
-        /* Largura relativa à viewport em mobile */
-        max-width: 300px;
-        /* Limite máximo para evitar overflow */
+        max-width: 320px !important;
         left: 50% !important;
         transform: translateX(-50%) !important;
-        /* Centraliza o popup */
     }
 }
 

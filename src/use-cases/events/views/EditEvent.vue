@@ -1046,30 +1046,6 @@ onBeforeUnmount(() => {
 
 
 <style>
-/* Personalizando a borda e fundo */
-.multiselect {
-    border: 1px solid rgb(209 213 219 / 1) !important;
-    /* Cor da borda */
-    border-radius: 2px !important;
-    /* Cantos arredondados */
-    background-color: #fff !important;
-    /* Fundo */
-    font-size: 13px !important;
-    box-shadow: none !important;
-    height: 40px;
-}
-
-.mx-input-wrapper input {
-    border: 1px solid rgb(209 213 219 / 1) !important;
-    /* Cor da borda */
-    border-radius: 2px !important;
-    /* Cantos arredondados */
-    background-color: #fff !important;
-    /* Fundo */
-    font-size: 13px !important;
-    box-shadow: none !important;
-    height: 40px;
-}
 
 /* Personalizando o texto e a seta */
 .multiselect__single {
