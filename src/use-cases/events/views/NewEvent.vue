@@ -954,7 +954,7 @@ onBeforeUnmount(() => {
         <!--header-->
         <div class="sticky top-0 z-[888] mb-4 mt-5 lg:m-0 shadow-[0_2px_10px_0_rgba(25,31,40,.15)] bg-white w-full">
             <div class="lg:max-w-[1100px] py-4 px-4 lg:px-6 h-full mx-auto flex items-center">
-                <h1 class="text-[24px] leading-8 lg:text-[28px] text-[#494b57]">Criar <strong>Evento Presencial</strong>
+                <h1 class="text-[24px] leading-8 lg:text-[28px] text-[#494b57]">Criar <strong>{{ type == 'presencial' ? 'Evento Presencial' : 'Evento Online' }}</strong>
                 </h1>
             </div>
         </div>
@@ -1056,12 +1056,13 @@ onBeforeUnmount(() => {
                     <div class="w-full mb-5 lg:p-6 bg-white lg:rounded-md shadow-[0_2px_10px_0_rgba(0,0,0,0.05)]">
                         <div class="py-4 px-4 lg:py-0 lg:px-0">
                             <div class="mb-4">
-                                <h3 class="text-xl mb-1 font-semibold text-[#0097ff]">2. Onde o seu evento vai
-                                    acontecer?
+                                <h3 class="text-xl mb-1 font-semibold text-[#0097ff]">2. 
+                                    {{ type == 'presencial' ? 'Onde o seu evento vai acontecer?' : 'Qual é o link de acesso para sua transmissão?' }}
+                                    
                                 </h3>
                             </div>
                             <!--start address-->
-                            <div v-if="type == 'presencial'">
+                            <div class="mb-3" v-if="type == 'presencial'">
                                 <div>
                                     <div class="w-full">
                                         <label
@@ -1071,11 +1072,11 @@ onBeforeUnmount(() => {
                                                 class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
                                         </label>
                                         <input
-                                            class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600  placeholder:text-gray-400"
+                                            class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-gray-400"
                                             id="locationField"
                                             @input="form.address.location != '' ? errors.address.location.show = false : errors.address.location.show = true"
                                             v-model="form.address.location" maxlength="100" type="text"
-                                            placeholder="Ex: Hotel CHick Chick, Saurimo, Lunda-sul"
+                                            placeholder="Ex: Hotel Chick Chick"
                                             :class="{ 'border-red-500': errors.address.location.show }">
                                         <small class="text-xs text-red-500"
                                             :class="{ danger: errors.address.location.show }">
@@ -1085,18 +1086,64 @@ onBeforeUnmount(() => {
                                         </small>
                                     </div>
                                 </div>
-                                <div>
-                                    <!--google maps-->
+
+                                <!-- Novos campos: Cidade, Bairro e Complemento -->
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                                    <div class="w-full">
+                                        <label
+                                            class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
+                                            Cidade
+                                        </label>
+                                        <input
+                                            class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-gray-400"
+                                            v-model="form.address.city" maxlength="100" type="text"
+                                            placeholder="Ex: Saurimo"
+                                            :class="{ 'border-red-500': errors.address.city.show }">
+                                        <small class="text-xs text-red-500"
+                                            :class="{ danger: errors.address.city.show }">
+                                            <span v-if="errors.address.city.show">{{ errors.address.city.message
+                                                }}</span>
+                                        </small>
+                                    </div>
+
+                                    <div class="w-full">
+                                        <label
+                                            class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
+                                            Bairro
+                                        </label>
+                                        <input
+                                            class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-gray-400"
+                                            v-model="form.address.neighborhood" maxlength="100" type="text"
+                                            placeholder="Ex: Centro"
+                                            :class="{ 'border-red-500': errors.address.neighborhood.show }">
+                                        <small class="text-xs text-red-500"
+                                            :class="{ danger: errors.address.neighborhood.show }">
+                                            <span v-if="errors.address.neighborhood.show">{{
+                                                errors.address.neighborhood.message }}</span>
+                                        </small>
+                                    </div>
                                 </div>
+
+                                <div class="w-full mt-4">
+                                    <label
+                                        class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
+                                        Complemento (opcional)
+                                    </label>
+                                    <input
+                                        class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-gray-400"
+                                        v-model="form.address.complement" maxlength="200" type="text"
+                                        placeholder="Ex: Sala 101, Próximo ao shopping">
+                                </div>
+
+                                <!--google maps-->
                             </div>
                             <!--end address-->
-
                             <!--start link meet-->
                             <div v-else>
-                                <div class="form-group">
+                                <div class="w-full">
                                     <input
-                                        class="p-[10px] border !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600  placeholder:text-gray-400"
-                                        v-model="form.meeting.url" maxlength="100" type="text" placeholder="Link"
+                                        class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-gray-400"
+                                        v-model="form.meeting.url" maxlength="100" type="text" placeholder="Insira uma URL completa. Exemplo: https://www.plataforma.com/evento123"
                                         :class="{ 'border-red-500': errors.meeting.url.show }">
                                     <small class="text-xs text-red-500" :class="{ danger: errors.meeting.url.show }">
                                         <span v-if="errors.meeting.show">
@@ -1129,10 +1176,8 @@ onBeforeUnmount(() => {
                                         </label>
                                         <div id="starts_atDateField" class="w-full">
                                             <date-picker :clearable="false" @change="handleStartsDateChange"
-                                                :disabled-date="disabledStartsDate" 
-                                                :lang="langConfig"
-                                                format="DD/MM/YYYY"
-                                                v-model:value="form.starts_at.date"
+                                                :disabled-date="disabledStartsDate" :lang="langConfig"
+                                                format="DD/MM/YYYY" v-model:value="form.starts_at.date"
                                                 class="responsive-datepicker"></date-picker>
                                         </div>
                                         <small class="text-xs text-red-500" :class="{ danger: errors.starts_at.show }">
@@ -1156,7 +1201,7 @@ onBeforeUnmount(() => {
                                         <small class="text-xs text-red-500"
                                             :class="{ danger: errors.starts_time_At.show }">
                                             <span v-if="errors.starts_time_At.show">{{ errors.starts_time_At.message
-                                            }}</span>
+                                                }}</span>
                                         </small>
                                     </div>
                                 </div>
@@ -1169,13 +1214,9 @@ onBeforeUnmount(() => {
                                                 class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
                                         </label>
                                         <div id="ends_atDateField" class="w-full">
-                                            <date-picker 
-                                                :clearable="false" 
-                                                @change="handleEndsDateChange"
-                                                :disabled-date="disabledEndsDate" 
-                                                :lang="langConfig"
-                                                v-model:value="form.ends_at.date"
-                                                format="DD/MM/YYYY"
+                                            <date-picker :clearable="false" @change="handleEndsDateChange"
+                                                :disabled-date="disabledEndsDate" :lang="langConfig"
+                                                v-model:value="form.ends_at.date" format="DD/MM/YYYY"
                                                 class="responsive-datepicker">
                                             </date-picker>
                                         </div>
@@ -1201,7 +1242,7 @@ onBeforeUnmount(() => {
                                         <small class="text-xs text-red-500"
                                             :class="{ danger: errors.ends_time_at.show }">
                                             <span v-if="errors.ends_time_at.show">{{ errors.ends_time_at.message
-                                            }}</span>
+                                                }}</span>
                                         </small>
                                     </div>
                                 </div>
@@ -1210,8 +1251,9 @@ onBeforeUnmount(() => {
                             <!-- Div de Duração do Evento -->
                             <div v-if="form.starts_at?.date && form.ends_at?.date && !errors.ends_at.show && !errors.starts_at.show"
                                 class="py-4 text-[#424D62] text-[13px]">
-                               
-                                <p>Seu evento vai durar <strong class="text-[#0097ff]">{{ getEventDuration() || '...' }}</strong></p>
+
+                                <p>Seu evento vai durar <strong class="text-[#0097ff]">{{ getEventDuration() || '...'
+                                        }}</strong></p>
                             </div>
                         </div>
                     </div>
@@ -1296,7 +1338,7 @@ onBeforeUnmount(() => {
                                                 <td class="px-4 py-3 text-center text-sm hidden sm:table-cell">
                                                     {{ batch.quantity }}</td>
                                                 <td class="px-4 py-3 text-center text-sm">{{ formatAmount(batch.price)
-                                                }}</td>
+                                                    }}</td>
                                                 <td class="px-4 py-3 text-center text-sm hidden md:table-cell">
                                                     4%</td>
                                                 <td class="px-4 py-3 text-center text-sm hidden md:table-cell">

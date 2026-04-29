@@ -10,9 +10,9 @@
                     class="w-full mb-6 px-4 py-4 lg:py-6 lg:px-8 bg-white rounded-none lg:rounded-md lg:shadow-[0_2px_10px_0_rgba(0,0,0,0.05)]">
                     <div>
                         <div class="mb-4">
-                            <h1 class="font-bold text-brand-gray-500 leading-8 text-[18px] lg:text-[20px]">Olá,
+                            <h1 class="font-bold text-[#0A111F] leading-8 text-[18px] lg:text-[20px]">Olá,
                                 {{ getCurrentUser.full_name }} </h1>
-                            <p class="font-medium text-gray-400">Já publicou o seu evento?</p>
+                            <p class="font-medium text-[#848C9B]">Já publicou o seu evento?</p>
                         </div>
                         <div class="flex flex-col lg:flex-row items-center gap-4">
                             <router-link
@@ -24,6 +24,17 @@
                                     }
                                 }">
                                 Criar evento presencial
+                            </router-link>
+
+                            <router-link
+                                class="border border-brand-primary bg-transparent w-full text-[13px] font-semibold text-brand-primary rounded-md py-[7px] px-4 hover:border-brand-primary hover:bg-brand-primary hover:text-white text-center lg:w-auto"
+                                :to="{
+                                    path: '/eventos/novo-evento',
+                                    query: {
+                                        tipo: 'online'
+                                    }
+                                }">
+                                Criar evento online
                             </router-link>
                         </div>
                     </div>
@@ -404,8 +415,7 @@
 
                     <div clas="w-full" v-if="!loadingEvents">
                         <!-- Lista de eventos para dispositivos móveis -->
-                        <ul class="flex w-full flex-col lg:hidden items-center"
-                            v-if="validEvents?.length">
+                        <ul class="flex w-full flex-col lg:hidden items-center" v-if="validEvents?.length">
                             <li class="w-full py-[10px] px-[20px] border-b-[5px] border-[#eee]"
                                 v-for="eventWrapper in validEvents" :key="eventWrapper.event._id"
                                 @click="goToDashboard(eventWrapper.event.id)">
