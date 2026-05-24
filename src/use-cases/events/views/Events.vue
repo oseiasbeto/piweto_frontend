@@ -1,6 +1,6 @@
 <template>
     <!--start page my events -->
-    <div class="bg-[#eeeeee] min-h-screen">
+    <div @click="handleClickOutside" class="bg-[#eeeeee] min-h-screen">
         <!--start body -->
         <div class="p-0 lg:p-5 pb-32 lg:pb-36">
             <!--start content result -->
@@ -26,6 +26,7 @@
                                 Criar evento presencial
                             </router-link>
 
+                            <!-- 
                             <router-link
                                 class="border border-brand-primary bg-transparent w-full text-[13px] font-semibold text-brand-primary rounded-md py-[7px] px-4 hover:border-brand-primary hover:bg-brand-primary hover:text-white text-center lg:w-auto"
                                 :to="{
@@ -35,7 +36,7 @@
                                     }
                                 }">
                                 Criar evento online
-                            </router-link>
+                            </router-link>-->
                         </div>
                     </div>
                 </div>

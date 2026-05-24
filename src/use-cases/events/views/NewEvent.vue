@@ -2,12 +2,12 @@
 import DropzoneImage from "../components/ui/DropzoneImage.vue";
 import PreviewImage from "../components/ui/PreviewImage.vue"
 import { useStore } from "vuex"
-import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, nextTick, onMounted, watch, onBeforeUnmount } from 'vue'
 import Quill from 'quill';
 import Swal from "sweetalert2"
 import formatAmount from "@/utils/formatAmount";
 import DatePicker from '@jobinsjp/vue3-datepicker';
-import { useRouter, useRoute } from "vue-router";
+import { useRouter, onBeforeRouteLeave, useRoute } from "vue-router";
 import 'vue-multiselect/dist/vue-multiselect.css';
 import { useEvents } from "@/repositories/events-repository";
 import Multiselect from 'vue-multiselect'
@@ -39,9 +39,7 @@ const { newEvent, loading: loadingEvent } = useEvents()
 
 loadingEvent.value = false
 
-// Referências para os DatePickers de horário
-const startsTimePickerRef = ref(null);
-const endsTimePickerRef = ref(null);
+const isCreatedEvent = ref(false)
 
 // Constantes do Cloudinary
 const CLOUD_NAME = 'daujoblcc';
@@ -368,13 +366,6 @@ function getEventDuration() {
 
     return durationText;
 }
-
-const uploadProgressPercentage = computed(() => {
-    const progresses = Object.values(uploadProgress.value);
-    if (progresses.length === 0) return 0;
-    const totalProgress = progresses.reduce((sum, progress) => sum + progress, 0);
-    return Math.round(totalProgress / progresses.length);
-});
 
 // Esta função computada tem como finalidade retornar o tipo do evento a ser criado.
 const type = computed(() => {
@@ -880,6 +871,7 @@ const createEvent = async (status) => {
 
     await newEvent(payload)
         .then(() => {
+            isCreatedEvent.value = true
             router.replace(`/gerenciador-de-eventos/pagina-inicial/${currentEvent.value.id}`)
 
             store.dispatch("setToast", {
@@ -946,6 +938,17 @@ onBeforeUnmount(() => {
         quillInstance = null;
     }
 });
+
+// Navegação interna (Vue Router)
+onBeforeRouteLeave((to, from, next) => {
+    if (!isCreatedEvent.value) {
+        const confirmed = window.confirm("Tem certeza que deseja sair? As alterações não salvas serão perdidas.")
+        confirmed ? next() : next(false)
+    } else {
+        next()
+    }
+})
+
 </script>
 
 
