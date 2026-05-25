@@ -22,6 +22,7 @@ export default {
             neighborhood: "",
             city: "",
             estate: "Angola",
+            province: "bengo",
             number: "",
             complement: ""
         },

@@ -8,34 +8,62 @@ import Swal from "sweetalert2"
 import formatAmount from "@/utils/formatAmount";
 import DatePicker from '@jobinsjp/vue3-datepicker';
 import { useRouter, onBeforeRouteLeave, useRoute } from "vue-router";
-import 'vue-multiselect/dist/vue-multiselect.css';
 import { useEvents } from "@/repositories/events-repository";
-import Multiselect from 'vue-multiselect'
 import { toast } from "vue3-toastify"
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
 
-const store = useStore()
-const categories = ref([
-    'Festas & Shows',
-    'Teatro & Espetáculos',
-    'Família',
-    'Esportes',
-    'Gastronomia',
-    'Palestras & Workshops',
-    'Festivais',
-    'Eventos Corporativos',
-    'Feiras & Exposições',
-    'Religião & Espiritualidade',
-    'Cultura & Arte',
-    'Música',
-    'Cinema & Audiovisual',
-    'Bem-estar & Saúde',
-    'Tecnologia & Startups'
-]);
-const hasError = ref(true)
+import {
+    Listbox,
+    ListboxButton,
+    ListboxOptions,
+    ListboxOption
+} from '@headlessui/vue'
+
 const { newEvent, loading: loadingEvent } = useEvents()
+const store = useStore()
+
+const categories = [
+    { name: 'Festas & Shows', value: 'Festas & Shows' },
+    { name: 'Teatro & Espetáculos', value: 'Teatro & Espetáculos' },
+    { name: 'Família', value: 'Família' },
+    { name: 'Esportes', value: 'Esportes' },
+    { name: 'Gastronomia', value: 'Gastronomia' },
+    { name: 'Palestras & Workshops', value: 'Palestras & Workshops' },
+    { name: 'Festivais', value: 'festivais' },
+    { name: 'Eventos Corporativos', value: 'eventos-corporativos' },
+    { name: 'Feiras & Exposições', value: 'feiras-expositions' },
+    { name: 'Religião & Espiritualidade', value: 'religiao-espiritualidade' },
+    { name: 'Cultura & Arte', value: 'cultura-arte' },
+    { name: 'Música', value: 'música' },
+    { name: 'Cinema & Audiovisual', value: 'cinema-audiovisual' },
+    { name: 'Bem-estar & Saúde', value: 'bem-estar-saúde' },
+    { name: 'Tecnologia & Startups', value: 'tecnologia-start-ups' }
+];
+
+const angolanProvinces = [
+    { name: 'Bengo', value: 'bengo' },
+    { name: 'Benguela', value: 'benguela' },
+    { name: 'Bié', value: 'bie' },
+    { name: 'Cabinda', value: 'cabinda' },
+    { name: 'Cuando Cubango', value: 'cuando-cubango' },
+    { name: 'Cuanza Norte', value: 'cuanza-norte' },
+    { name: 'Cuanza Sul', value: 'cuanza-sul' },
+    { name: 'Cunene', value: 'cunene' },
+    { name: 'Huambo', value: 'huambo' },
+    { name: 'Huíla', value: 'huila' },
+    { name: 'Luanda', value: 'luanda' },
+    { name: 'Lunda Norte', value: 'lunda-norte' },
+    { name: 'Lunda Sul', value: 'lunda-sul' },
+    { name: 'Malanje', value: 'malanje' },
+    { name: 'Moxico', value: 'moxico' },
+    { name: 'Namibe', value: 'namibe' },
+    { name: 'Uíge', value: 'uige' },
+    { name: 'Zaire', value: 'zaire' }
+];
+
+const hasError = ref(true)
 
 loadingEvent.value = false
 
@@ -124,6 +152,10 @@ const errors = ref({
         city: {
             show: false,
             message: ""
+        },
+        province: {
+            show: false,
+            message: ""
         }
     },
     meeting: {
@@ -164,6 +196,19 @@ const dropzoneRef = ref(null);
 const form = computed(() => {
     return store.getters.eventForm
 })
+
+const selectedProvinceName = computed(() => {
+    if (!form.value.address?.province) return 'Selecione uma província';
+    const province = angolanProvinces.find(p => p.value === form.value.address.province);
+    return province ? province.name : 'Selecione uma província';
+});
+
+// Adicione este computed junto com os outros:
+const selectedCategoryName = computed(() => {
+    if (!form.value.category) return 'Selecione uma categoria';
+    const category = categories.find(c => c.value === form.value.category);
+    return category ? category.name : 'Selecione uma categoria';
+});
 
 const cover = ref(null)
 
@@ -399,6 +444,26 @@ function validateForm() {
             message: "Informe o nome do local do seu evento."
         }
         const fieldToScroll = document.querySelector("#locationField")
+        fieldToScroll.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        hasError.value = true
+    }
+    // ADICIONE ESTA VALIDAÇÃO PARA A CIDADE
+    else if (type.value == 'presencial' && form.value.address.city == "") {
+        errors.value.address.city = {
+            show: true,
+            message: "Informe a cidade do seu evento."
+        }
+        const fieldToScroll = document.querySelector("#cityField")
+        fieldToScroll.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        hasError.value = true
+    }
+    else if (type.value == 'presencial' && (!form.value.address.province || form.value.address.province == "")) {
+        if (!errors.value.address.province) errors.value.address.province = {};
+        errors.value.address.province = {
+            show: true,
+            message: "Selecione a província do seu evento."
+        }
+        const fieldToScroll = document.querySelector("#provinceField")
         fieldToScroll.scrollIntoView({ behavior: 'smooth', block: 'center' })
         hasError.value = true
     }
@@ -901,6 +966,57 @@ const handleLabelClick = async () => {
     }
 };
 
+// Adicione após a definição do form computed
+
+// Watcher para limpar erro do nome
+watch(() => form.value.name, (newValue) => {
+    if (newValue && newValue.trim() !== '') {
+        errors.value.name.show = false;
+    }
+});
+
+// Watcher para limpar erro da categoria
+watch(() => form.value.category, (newValue) => {
+    if (newValue && newValue !== '') {
+        errors.value.category.show = false;
+    }
+});
+
+// Watcher para limpar erro do local
+watch(() => form.value.address?.location, (newValue) => {
+    if (newValue && newValue.trim() !== '') {
+        errors.value.address.location.show = false;
+    }
+});
+
+// Watcher para limpar erro da cidade
+watch(() => form.value.address?.city, (newValue) => {
+    if (newValue && newValue.trim() !== '') {
+        errors.value.address.city.show = false;
+    }
+});
+
+// Watcher para limpar erro da província
+watch(() => form.value.address?.province, (newValue) => {
+    if (newValue && newValue !== '') {
+        errors.value.address.province.show = false;
+    }
+});
+
+// Watcher para limpar erro da URL (evento online)
+watch(() => form.value.meeting?.url, (newValue) => {
+    if (newValue && newValue.trim() !== '') {
+        errors.value.meeting.url.show = false;
+    }
+});
+
+// Watcher para limpar erro da descrição
+watch(() => form.value.description, (newValue) => {
+    if (newValue && newValue !== '' && newValue !== '<p><br></p>') {
+        errors.value.description.show = false;
+    }
+});
+
 onMounted(() => {
     if (!type.value || !['presencial', 'online'].includes(type.value)) {
         router.push({ path: "/eventos/meus-eventos" })
@@ -985,8 +1101,7 @@ onBeforeRouteLeave((to, from, next) => {
                                     <span class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
                                 </label>
                                 <input
-                                    class="p-[10px] border !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600  placeholder:text-gray-400"
-                                    @input="form.name != '' ? errors.name.show = false : errors.name.show = true"
+                                    class="p-[10px] border !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600  placeholder:text-[#999]"
                                     id="titleField" type="text" v-model="form.name"
                                     :class="{ 'border-red-500': errors.name.show }">
                                 <small class="text-xs text-red-500" :class="{ danger: errors.name.show }">
@@ -1034,24 +1149,64 @@ onBeforeRouteLeave((to, from, next) => {
                                     </div>
                                 </div>
                             </div>
+<div class="form-group">
+    <label
+        class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f] required flex-row">
+        Categoria
+        <span class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
+    </label>
 
-                            <div class="form-group">
-                                <label
-                                    class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f] required flex-row">
-                                    Categoria
-                                    <span class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
-                                </label>
+    <Listbox v-model="form.category" id="categoryField">
+        <div class="relative">
+            <ListboxButton v-slot="{ open }"
+                class="flex h-[40px] w-full items-center text-xs px-3.5 p-2 overflow-hidden border border-[#dfe0df] rounded-sm bg-white focus:outline-none"
+                :class="{ 'border-red-500': errors.category.show, 'text-brand-gray-500': form.category, 'text-[#999]': !form.category }">
+                <span class="block truncate text-inherit">{{ selectedCategoryName }}</span>
 
-                                <multiselect id="categoryField" :class="{ '!border-red-500': errors.category.show }"
-                                    placeholder="Selecione a categoria" v-model="form.category" :options="categories">
-                                </multiselect>
+                <span
+                    class="pointer-events-none text-inherit absolute inset-y-0 right-0 flex items-center pr-2.5"
+                    :class="{ '!text-gray-300': open }">
+                    <svg :class="{ 'rotate-180 ': open }" class="h-3.5 w-3.5"
+                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                        fill="currentColor">
+                        <path
+                            d="M17.9188 8.17969H11.6888H6.07877C5.11877 8.17969 4.63877 9.33969 5.31877 10.0197L10.4988 15.1997C11.3288 16.0297 12.6788 16.0297 13.5088 15.1997L15.4788 13.2297L18.6888 10.0197C19.3588 9.33969 18.8788 8.17969 17.9188 8.17969Z"
+                            fill="currentColor" />
+                    </svg>
+                </span>
+            </ListboxButton>
 
-                                <small class="text-xs text-red-500">
-                                    <span v-if="errors.category.show">
-                                        {{ errors.category.message }}
-                                    </span>
-                                </small>
-                            </div>
+            <transition leave-active-class="transition duration-100 ease-in"
+                leave-from-class="opacity-100" leave-to-class="opacity-0">
+                <ListboxOptions
+                    class="absolute z-[100] max-h-60 w-full overflow-auto rounded-sm bg-white text-xs shadow-lg focus:outline-none">
+                    <ListboxOption v-for="category in categories" :key="category.value"
+                        :value="category.value" v-slot="{ active, selected }" as="template">
+                        <li :class="[
+                            selected
+                                ? 'bg-[#0097ff] text-white'
+                                : active
+                                    ? 'bg-[#f1f1f1] text-brand-gray-500'
+                                    : 'text-brand-gray-500',
+                            'relative cursor-default select-none py-1.5 px-4'
+                        ]">
+                            <span :class="[
+                                selected ? 'font-medium' : 'font-normal',
+                                'block truncate',
+                            ]">{{ category.name }}</span>
+                        </li>
+                    </ListboxOption>
+                </ListboxOptions>
+            </transition>
+        </div>
+    </Listbox>
+
+    <small class="text-xs text-red-500">
+        <span v-if="errors.category.show">
+            {{ errors.category.message }}
+        </span>
+    </small>
+</div>
                         </div>
 
                     </div>
@@ -1065,87 +1220,145 @@ onBeforeRouteLeave((to, from, next) => {
                                 </h3>
                             </div>
                             <!--start address-->
-                            <div class="mb-3" v-if="type == 'presencial'">
-                                <div>
-                                    <div class="w-full">
-                                        <label
-                                            class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f] reqitems-center">
-                                            Nome do Local
-                                            <span
-                                                class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
-                                        </label>
-                                        <input
-                                            class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-gray-400"
-                                            id="locationField"
-                                            @input="form.address.location != '' ? errors.address.location.show = false : errors.address.location.show = true"
-                                            v-model="form.address.location" maxlength="100" type="text"
-                                            placeholder="Ex: Hotel Chick Chick"
-                                            :class="{ 'border-red-500': errors.address.location.show }">
-                                        <small class="text-xs text-red-500"
-                                            :class="{ danger: errors.address.location.show }">
-                                            <span v-if="errors.address.location.show">
-                                                {{ errors.address.location.message }}
-                                            </span>
-                                        </small>
-                                    </div>
-                                </div>
+<div class="mb-3" v-if="type == 'presencial'">
+    <div>
+        <div class="w-full">
+            <label
+                class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f] reqitems-center">
+                Nome do Local
+                <span class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
+            </label>
+            <input
+                class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-[#999]"
+                id="locationField"
+                @input="form.address.location != '' ? errors.address.location.show = false : errors.address.location.show = true"
+                v-model="form.address.location" maxlength="100" type="text"
+                placeholder="Ex: Hotel Chick Chick"
+                :class="{ 'border-red-500': errors.address.location.show }">
+            <small class="text-xs text-red-500" :class="{ danger: errors.address.location.show }">
+                <span v-if="errors.address.location.show">
+                    {{ errors.address.location.message }}
+                </span>
+            </small>
+        </div>
+    </div>
 
-                                <!-- Novos campos: Cidade, Bairro e Complemento -->
-                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-                                    <div class="w-full">
-                                        <label
-                                            class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
-                                            Cidade
-                                        </label>
-                                        <input
-                                            class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-gray-400"
-                                            v-model="form.address.city" maxlength="100" type="text"
-                                            placeholder="Ex: Saurimo"
-                                            :class="{ 'border-red-500': errors.address.city.show }">
-                                        <small class="text-xs text-red-500"
-                                            :class="{ danger: errors.address.city.show }">
-                                            <span v-if="errors.address.city.show">{{ errors.address.city.message
-                                                }}</span>
-                                        </small>
-                                    </div>
+    <!-- Grid para Cidade e Província -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+          <!-- Campo Província com Listbox -->
+        <div class="w-full">
+            <label
+                class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
+                Província
+                <span class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
+            </label>
+            
+            <Listbox v-model="form.address.province" id="provinceField">
+                <div class="relative">
+                    <ListboxButton v-slot="{ open }"
+                        class="flex h-[40px] w-full text-brand-gray-500 items-center text-xs px-3.5 p-2 overflow-hidden border border-[#dfe0df] rounded-sm bg-white focus:outline-none"
+                        :class="{ 'border-red-500': errors.address.province?.show }">
+                        <span class="block truncate">{{ selectedProvinceName }}</span>
 
-                                    <div class="w-full">
-                                        <label
-                                            class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
-                                            Bairro
-                                        </label>
-                                        <input
-                                            class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-gray-400"
-                                            v-model="form.address.neighborhood" maxlength="100" type="text"
-                                            placeholder="Ex: Centro"
-                                            :class="{ 'border-red-500': errors.address.neighborhood.show }">
-                                        <small class="text-xs text-red-500"
-                                            :class="{ danger: errors.address.neighborhood.show }">
-                                            <span v-if="errors.address.neighborhood.show">{{
-                                                errors.address.neighborhood.message }}</span>
-                                        </small>
-                                    </div>
-                                </div>
+                        <span
+                            class="pointer-events-none text-inherit absolute inset-y-0 right-0 flex items-center pr-2.5"
+                            :class="{ '!text-gray-300': open }">
+                            <svg :class="{ 'rotate-180 ': open }" class="h-3.5 w-3.5"
+                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                fill="currentColor">
+                                <path
+                                    d="M17.9188 8.17969H11.6888H6.07877C5.11877 8.17969 4.63877 9.33969 5.31877 10.0197L10.4988 15.1997C11.3288 16.0297 12.6788 16.0297 13.5088 15.1997L15.4788 13.2297L18.6888 10.0197C19.3588 9.33969 18.8788 8.17969 17.9188 8.17969Z"
+                                    fill="currentColor" />
+                            </svg>
+                        </span>
+                    </ListboxButton>
 
-                                <div class="w-full mt-4">
-                                    <label
-                                        class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
-                                        Complemento (opcional)
-                                    </label>
-                                    <input
-                                        class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-gray-400"
-                                        v-model="form.address.complement" maxlength="200" type="text"
-                                        placeholder="Ex: Sala 101, Próximo ao shopping">
-                                </div>
+                    <transition leave-active-class="transition duration-100 ease-in"
+                        leave-from-class="opacity-100" leave-to-class="opacity-0">
+                        <ListboxOptions
+                            class="absolute z-[100] max-h-60 w-full overflow-auto rounded-sm bg-white text-xs shadow-lg focus:outline-none">
+                            <ListboxOption v-for="province in angolanProvinces" :key="province.value"
+                                :value="province?.value" v-slot="{ active, selected }" as="template">
+                                <li :class="[
+                                    selected
+                                        ? 'bg-[#0097ff] text-white'
+                                        : active
+                                            ? 'bg-[#f1f1f1] text-brand-gray-500'
+                                            : 'text-brand-gray-500',
+                                    'relative cursor-default select-none py-1.5 px-4'
+                                ]">
+                                    <span :class="[
+                                        selected ? 'font-medium' : 'font-normal',
+                                        'block truncate',
+                                    ]">{{ province.name }}</span>
+                                </li>
+                            </ListboxOption>
+                        </ListboxOptions>
+                    </transition>
+                </div>
+            </Listbox>
+            
+        </div>
+        
+        <!-- Campo Cidade -->
+        <div class="w-full leading-6">
+            <label
+                class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
+                Cidade
 
-                                <!--google maps-->
-                            </div>
-                            <!--end address-->
+                <span class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
+            </label>
+            <input
+                id="cityField"
+                class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-[#999]"
+                v-model="form.address.city" maxlength="100" type="text"
+                placeholder="Ex: Saurimo"
+                :class="{ 'border-red-500': errors.address.city.show }">
+            <small class="text-xs text-red-500" :class="{ danger: errors.address.city.show }">
+                <span v-if="errors.address.city.show">{{ errors.address.city.message }}</span>
+            </small>
+        </div>
+
+      
+    </div>
+
+    <!-- Grid para Bairro e Complemento -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+        <div class="w-full">
+            <label
+                class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
+                Bairro
+            </label>
+            <input
+                class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-[#999]"
+                v-model="form.address.neighborhood" maxlength="100" type="text"
+                placeholder="Ex: Centro"
+                :class="{ 'border-red-500': errors.address.neighborhood.show }">
+            <small class="text-xs text-red-500" :class="{ danger: errors.address.neighborhood.show }">
+                <span v-if="errors.address.neighborhood.show">{{ errors.address.neighborhood.message }}</span>
+            </small>
+        </div>
+
+        <div class="w-full">
+            <label
+                class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
+                Complemento (opcional)
+            </label>
+            <input
+                class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-[#999]"
+                v-model="form.address.complement" maxlength="200" type="text"
+                placeholder="Ex: Sala 101, Próximo ao shopping">
+        </div>
+    </div>
+    <!--google maps-->
+</div>
+<!--end address-->
+
                             <!--start link meet-->
                             <div v-else>
                                 <div class="w-full">
                                     <input
-                                        class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-gray-400"
+                                        class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-[#999]"
                                         v-model="form.meeting.url" maxlength="100" type="text" placeholder="Insira uma URL completa. Exemplo: https://www.plataforma.com/evento123"
                                         :class="{ 'border-red-500': errors.meeting.url.show }">
                                     <small class="text-xs text-red-500" :class="{ danger: errors.meeting.url.show }">
@@ -1384,7 +1597,7 @@ onBeforeRouteLeave((to, from, next) => {
                                         class="flex cursor-pointer text-sm items-center gap-1.5 mb-1 font-semibold text-[#50525f] reqility__label"
                                         style="vertical-align: baseline;">
                                         <input
-                                            class="p-[10px] border !rounded-sm border-[#dfe0df] h-[40px] scale-[1.3] text-[13px] focus:outline-none !text-gray-600  placeholder:text-gray-400"
+                                            class="p-[10px] border !rounded-sm border-[#dfe0df] h-[40px] scale-[1.3] text-[13px] focus:outline-none !text-gray-600  placeholder:text-[#999]"
                                             type="radio" v-model="form.visibility" value="public">
                                         Público
                                     </label>
@@ -1392,7 +1605,7 @@ onBeforeRouteLeave((to, from, next) => {
                                         class="flex cursor-pointer text-sm items-center gap-1.5 mb-1 font-semibold text-[#50525f] reqility__label"
                                         style="vertical-align: baseline;">
                                         <input
-                                            class="p-[10px] border !rounded-sm border-[#dfe0df] h-[40px] scale-[1.3] text-[13px] focus:outline-none !text-gray-600  placeholder:text-gray-400"
+                                            class="p-[10px] border !rounded-sm border-[#dfe0df] h-[40px] scale-[1.3] text-[13px] focus:outline-none !text-gray-600  placeholder:text-[#999]"
                                             type="radio" v-model="form.visibility" value="private">
                                         Privado
                                     </label>
