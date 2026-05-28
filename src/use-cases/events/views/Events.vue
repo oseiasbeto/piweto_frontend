@@ -254,12 +254,12 @@
                                     <td class="px-4 py-2 text-brand-gray-500">
                                         <div class="flex items-center gap-2">
                                             <div class="w-[12px] h-[12px] rounded-full"
-                                                :class="statusColor(isEventEnded(eventWrapper.event.starts_at?.date) ? null : eventWrapper.event.status || 'r')">
+                                                :class="statusColor(isEventEnded(eventWrapper.event.ends_at?.date) ? null : eventWrapper.event.status || 'r')">
                                             </div>
 
                                             <p class="text-xs !bg-transparent"
-                                                :class="statusColor(isEventEnded(eventWrapper.event.starts_at?.date) ? null : eventWrapper.event.status || 'r')">
-                                                {{ statusLegends(isEventEnded(eventWrapper.event.starts_at?.date) ? null
+                                                :class="statusColor(isEventEnded(eventWrapper.event.ends_at?.date) ? null : eventWrapper.event.status || 'r')">
+                                                {{ statusLegends(isEventEnded(eventWrapper.event.ends_at?.date) ? null
                                                     : eventWrapper.event.status || 'r') }}
                                             </p>
                                         </div>
@@ -271,7 +271,7 @@
 
                                     <td class="px-4 py-2  text-brand-gray-500">
                                         <p class="truncate"> {{
-                                            moment(eventWrapper.event.starts_at?.date).format("DD/MM/YYYY") }}</p>
+                                            moment(eventWrapper.event.ends_at?.date).format("DD/MM/YYYY") }}</p>
                                     </td>
 
                                     <td class="px-4 py-2 max-w-[146px] text-brand-gray-500">
@@ -319,7 +319,7 @@
                                         </button>
                                         <div class="w-6 h-6">
                                             <router-link @click.stop class="w-full h-full"
-                                                v-if="!isEventEnded(eventWrapper.event.starts_at?.date)"
+                                                v-if="!isEventEnded(eventWrapper.event.ends_at?.date)"
                                                 :to="`/eventos/${eventWrapper.event._id}`">
                                                 <button
                                                     v-tippy="{ content: 'Editar', maxWidth: 350, placement: 'top', theme: 'custom-card' }"
@@ -460,7 +460,7 @@
                                                 </MenuItem>
 
                                                 <!-- Editar -->
-                                                <MenuItem v-if="!isEventEnded(eventWrapper.event.starts_at?.date)"
+                                                <MenuItem v-if="!isEventEnded(eventWrapper.event.ends_at?.date)"
                                                     v-slot="{ active }">
                                                 <router-link :to="`/eventos/${eventWrapper.event._id}`" :class="[
                                                     active ? 'bg-gray-100' : '',
@@ -488,12 +488,12 @@
                                     <span class="text-brand-gray-500 min-w-[80px]">
                                         <div class="flex items-center gap-2">
                                             <div class="w-[12px] h-[12px] rounded-full"
-                                                :class="statusColor(isEventEnded(eventWrapper.event.starts_at?.date) ? null : eventWrapper.event.status || 'r')">
+                                                :class="statusColor(isEventEnded(eventWrapper.event.ends_at?.date) ? null : eventWrapper.event.status || 'r')">
                                             </div>
 
                                             <p class="text-xs !bg-transparent"
-                                                :class="statusColor(isEventEnded(eventWrapper.event.starts_at?.date) ? null : eventWrapper.event.status || 'r')">
-                                                {{ statusLegends(isEventEnded(eventWrapper.event.starts_at?.date) ? null
+                                                :class="statusColor(isEventEnded(eventWrapper.event.ends_at?.date) ? null : eventWrapper.event.status || 'r')">
+                                                {{ statusLegends(isEventEnded(eventWrapper.event.ends_at?.date) ? null
                                                     : eventWrapper.event.status || 'r') }}
                                             </p>
                                         </div>
@@ -506,7 +506,7 @@
                                                 d="M21.204 4c.414 0 .752.338.752.75v.856H23.8c2.04 0 3.7 1.652 3.7 3.683v13.437a.686.686 0 0 1-.688.684.686.686 0 0 1-.687-.684v-10.29H6.375v11.881A2.323 2.323 0 0 0 8.7 26.633h18.113c.379 0 .687.306.687.684a.686.686 0 0 1-.688.683H8.7C6.66 28 5 26.348 5 24.317V9.289c0-2.03 1.66-3.683 3.7-3.683h1.803V4.75a.753.753 0 0 1 1.505 0v.856h3.469V4.75a.754.754 0 0 1 1.506 0v.856h3.468V4.75c0-.412.339-.75.753-.75zm5.653 20.28l.087.013a.91.91 0 0 1 .13.037c.042.02.084.042.121.063a.69.69 0 0 1 .251.833.592.592 0 0 1-.062.115c-.027.037-.053.073-.084.104a.511.511 0 0 1-.105.083c-.037.026-.079.047-.12.068a.91.91 0 0 1-.262.053.698.698 0 0 1-.634-.423 1.413 1.413 0 0 1-.042-.13 1.139 1.139 0 0 1-.01-.13.546.546 0 0 1 .052-.266.463.463 0 0 1 .063-.114.555.555 0 0 1 .084-.105.855.855 0 0 1 .105-.088c.037-.021.078-.042.12-.063.042-.016.084-.026.126-.037a.587.587 0 0 1 .267 0zm-10.66-3.127c.578 0 1.047.467 1.047 1.043 0 .575-.469 1.042-1.047 1.042a1.045 1.045 0 0 1-1.047-1.042c0-.576.469-1.043 1.047-1.043zm-5.76 0c.579 0 1.047.467 1.047 1.043 0 .575-.468 1.042-1.046 1.042a1.044 1.044 0 0 1-1.048-1.042c0-.576.469-1.043 1.048-1.043zm0-6.374a2.289 2.289 0 0 1 2.292 2.28 2.289 2.289 0 0 1-2.291 2.28 2.289 2.289 0 0 1-2.292-2.28 2.289 2.289 0 0 1 2.291-2.28zm5.76 1.238c.578 0 1.047.467 1.047 1.043 0 .575-.469 1.042-1.047 1.042a1.045 1.045 0 0 1-1.047-1.042c0-.576.469-1.043 1.047-1.043zm5.76 0c.578 0 1.047.467 1.047 1.043 0 .575-.469 1.042-1.047 1.042a1.045 1.045 0 0 1-1.048-1.042c0-.576.47-1.043 1.048-1.043zm-11.52.13a.915.915 0 0 0-.916.912c0 .504.41.913.916.913a.915.915 0 0 0 .917-.913.915.915 0 0 0-.916-.912zm.066-9.172H8.7a2.323 2.323 0 0 0-2.325 2.314v1.78h19.75v-1.78A2.323 2.323 0 0 0 23.8 6.975h-1.844v1.004a.753.753 0 0 1-1.505 0V6.974h-3.468V7.98a.753.753 0 0 1-1.506 0V6.974h-3.469V7.98a.753.753 0 0 1-1.505 0V6.974z" />
                                         </svg>
 
-                                        <p> {{ moment(eventWrapper.event.starts_at?.date).format("DD/MM/YYYY") }}</p>
+                                        <p> {{ moment(eventWrapper.event.ends_at?.date).format("DD/MM/YYYY") }}</p>
                                     </span>
                                     <span class="flex w-full text-[#50525f] items-center">
                                         <svg class="shrink-0" xmlns="http://www.w3.org/2000/svg" width="28" height="28"
@@ -536,7 +536,7 @@
 
                                 <!-- Header -->
                                 <div class="flex py-2 items-center w-full justify-between">
-                                    <div class="h-4 w-40 bg-[#dfe0df] rounded"></div>
+                                    <div class="h-4 min-w-40 bg-[#dfe0df] rounded"></div>
                                     <div class="w-8 h-8 bg-[#dfe0df] rounded-lg"></div>
                                 </div>
 
@@ -546,19 +546,19 @@
                                     <!-- Status -->
                                     <div class="flex items-center gap-2 min-w-[80px]">
                                         <div class="w-[12px] h-[12px] rounded-full bg-[#dfe0df]"></div>
-                                        <div class="h-3 w-14 bg-[#dfe0df] rounded"></div>
+                                        <div class="h-3 min-w-14 bg-[#dfe0df] rounded"></div>
                                     </div>
 
                                     <!-- Data -->
                                     <div class="flex items-center gap-2">
-                                        <div class="w-4 h-4 bg-[#dfe0df] rounded"></div>
-                                        <div class="h-3 w-20 bg-[#dfe0df] rounded"></div>
+                                        <div class="min-w-4 h-4 bg-[#dfe0df] rounded"></div>
+                                        <div class="h-3 w-[32px] bg-[#dfe0df] rounded"></div>
                                     </div>
 
                                     <!-- Local -->
                                     <div class="flex items-center gap-2 max-w-[146px]">
-                                        <div class="w-4 h-4 bg-[#dfe0df] rounded"></div>
-                                        <div class="h-3 w-24 bg-[#dfe0df] rounded"></div>
+                                        <div class="min-w-4 h-4 bg-[#dfe0df] rounded"></div>
+                                        <div class="h-3 w-[32px] bg-[#dfe0df] rounded"></div>
                                     </div>
 
                                 </div>

@@ -127,6 +127,22 @@ const props = defineProps({
     type: String
 })
 
+const eventTypeText = computed(() => {
+    const textMap = {
+        presencial: 'Onde o seu evento vai acontecer?',
+        online: 'Qual é o link de acesso para sua transmissão?'
+    };
+
+    const text = textMap[type.value] || 'Configure seu evento';
+    return text;
+})
+
+const publicText = ref(`Se você definir o seu evento como público,
+       ele poderá aparecer em buscadores da internet (como Google, Bing, Yahoo),
+      na ferramenta de busca da Piweto (disponível em nossa home) e poderá ser recomendado
+      pelo nosso site, através de nossos newsletter ou posts nas redes sociais.
+      Caso o seu evento seja exclusivo, marque-o como privado.`)
+
 const errors = ref({
     name: {
         show: false,
@@ -187,6 +203,10 @@ const errors = ref({
     ends_time_at: {
         show: false,
         message: ""
+    },
+    terms: {
+        show: false,
+        message: "Você precisa aceitar os termos para publicar o evento."
     }
 })
 
@@ -524,10 +544,21 @@ function validateForm() {
     else if (form.value.batches.length == 0) {
         errors.value.batches = {
             show: true,
-            message: "Adicione pelo menos 1 tipo de ingresso."
+            message: "Adicione pelo menos um tipo de ingresso."
         }
         const fieldToScroll = document.querySelector("#ticketsField")
         fieldToScroll.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        hasError.value = true
+    }
+    else if (!acceptedTerms.value) {
+        errors.value.terms = {
+            show: true,
+            message: "Você precisa aceitar os Termos de Uso, Diretrizes de Comunidade e Política de Privacidade para publicar o evento."
+        }
+        const fieldToScroll = document.querySelector("#termsField")
+        if (fieldToScroll) {
+            fieldToScroll.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
         hasError.value = true
     }
     else {
@@ -879,7 +910,7 @@ const createEvent = async (status) => {
             status: eventForm.status || "pending",
             visibility: eventForm.visibility || "public",
             nameclature: eventForm.nameclature || "ticket",
-            type: "presencial",
+            type: type.value || "presencial",
             showOnMap: Boolean(eventForm.showOnMap),
 
             starts_at: {
@@ -967,6 +998,17 @@ const handleLabelClick = async () => {
 };
 
 // Adicione após a definição do form computed
+// Adicione o ref para o checkbox
+const acceptedTerms = ref(true) // Inicia como true (já que tem checked no HTML)
+
+// Adicione o watcher para limpar o erro quando marcar/desmarcar
+watch(() => acceptedTerms.value, (newValue) => {
+    if (newValue === true) {
+        errors.value.terms.show = false
+    } else {
+        errors.value.terms.show = true
+    }
+});
 
 // Watcher para limpar erro do nome
 watch(() => form.value.name, (newValue) => {
@@ -1033,7 +1075,6 @@ onMounted(() => {
                     [{ header: [1, 2, false] }],
                     ['bold', 'italic', 'underline'],
                     [{ list: 'ordered' }, { list: 'bullet' }],
-                    ['link'],
                 ],
             },
         });
@@ -1069,11 +1110,12 @@ onBeforeRouteLeave((to, from, next) => {
 
 
 <template>
-    <div class="min-h-screen relative">
+    <div class="min-h-[calc(100vh-76px)] mb-[76px] relative">
         <!--header-->
         <div class="sticky top-0 z-[888] mb-4 mt-5 lg:m-0 shadow-[0_2px_10px_0_rgba(25,31,40,.15)] bg-white w-full">
             <div class="lg:max-w-[1100px] py-4 px-4 lg:px-6 h-full mx-auto flex items-center">
-                <h1 class="text-[24px] leading-8 lg:text-[28px] text-[#494b57]">Criar <strong>{{ type == 'presencial' ? 'Evento Presencial' : 'Evento Online' }}</strong>
+                <h1 class="text-[24px] leading-8 lg:text-[28px] text-[#494b57]">Criar <strong>{{ type == 'presencial' ?
+                    'Evento Presencial' : 'Evento Online' }}</strong>
                 </h1>
             </div>
         </div>
@@ -1149,64 +1191,64 @@ onBeforeRouteLeave((to, from, next) => {
                                     </div>
                                 </div>
                             </div>
-<div class="form-group">
-    <label
-        class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f] required flex-row">
-        Categoria
-        <span class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
-    </label>
+                            <div class="form-group">
+                                <label
+                                    class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f] required flex-row">
+                                    Categoria
+                                    <span class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
+                                </label>
 
-    <Listbox v-model="form.category" id="categoryField">
-        <div class="relative">
-            <ListboxButton v-slot="{ open }"
-                class="flex h-[40px] w-full items-center text-xs px-3.5 p-2 overflow-hidden border border-[#dfe0df] rounded-sm bg-white focus:outline-none"
-                :class="{ 'border-red-500': errors.category.show, 'text-brand-gray-500': form.category, 'text-[#999]': !form.category }">
-                <span class="block truncate text-inherit">{{ selectedCategoryName }}</span>
+                                <Listbox v-model="form.category" id="categoryField">
+                                    <div class="relative">
+                                        <ListboxButton v-slot="{ open }"
+                                            class="flex h-[40px] w-full items-center text-xs px-3.5 p-2 overflow-hidden border border-[#dfe0df] rounded-sm bg-white focus:outline-none"
+                                            :class="{ 'border-red-500': errors.category.show, 'text-brand-gray-500': form.category, 'text-[#999]': !form.category }">
+                                            <span class="block truncate text-inherit">{{ selectedCategoryName }}</span>
 
-                <span
-                    class="pointer-events-none text-inherit absolute inset-y-0 right-0 flex items-center pr-2.5"
-                    :class="{ '!text-gray-300': open }">
-                    <svg :class="{ 'rotate-180 ': open }" class="h-3.5 w-3.5"
-                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                        fill="currentColor">
-                        <path
-                            d="M17.9188 8.17969H11.6888H6.07877C5.11877 8.17969 4.63877 9.33969 5.31877 10.0197L10.4988 15.1997C11.3288 16.0297 12.6788 16.0297 13.5088 15.1997L15.4788 13.2297L18.6888 10.0197C19.3588 9.33969 18.8788 8.17969 17.9188 8.17969Z"
-                            fill="currentColor" />
-                    </svg>
-                </span>
-            </ListboxButton>
+                                            <span
+                                                class="pointer-events-none text-inherit absolute inset-y-0 right-0 flex items-center pr-2.5"
+                                                :class="{ '!text-gray-300': open }">
+                                                <svg :class="{ 'rotate-180 ': open }" class="h-3.5 w-3.5"
+                                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                    fill="currentColor">
+                                                    <path
+                                                        d="M17.9188 8.17969H11.6888H6.07877C5.11877 8.17969 4.63877 9.33969 5.31877 10.0197L10.4988 15.1997C11.3288 16.0297 12.6788 16.0297 13.5088 15.1997L15.4788 13.2297L18.6888 10.0197C19.3588 9.33969 18.8788 8.17969 17.9188 8.17969Z"
+                                                        fill="currentColor" />
+                                                </svg>
+                                            </span>
+                                        </ListboxButton>
 
-            <transition leave-active-class="transition duration-100 ease-in"
-                leave-from-class="opacity-100" leave-to-class="opacity-0">
-                <ListboxOptions
-                    class="absolute z-[100] max-h-60 w-full overflow-auto rounded-sm bg-white text-xs shadow-lg focus:outline-none">
-                    <ListboxOption v-for="category in categories" :key="category.value"
-                        :value="category.value" v-slot="{ active, selected }" as="template">
-                        <li :class="[
-                            selected
-                                ? 'bg-[#0097ff] text-white'
-                                : active
-                                    ? 'bg-[#f1f1f1] text-brand-gray-500'
-                                    : 'text-brand-gray-500',
-                            'relative cursor-default select-none py-1.5 px-4'
-                        ]">
-                            <span :class="[
-                                selected ? 'font-medium' : 'font-normal',
-                                'block truncate',
-                            ]">{{ category.name }}</span>
-                        </li>
-                    </ListboxOption>
-                </ListboxOptions>
-            </transition>
-        </div>
-    </Listbox>
+                                        <transition leave-active-class="transition duration-100 ease-in"
+                                            leave-from-class="opacity-100" leave-to-class="opacity-0">
+                                            <ListboxOptions
+                                                class="absolute z-[100] max-h-60 w-full overflow-auto rounded-sm bg-white text-xs shadow-lg focus:outline-none">
+                                                <ListboxOption v-for="category in categories" :key="category.value"
+                                                    :value="category.value" v-slot="{ active, selected }" as="template">
+                                                    <li :class="[
+                                                        selected
+                                                            ? 'bg-[#0097ff] text-white'
+                                                            : active
+                                                                ? 'bg-[#f1f1f1] text-brand-gray-500'
+                                                                : 'text-brand-gray-500',
+                                                        'relative cursor-default select-none py-1.5 px-4'
+                                                    ]">
+                                                        <span :class="[
+                                                            selected ? 'font-medium' : 'font-normal',
+                                                            'block truncate',
+                                                        ]">{{ category.name }}</span>
+                                                    </li>
+                                                </ListboxOption>
+                                            </ListboxOptions>
+                                        </transition>
+                                    </div>
+                                </Listbox>
 
-    <small class="text-xs text-red-500">
-        <span v-if="errors.category.show">
-            {{ errors.category.message }}
-        </span>
-    </small>
-</div>
+                                <small class="text-xs text-red-500">
+                                    <span v-if="errors.category.show">
+                                        {{ errors.category.message }}
+                                    </span>
+                                </small>
+                            </div>
                         </div>
 
                     </div>
@@ -1214,152 +1256,160 @@ onBeforeRouteLeave((to, from, next) => {
                     <div class="w-full mb-5 lg:p-6 bg-white lg:rounded-md shadow-[0_2px_10px_0_rgba(0,0,0,0.05)]">
                         <div class="py-4 px-4 lg:py-0 lg:px-0">
                             <div class="mb-4">
-                                <h3 class="text-xl mb-1 font-semibold text-[#0097ff]">2. 
-                                    {{ type == 'presencial' ? 'Onde o seu evento vai acontecer?' : 'Qual é o link de acesso para sua transmissão?' }}
-                                    
+                                <h3 class="text-xl mb-1 font-semibold text-[#0097ff]">2.
+                                    {{ eventTypeText }}
                                 </h3>
                             </div>
                             <!--start address-->
-<div class="mb-3" v-if="type == 'presencial'">
-    <div>
-        <div class="w-full">
-            <label
-                class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f] reqitems-center">
-                Nome do Local
-                <span class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
-            </label>
-            <input
-                class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-[#999]"
-                id="locationField"
-                @input="form.address.location != '' ? errors.address.location.show = false : errors.address.location.show = true"
-                v-model="form.address.location" maxlength="100" type="text"
-                placeholder="Ex: Hotel Chick Chick"
-                :class="{ 'border-red-500': errors.address.location.show }">
-            <small class="text-xs text-red-500" :class="{ danger: errors.address.location.show }">
-                <span v-if="errors.address.location.show">
-                    {{ errors.address.location.message }}
-                </span>
-            </small>
-        </div>
-    </div>
+                            <div class="mb-3" v-if="type == 'presencial'">
+                                <div>
+                                    <div class="w-full">
+                                        <label
+                                            class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f] reqitems-center">
+                                            Nome do Local
+                                            <span
+                                                class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
+                                        </label>
+                                        <input
+                                            class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-[#999]"
+                                            id="locationField"
+                                            @input="form.address.location != '' ? errors.address.location.show = false : errors.address.location.show = true"
+                                            v-model="form.address.location" maxlength="100" type="text"
+                                            placeholder="Ex: Hotel Chick Chick"
+                                            :class="{ 'border-red-500': errors.address.location.show }">
+                                        <small class="text-xs text-red-500"
+                                            :class="{ danger: errors.address.location.show }">
+                                            <span v-if="errors.address.location.show">
+                                                {{ errors.address.location.message }}
+                                            </span>
+                                        </small>
+                                    </div>
+                                </div>
 
-    <!-- Grid para Cidade e Província -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-          <!-- Campo Província com Listbox -->
-        <div class="w-full">
-            <label
-                class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
-                Província
-                <span class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
-            </label>
-            
-            <Listbox v-model="form.address.province" id="provinceField">
-                <div class="relative">
-                    <ListboxButton v-slot="{ open }"
-                        class="flex h-[40px] w-full text-brand-gray-500 items-center text-xs px-3.5 p-2 overflow-hidden border border-[#dfe0df] rounded-sm bg-white focus:outline-none"
-                        :class="{ 'border-red-500': errors.address.province?.show }">
-                        <span class="block truncate">{{ selectedProvinceName }}</span>
+                                <!-- Grid para Cidade e Província -->
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                                    <!-- Campo Província com Listbox -->
+                                    <div class="w-full">
+                                        <label
+                                            class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
+                                            Província
+                                            <span
+                                                class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
+                                        </label>
 
-                        <span
-                            class="pointer-events-none text-inherit absolute inset-y-0 right-0 flex items-center pr-2.5"
-                            :class="{ '!text-gray-300': open }">
-                            <svg :class="{ 'rotate-180 ': open }" class="h-3.5 w-3.5"
-                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                fill="currentColor">
-                                <path
-                                    d="M17.9188 8.17969H11.6888H6.07877C5.11877 8.17969 4.63877 9.33969 5.31877 10.0197L10.4988 15.1997C11.3288 16.0297 12.6788 16.0297 13.5088 15.1997L15.4788 13.2297L18.6888 10.0197C19.3588 9.33969 18.8788 8.17969 17.9188 8.17969Z"
-                                    fill="currentColor" />
-                            </svg>
-                        </span>
-                    </ListboxButton>
+                                        <Listbox v-model="form.address.province" id="provinceField">
+                                            <div class="relative">
+                                                <ListboxButton v-slot="{ open }"
+                                                    class="flex h-[40px] w-full text-brand-gray-500 items-center text-xs px-3.5 p-2 overflow-hidden border border-[#dfe0df] rounded-sm bg-white focus:outline-none"
+                                                    :class="{ 'border-red-500': errors.address.province?.show }">
+                                                    <span class="block truncate">{{ selectedProvinceName }}</span>
 
-                    <transition leave-active-class="transition duration-100 ease-in"
-                        leave-from-class="opacity-100" leave-to-class="opacity-0">
-                        <ListboxOptions
-                            class="absolute z-[100] max-h-60 w-full overflow-auto rounded-sm bg-white text-xs shadow-lg focus:outline-none">
-                            <ListboxOption v-for="province in angolanProvinces" :key="province.value"
-                                :value="province?.value" v-slot="{ active, selected }" as="template">
-                                <li :class="[
-                                    selected
-                                        ? 'bg-[#0097ff] text-white'
-                                        : active
-                                            ? 'bg-[#f1f1f1] text-brand-gray-500'
-                                            : 'text-brand-gray-500',
-                                    'relative cursor-default select-none py-1.5 px-4'
-                                ]">
-                                    <span :class="[
-                                        selected ? 'font-medium' : 'font-normal',
-                                        'block truncate',
-                                    ]">{{ province.name }}</span>
-                                </li>
-                            </ListboxOption>
-                        </ListboxOptions>
-                    </transition>
-                </div>
-            </Listbox>
-            
-        </div>
-        
-        <!-- Campo Cidade -->
-        <div class="w-full leading-6">
-            <label
-                class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
-                Cidade
+                                                    <span
+                                                        class="pointer-events-none text-inherit absolute inset-y-0 right-0 flex items-center pr-2.5"
+                                                        :class="{ '!text-gray-300': open }">
+                                                        <svg :class="{ 'rotate-180 ': open }" class="h-3.5 w-3.5"
+                                                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                            fill="currentColor">
+                                                            <path
+                                                                d="M17.9188 8.17969H11.6888H6.07877C5.11877 8.17969 4.63877 9.33969 5.31877 10.0197L10.4988 15.1997C11.3288 16.0297 12.6788 16.0297 13.5088 15.1997L15.4788 13.2297L18.6888 10.0197C19.3588 9.33969 18.8788 8.17969 17.9188 8.17969Z"
+                                                                fill="currentColor" />
+                                                        </svg>
+                                                    </span>
+                                                </ListboxButton>
 
-                <span class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
-            </label>
-            <input
-                id="cityField"
-                class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-[#999]"
-                v-model="form.address.city" maxlength="100" type="text"
-                placeholder="Ex: Saurimo"
-                :class="{ 'border-red-500': errors.address.city.show }">
-            <small class="text-xs text-red-500" :class="{ danger: errors.address.city.show }">
-                <span v-if="errors.address.city.show">{{ errors.address.city.message }}</span>
-            </small>
-        </div>
+                                                <transition leave-active-class="transition duration-100 ease-in"
+                                                    leave-from-class="opacity-100" leave-to-class="opacity-0">
+                                                    <ListboxOptions
+                                                        class="absolute z-[100] max-h-60 w-full overflow-auto rounded-sm bg-white text-xs shadow-lg focus:outline-none">
+                                                        <ListboxOption v-for="province in angolanProvinces"
+                                                            :key="province.value" :value="province?.value"
+                                                            v-slot="{ active, selected }" as="template">
+                                                            <li :class="[
+                                                                selected
+                                                                    ? 'bg-[#0097ff] text-white'
+                                                                    : active
+                                                                        ? 'bg-[#f1f1f1] text-brand-gray-500'
+                                                                        : 'text-brand-gray-500',
+                                                                'relative cursor-default select-none py-1.5 px-4'
+                                                            ]">
+                                                                <span :class="[
+                                                                    selected ? 'font-medium' : 'font-normal',
+                                                                    'block truncate',
+                                                                ]">{{ province.name }}</span>
+                                                            </li>
+                                                        </ListboxOption>
+                                                    </ListboxOptions>
+                                                </transition>
+                                            </div>
+                                        </Listbox>
 
-      
-    </div>
+                                    </div>
 
-    <!-- Grid para Bairro e Complemento -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-        <div class="w-full">
-            <label
-                class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
-                Bairro
-            </label>
-            <input
-                class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-[#999]"
-                v-model="form.address.neighborhood" maxlength="100" type="text"
-                placeholder="Ex: Centro"
-                :class="{ 'border-red-500': errors.address.neighborhood.show }">
-            <small class="text-xs text-red-500" :class="{ danger: errors.address.neighborhood.show }">
-                <span v-if="errors.address.neighborhood.show">{{ errors.address.neighborhood.message }}</span>
-            </small>
-        </div>
+                                    <!-- Campo Cidade -->
+                                    <div class="w-full leading-6">
+                                        <label
+                                            class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
+                                            Cidade
 
-        <div class="w-full">
-            <label
-                class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
-                Complemento (opcional)
-            </label>
-            <input
-                class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-[#999]"
-                v-model="form.address.complement" maxlength="200" type="text"
-                placeholder="Ex: Sala 101, Próximo ao shopping">
-        </div>
-    </div>
-    <!--google maps-->
-</div>
-<!--end address-->
+                                            <span
+                                                class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
+                                        </label>
+                                        <input id="cityField"
+                                            class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-[#999]"
+                                            v-model="form.address.city" maxlength="100" type="text"
+                                            placeholder="Ex: Saurimo"
+                                            :class="{ 'border-red-500': errors.address.city.show }">
+                                        <small class="text-xs text-red-500"
+                                            :class="{ danger: errors.address.city.show }">
+                                            <span v-if="errors.address.city.show">{{ errors.address.city.message
+                                                }}</span>
+                                        </small>
+                                    </div>
+
+
+                                </div>
+
+                                <!-- Grid para Bairro e Complemento -->
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                                    <div class="w-full">
+                                        <label
+                                            class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
+                                            Bairro
+                                        </label>
+                                        <input
+                                            class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-[#999]"
+                                            v-model="form.address.neighborhood" maxlength="100" type="text"
+                                            placeholder="Ex: Centro"
+                                            :class="{ 'border-red-500': errors.address.neighborhood.show }">
+                                        <small class="text-xs text-red-500"
+                                            :class="{ danger: errors.address.neighborhood.show }">
+                                            <span v-if="errors.address.neighborhood.show">{{
+                                                errors.address.neighborhood.message }}</span>
+                                        </small>
+                                    </div>
+
+                                    <div class="w-full">
+                                        <label
+                                            class="flex items-center gap-[3px] text-[12px] mb-1 font-semibold text-[#50525f]">
+                                            Complemento (opcional)
+                                        </label>
+                                        <input
+                                            class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-[#999]"
+                                            v-model="form.address.complement" maxlength="200" type="text"
+                                            placeholder="Ex: Sala 101, Próximo ao shopping">
+                                    </div>
+                                </div>
+                                <!--google maps-->
+                            </div>
+                            <!--end address-->
 
                             <!--start link meet-->
                             <div v-else>
                                 <div class="w-full">
                                     <input
                                         class="p-[10px] border w-full !rounded-sm border-[#dfe0df] h-[40px] text-[13px] focus:outline-none !text-gray-600 placeholder:text-[#999]"
-                                        v-model="form.meeting.url" maxlength="100" type="text" placeholder="Insira uma URL completa. Exemplo: https://www.plataforma.com/evento123"
+                                        v-model="form.meeting.url" maxlength="100" type="text"
+                                        placeholder="Insira uma URL completa. Exemplo: https://www.plataforma.com/evento123"
                                         :class="{ 'border-red-500': errors.meeting.url.show }">
                                     <small class="text-xs text-red-500" :class="{ danger: errors.meeting.url.show }">
                                         <span v-if="errors.meeting.show">
@@ -1417,7 +1467,7 @@ onBeforeRouteLeave((to, from, next) => {
                                         <small class="text-xs text-red-500"
                                             :class="{ danger: errors.starts_time_At.show }">
                                             <span v-if="errors.starts_time_At.show">{{ errors.starts_time_At.message
-                                                }}</span>
+                                            }}</span>
                                         </small>
                                     </div>
                                 </div>
@@ -1458,7 +1508,7 @@ onBeforeRouteLeave((to, from, next) => {
                                         <small class="text-xs text-red-500"
                                             :class="{ danger: errors.ends_time_at.show }">
                                             <span v-if="errors.ends_time_at.show">{{ errors.ends_time_at.message
-                                                }}</span>
+                                            }}</span>
                                         </small>
                                     </div>
                                 </div>
@@ -1469,7 +1519,7 @@ onBeforeRouteLeave((to, from, next) => {
                                 class="py-4 text-[#424D62] text-[13px]">
 
                                 <p>Seu evento vai durar <strong class="text-[#0097ff]">{{ getEventDuration() || '...'
-                                        }}</strong></p>
+                                }}</strong></p>
                             </div>
                         </div>
                     </div>
@@ -1554,7 +1604,7 @@ onBeforeRouteLeave((to, from, next) => {
                                                 <td class="px-4 py-3 text-center text-sm hidden sm:table-cell">
                                                     {{ batch.quantity }}</td>
                                                 <td class="px-4 py-3 text-center text-sm">{{ formatAmount(batch.price)
-                                                    }}</td>
+                                                }}</td>
                                                 <td class="px-4 py-3 text-center text-sm hidden md:table-cell">
                                                     4%</td>
                                                 <td class="px-4 py-3 text-center text-sm hidden md:table-cell">
@@ -1587,31 +1637,114 @@ onBeforeRouteLeave((to, from, next) => {
                     </div>
                     <!--end tickets information group form -->
 
-                    <!--start status information group form -->
-                    <div class="px-5 lg:px-0 lg:pb-2 pb-[110px]">
-                        <div class="row justify-space-between gap-1">
+                    <!--start terms form -->
+                    <div class="w-full mb-5 lg:p-6 bg-white lg:rounded-md shadow-[0_2px_10px_0_rgba(0,0,0,0.05)]">
+                        <div class="py-4 px-4 lg:py-0 lg:px-0">
                             <div class="mb-4">
-                                <strong style="position: relative; top: 1px;">Visibilidade do evento:</strong>
-                                <div class="flex items-center gap-4">
+                                <h3 class="text-xl mb-1 font-semibold text-[#0097ff]">6. Responsabilidades</h3>
+                            </div>
+                            <div id="termsField">
+                                <label
+                                    class="group flex items-start gap-[12px] text-[12px] mb-1 font-semibold text-[#50525f] cursor-pointer">
+                                    <div class="relative flex items-center justify-center shrink-0">
+                                        <input v-model="acceptedTerms" data-vv-rules="required" type="checkbox"
+                                            :checked="acceptedTerms" class="w-[18px] h-[18px] border-2 border-gray-300 rounded-sm bg-white
+                                            checked:bg-[#0097ff] checked:border-[#0097ff]
+                                            focus:outline-none
+                                            transition-all duration-200 outline-none cursor-pointer
+                                            appearance-none [-webkit-appearance:none] [-moz-appearance:none]"
+                                            :class="{ 'border-red-500': errors.terms.show }">
+                                        <!-- Ícone de check -->
+                                        <svg class="absolute inset-0 w-full h-full pointer-events-none opacity-0 transition-opacity duration-200 group-has-[:checked]:opacity-100"
+                                            viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M5 12L10 17L19 8" stroke="white" stroke-width="3"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </div>
+                                    <span class="font-normal mt-[-2px] leading-[22px] text-xs flex-1">
+                                        Ao publicar este evento, declaro estar de acordo com os
+                                        <a target="_blank" href="https://www.piweto.it.ao/termos-de-uso"
+                                            class="text-[#0097ff] hover:opacity-70 transition-colors duration-200"><b>Termos
+                                                de Uso</b></a><span>,
+                                            <a target="_blank" href="https://www.piweto.it.ao/termos-de-uso"
+                                                class="text-[#0097ff] hover:opacity-70 transition-colors duration-200"><b>Diretrizes
+                                                    de Comunidade</b></a>
+                                            e
+                                            <a target="_blank" aria-label="Regras de meia entrada"
+                                                href="https://www.piweto.it.ao/termos-de-uso"
+                                                class="text-[#0097ff] hover:opacity-70 transition-colors duration-200"><b>Regras
+                                                    de meia-entrada</b></a></span>, bem
+                                        como estar ciente da
+                                        <a target="_blank" href="https://www.piweto.it.ao/politica-de-privacidade"
+                                            class="text-[#0097ff] hover:opacity-70 transition-colors duration-200"><b>Política
+                                                de Privacidade</b></a>
+                                        e das obrigações legais aplicáveis<span>, incluindo regras de acessibilidade
+                                            previstas na legislação angolana</span>.
+                                    </span>
+                                </label>
+                                <!-- Mensagem de erro do checkbox -->
+                                <small class="text-xs text-red-500 block mt-2" :class="{ danger: errors.terms.show }">
+                                    <span v-if="errors.terms.show">
+                                        {{ errors.terms.message }}
+                                    </span>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    <!--end terms form -->
+
+
+
+                    <!--start status information group form -->
+                    <div class="px-5 lg:px-0 lg:pb-2 pb-8">
+                        <div class="row justify-space-between gap-1">
+                            <div class="items-center flex gap-4 lg:gap-0 flex-col lg:flex-row">
+                                <div class="flex items-center">
+                                    <strong class="text-[14px] text-[#50525f]">Visibilidade do evento:</strong>
+
+                                    <span 
+                                        v-tippy="{
+                                                content: publicText, maxWidth: 280, placement: 'top', theme: 'custom-card'
+                                        }" 
+                                        class="ml-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20px"
+                                            height="20px" viewBox="0 0 1024 1024">
+                                            <path fill="#cbcbcf"
+                                                d="M512 64a448 448 0 1 1 0 896 448 448 0 0 1 0-896zm23.744 191.488c-52.096 0-92.928 14.784-123.2 44.352-30.976 29.568-45.76 70.4-45.76 122.496h80.256c0-29.568 5.632-52.8 17.6-68.992 13.376-19.712 35.2-28.864 66.176-28.864 23.936 0 42.944 6.336 56.32 19.712 12.672 13.376 19.712 31.68 19.712 54.912 0 17.6-6.336 34.496-19.008 49.984l-8.448 9.856c-45.76 40.832-73.216 70.4-82.368 89.408-9.856 19.008-14.08 42.24-14.08 68.992v9.856h80.96v-9.856c0-16.896 3.52-31.68 10.56-45.76 6.336-12.672 15.488-24.64 28.16-35.2 33.792-29.568 54.208-48.576 60.544-55.616 16.896-22.528 26.048-51.392 26.048-86.592 0-42.944-14.08-76.736-42.24-101.376-28.16-25.344-65.472-37.312-111.232-37.312zm-12.672 406.208a54.272 54.272 0 0 0-38.72 14.784 49.408 49.408 0 0 0-15.488 38.016c0 15.488 4.928 28.16 15.488 38.016A54.848 54.848 0 0 0 523.072 768c15.488 0 28.16-4.928 38.72-14.784a51.52 51.52 0 0 0 16.192-38.72 51.968 51.968 0 0 0-15.488-38.016 55.936 55.936 0 0 0-39.424-14.784z" />
+                                        </svg>
+                                    </span>
+                                </div>
+
+
+                                <div class="flex ml-4 items-center gap-4">
                                     <label
-                                        class="flex cursor-pointer text-sm items-center gap-1.5 mb-1 font-semibold text-[#50525f] reqility__label"
+                                        class="flex cursor-pointer text-xs items-center gap-2 font-normal text-[#50525f] reqility__label group"
                                         style="vertical-align: baseline;">
-                                        <input
-                                            class="p-[10px] border !rounded-sm border-[#dfe0df] h-[40px] scale-[1.3] text-[13px] focus:outline-none !text-gray-600  placeholder:text-[#999]"
-                                            type="radio" v-model="form.visibility" value="public">
+                                        <input type="radio" v-model="form.visibility" value="public" class="relative w-4 h-4 rounded-full border border-gray-400 
+                               transition-all duration-200 ease-out 
+                               checked:border-[#0097ff] checked:border-[5px]
+                               hover:scale-105 
+                               
+                               outline-none
+                               active:scale-95
+                               cursor-pointer appearance-none">
                                         Público
                                     </label>
                                     <label
-                                        class="flex cursor-pointer text-sm items-center gap-1.5 mb-1 font-semibold text-[#50525f] reqility__label"
+                                        class="flex cursor-pointer text-xs items-center gap-2 font-normal text-[#50525f] reqility__label group"
                                         style="vertical-align: baseline;">
-                                        <input
-                                            class="p-[10px] border !rounded-sm border-[#dfe0df] h-[40px] scale-[1.3] text-[13px] focus:outline-none !text-gray-600  placeholder:text-[#999]"
-                                            type="radio" v-model="form.visibility" value="private">
+                                        <input type="radio" v-model="form.visibility" value="private" class="relative w-4 h-4 rounded-full border border-gray-400 
+                               transition-all duration-200 ease-out 
+                               checked:border-[#0097ff] checked:border-[5px]
+                               hover:scale-105 
+                               
+                               outline-none
+                               active:scale-95
+                               cursor-pointer appearance-none">
                                         Privado
                                     </label>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                     <!--end status information group form -->
@@ -1621,7 +1754,7 @@ onBeforeRouteLeave((to, from, next) => {
         </div>
 
         <!--end body -->
-        <div class="fixed top-0 h-screen w-screen bg-gray-50"></div>
+        <div class="fixed top-0 h-screen w-screen bg-[#FBFBFC]"></div>
 
         <!--footer-->
         <div

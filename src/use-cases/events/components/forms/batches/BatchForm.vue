@@ -411,107 +411,148 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="w-full max-w-md bg-white p-4 lg:p-6 rounded-lg">
-        <h2 class="text-lg font-bold mb-4">
-            {{ modal?.data?.action == 'edit' ? 'Editar ingresso' : 'Criar Ingresso' }}
-        </h2>
-        <div class="mb-2">
-            <label class="flex items-center gap-1 text-[12px] mb-1">Título do ingresso</label>
-            <input
-                class="p-2 border w-full rounded-sm border-gray-300 h-[40px] text-[13px] focus:outline-none text-gray-600 placeholder:text-gray-400"
-                @input="form.name != '' ? errors.name.show = false : errors.name.show = true" id="nameTicketField"
-                v-model="form.name" type="text">
-            <p class="text-xs mt-1 leading-[15px]" :class="errors.name.show ? 'text-brand-danger block' : 'hidden text-gray-500'">{{ errors.name.message
-                }}</p>
+    <div
+        class="w-full md:w-[700px] lg:w-[1000px] h-[600px] bg-white shadow-[0_3px_9px_rgba(0,0,0,.5)] rounded-[8px] overflow-y-auto scrollbar-hide">
+        <div class="p-[20px_30px] text-center">
+            <div class="text-[28px] font-light">
+                {{ modal?.data?.action == 'edit' ? 'Editar ingresso' : 'Criar Ingresso' }}
+                <strong class="font-bold">{{ form.name || 'pago' }}</strong>
+            </div>
         </div>
 
-        <div class="mb-2">
-            <label class="flex items-center gap-1 text-[12px] mb-1">Quantidade</label>
-            <vue-cleave
-                class="p-2 border w-full rounded-sm border-gray-300 h-[40px] text-[13px] focus:outline-none text-gray-600 placeholder:text-gray-400"
-                @input="validateQuantity" id="quantityTicketField" v-model="form.quantity"
-                :options="cleaveConfigQuantity" placeholder="ex: 50" />
-            <p class="text-xs mt-1 leading-[15px]" :class="errors.quantity.show ? 'text-brand-danger' : 'hidden text-gray-500'">{{
-                errors.quantity.message }}</p>
-        </div>
 
-        <div class="mb-2">
-            <label class="flex items-center gap-1 text-[12px] mb-1">Preço</label>
-            <vue-cleave
-                class="p-2 border w-full rounded-sm border-gray-300 h-[40px] text-[13px] focus:outline-none text-gray-600 placeholder:text-gray-400"
-                @input="validatePrice" id="priceTicketField" v-model="form.price" :options="cleaveConfigPrice"
-                placeholder="Digite o preço" />
+        <div class="w-full p-4 lg:p-[20px_50px]">
+            <div class="flex mb-4 lg:flex-row flex-col gap-6 items-center">
+                <div class="mb-2 lg:mb-0 w-full lg:flex-1">
+                    <label class="flex font-semibold items-center gap-1 mb-0.5 text-[12px]">
+                        Título do ingresso
+                        <span class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
 
-                <div class="mt-2">
-                   <p v-if="errors.price.show" class="text-xs leading-[15px] mt-2 text-brand-danger">{{ errors.price.message
-                }}</p>
-            <p v-else class="text-xs leading-[15px] text-gray-500">
-                {{ `Será deduzida uma taxa de 5% sobre o valor de cada venda. O valor líquido a receber será: `}} <b>{{ formatAmount(calcularValorComTaxa(form.price)) }}</b>
-            </p>  
+                        <span v-tippy="{
+                            content: 'Este é o título do ingresso que será exibido na página de venda, junto ao preço.', maxWidth: 280, placement: 'top', theme: 'custom-card'
+                        }">
+                            <svg class="ml-0.5" xmlns="http://www.w3.org/2000/svg" width="18px" height="18px"
+                                viewBox="0 0 1024 1024">
+                                <path fill="#cbcbcf"
+                                    d="M512 64a448 448 0 1 1 0 896 448 448 0 0 1 0-896zm23.744 191.488c-52.096 0-92.928 14.784-123.2 44.352-30.976 29.568-45.76 70.4-45.76 122.496h80.256c0-29.568 5.632-52.8 17.6-68.992 13.376-19.712 35.2-28.864 66.176-28.864 23.936 0 42.944 6.336 56.32 19.712 12.672 13.376 19.712 31.68 19.712 54.912 0 17.6-6.336 34.496-19.008 49.984l-8.448 9.856c-45.76 40.832-73.216 70.4-82.368 89.408-9.856 19.008-14.08 42.24-14.08 68.992v9.856h80.96v-9.856c0-16.896 3.52-31.68 10.56-45.76 6.336-12.672 15.488-24.64 28.16-35.2 33.792-29.568 54.208-48.576 60.544-55.616 16.896-22.528 26.048-51.392 26.048-86.592 0-42.944-14.08-76.736-42.24-101.376-28.16-25.344-65.472-37.312-111.232-37.312zm-12.672 406.208a54.272 54.272 0 0 0-38.72 14.784 49.408 49.408 0 0 0-15.488 38.016c0 15.488 4.928 28.16 15.488 38.016A54.848 54.848 0 0 0 523.072 768c15.488 0 28.16-4.928 38.72-14.784a51.52 51.52 0 0 0 16.192-38.72 51.968 51.968 0 0 0-15.488-38.016 55.936 55.936 0 0 0-39.424-14.784z" />
+                            </svg>
+                        </span>
+                    </label>
+                    <input placeholder="Ingresso único, Meia-Entrada, VIP, etc."
+                        class="p-2 border w-full rounded-sm border-gray-300 h-[40px] text-[13px] focus:outline-none text-gray-600 placeholder:text-gray-400"
+                        @input="form.name != '' ? errors.name.show = false : errors.name.show = true"
+                        id="nameTicketField" v-model="form.name" type="text">
+                    <p class="text-xs mt-1 leading-[15px]"
+                        :class="errors.name.show ? 'text-brand-danger block' : 'hidden text-[#50525f]'">{{
+                            errors.name.message
+                        }}</p>
                 </div>
-           
-        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-            <div id="starts_atDateTicketField">
-                <label class="flex items-center gap-1 text-[12px] mb-1">Data de Início</label>
-                <date-picker @change="validateStarts_atDate" :disabled-date="disabledStarts_atTime" :lang="langConfig"
-                    v-model:value="form.starts_at.date"></date-picker>
-                <p class="text-xs mt-1 leading-[15px]" :class="errors.starts_at.date.show ? 'text-brand-danger' : 'hidden text-gray-500'">{{
-                    errors.starts_at.date.message }}</p>
+                <div class="mb-2 lg:mb-0 w-full lg:w-1/5">
+                    <label class="flex font-semibold items-center gap-1 text-[12px] mb-0.5">Quantidade 
+                        <span class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
+                    </label>
+                    <vue-cleave
+                        class="p-2 border w-full rounded-sm border-gray-300 h-[40px] text-[13px] focus:outline-none text-gray-600 placeholder:text-gray-400"
+                        @input="validateQuantity" id="quantityTicketField" v-model="form.quantity"
+                        :options="cleaveConfigQuantity" placeholder="ex: 50" />
+                    <p class="text-xs mt-1 leading-[15px]"
+                        :class="errors.quantity.show ? 'text-brand-danger' : 'hidden text-[#50525f]'">{{
+                            errors.quantity.message }}</p>
+                </div>
 
+                <div class="mb-2 lg:mb-0 flex lg:flex-row flex-col items-center w-full lg:flex-1">
+                    <div class="w-full lg:w-auto">
+                        <label class="flex font-semibold items-center gap-1 text-[12px] mb-0.5">Preço 
+                             <span class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
+                        </label>
+                        <vue-cleave
+                            class="p-2 border w-full rounded-sm border-gray-300 h-[40px] text-[13px] focus:outline-none text-gray-600 placeholder:text-gray-400"
+                            @input="validatePrice" id="priceTicketField" v-model="form.price"
+                            :options="cleaveConfigPrice" placeholder="Digite o preço" />
+                        <p v-show="errors.price?.show" class="text-xs leading-[15px] mt-2 text-brand-danger">{{
+                            errors.price.message
+                        }}</p>
+                    </div>
+
+
+                    <div class="pt-[30px] w-full lg:w-auto lg:ml-5">
+                        <p class="text-[13px] leading-6 text-[#50525f]">
+                            <p class="font-semibold">Valor a receber:</p> 
+                            <span class="text-[#2ac8bc] text-sm mb-[1em]">{{ formatAmount(calcularValorComTaxa(form.price)) }}</span>
+                        </p>
+                    </div>
+
+                </div>
             </div>
-            <div id="ends_atDateTicketField">
-                <label class="flex items-center gap-1 text-[12px] mb-1">Data de Término</label>
-                <date-picker @change="validateEnds_atDate" :disabled-date="disabledEnds_atTime" :lang="langConfig"
-                    v-model:value="form.ends_at.date"></date-picker>
-                <p class="text-xs mt-1 leading-[15px]" :class="errors.ends_at.date.show ? 'text-brand-danger' : 'hidden text-gray-500'">{{
-                    errors.ends_at.date.message }}</p>
+
+
+
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                <div id="starts_atDateTicketField">
+                    <label class="flex items-center gap-1 text-[12px] mb-1">Data de Início</label>
+                    <date-picker @change="validateStarts_atDate" :disabled-date="disabledStarts_atTime"
+                        :lang="langConfig" v-model:value="form.starts_at.date"></date-picker>
+                    <p class="text-xs mt-1 leading-[15px]"
+                        :class="errors.starts_at.date.show ? 'text-brand-danger' : 'hidden text-[#50525f]'">{{
+                            errors.starts_at.date.message }}</p>
+
+                </div>
+                <div id="ends_atDateTicketField">
+                    <label class="flex items-center gap-1 text-[12px] mb-1">Data de Término</label>
+                    <date-picker @change="validateEnds_atDate" :disabled-date="disabledEnds_atTime" :lang="langConfig"
+                        v-model:value="form.ends_at.date"></date-picker>
+                    <p class="text-xs mt-1 leading-[15px]"
+                        :class="errors.ends_at.date.show ? 'text-brand-danger' : 'hidden text-[#50525f]'">{{
+                            errors.ends_at.date.message }}</p>
+                </div>
+            </div>
+
+            <div class="mb-2">
+                <label class="flex items-center gap-1 text-[12px] mb-1">Quantidade permitida por compra</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <vue-cleave
+                        class="p-2 border w-full rounded-sm border-gray-300 h-[40px] text-[13px] focus:outline-none text-gray-600 placeholder:text-gray-400"
+                        @input="validatePurchaseMin" v-model="form.quantity_for_purchase.min"
+                        :options="cleaveConfigPurchaseMinMax" placeholder="Mínima" />
+                    <vue-cleave
+                        class="p-2 border w-full rounded-sm border-gray-300 h-[40px] text-[13px] focus:outline-none text-gray-600 placeholder:text-gray-400"
+                        @input="validatePurchaseMax" v-model="form.quantity_for_purchase.max"
+                        :options="cleaveConfigPurchaseMinMax" placeholder="Máxima" />
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="flex items-center gap-1 text-[12px] mb-1">Descrição do Ingresso (opcional)</label>
+                <textarea
+                    class="p-2 resize-none border w-full rounded-sm border-gray-300 text-[13px] focus:outline-none text-gray-600 placeholder:text-gray-400"
+                    maxlength="100" rows="2" v-model="form.description"
+                    placeholder="Informações adicionais ao nome do ingresso..."></textarea>
+            </div>
+
+            <div class="mb-8">
+                <strong class="block mb-2">Visibilidade do ingresso:</strong>
+                <div class="flex gap-4">
+                    <label class="text-sm flex items-center gap-1"><input type="radio" v-model="form.visibility"
+                            value="public"> Público</label>
+                    <label class="text-sm flex items-center gap-1"><input type="radio" v-model="form.visibility"
+                            value="private"> Privado</label>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-2 flex-wrap">
+                <button class="bg-brand-info text-sm font-bold hover:opacity-80 text-white py-2 px-4 rounded-full"
+                    @click="submit" :disabled="loadingBatch">
+                    <span v-if="loadingBatch || loadingEditBatch">Processando...</span>
+                    <span v-else>
+                        {{ modal?.data?.action == 'edit' ? 'Editar ingresso' : 'Criar Ingresso' }}
+                    </span>
+                </button>
+                <button class="bg-white text-sm font-bold hover:opacity-80 text-brand-info py-2 px-4 rounded-full"
+                    @click="close">Cancelar</button>
             </div>
         </div>
 
-        <div class="mb-2">
-            <label class="flex items-center gap-1 text-[12px] mb-1">Quantidade permitida por compra</label>
-            <div class="grid grid-cols-2 gap-4">
-                <vue-cleave
-                    class="p-2 border w-full rounded-sm border-gray-300 h-[40px] text-[13px] focus:outline-none text-gray-600 placeholder:text-gray-400"
-                    @input="validatePurchaseMin" v-model="form.quantity_for_purchase.min"
-                    :options="cleaveConfigPurchaseMinMax" placeholder="Mínima" />
-                <vue-cleave
-                    class="p-2 border w-full rounded-sm border-gray-300 h-[40px] text-[13px] focus:outline-none text-gray-600 placeholder:text-gray-400"
-                    @input="validatePurchaseMax" v-model="form.quantity_for_purchase.max"
-                    :options="cleaveConfigPurchaseMinMax" placeholder="Máxima" />
-            </div>
-        </div>
-
-        <div class="mb-4">
-            <label class="flex items-center gap-1 text-[12px] mb-1">Descrição do Ingresso (opcional)</label>
-            <textarea
-                class="p-2 resize-none border w-full rounded-sm border-gray-300 text-[13px] focus:outline-none text-gray-600 placeholder:text-gray-400"
-                maxlength="100" rows="2" v-model="form.description"
-                placeholder="Informações adicionais ao nome do ingresso..."></textarea>
-        </div>
-
-        <div class="mb-8">
-            <strong class="block mb-2">Visibilidade do ingresso:</strong>
-            <div class="flex gap-4">
-                <label class="text-sm flex items-center gap-1"><input type="radio" v-model="form.visibility"
-                        value="public"> Público</label>
-                <label class="text-sm flex items-center gap-1"><input type="radio" v-model="form.visibility"
-                        value="private"> Privado</label>
-            </div>
-        </div>
-
-        <div class="flex justify-center gap-2 flex-wrap">
-            <button class="bg-brand-info text-sm font-bold hover:opacity-80 text-white py-2 px-4 rounded-full"
-                @click="submit" :disabled="loadingBatch">
-                <span v-if="loadingBatch || loadingEditBatch">Processando...</span>
-                <span v-else>
-                    {{ modal?.data?.action == 'edit' ? 'Editar ingresso' : 'Criar Ingresso' }}
-                </span>
-            </button>
-            <button class="bg-white text-sm font-bold hover:opacity-80 text-brand-info py-2 px-4 rounded-full"
-                @click="close">Cancelar</button>
-        </div>
     </div>
 </template>

@@ -34,10 +34,10 @@ const close = (name) => {
 
 <template>
     <TransitionRoot appear :show="modal.show" as="div">
-        <Dialog as="div" class="relative z-[111]" @close="close(modal.name)">
+        <Dialog as="div" class="relative z-[9999]" @close="close(modal.name)">
             <TransitionChild as="div" enter="duration-300 ease-out" enter-from="opacity-100"
                 leave="duration-200 ease-in" leave-from="opacity-100" leave-to="opacity-0">
-                <div class="fixed inset-0 bg-black bg-opacity-25"></div>
+                <div class="fixed inset-0 bg-black bg-opacity-50"></div>
             </TransitionChild>
 
             <!--start body-->
@@ -48,7 +48,7 @@ const close = (name) => {
                         leave-to="opacity-0 scale-95">
                         <!--start body content-->
                         <DialogPanel
-                            class="w-full max-w-5xl overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-sm">
+                            class="w-full overflow-hidden text-left align-middle transition-all transform">
                             <div>
                                <BatchForm @onclose="close(modal.name)" v-if="modal.name == 'form-batch'" />
                                <MyAccount @onclose="close(modal.name)" v-if="modal.name == 'my-account'"/>
