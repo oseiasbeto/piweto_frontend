@@ -39,7 +39,7 @@ const store = useStore()
             <!--end views dashboard-->
 
             <!--start chat-->
-            <a class="w-[48px] lg:w-auto z-[100] lg:px-4 gap-1.5 rounded-full lg:rounded-[40px] hover:shadow-[0_0_6px_1px_#4be76a,0_20px_24px_-4px_rgba(0,0,0,0.12)] shadow-[0_0_6px_0_rgba(75,231,106,0),0_20px_24px_-4px_rgba(0,0,0,0.12)] text-black fixed right-[20px] bottom-[20px] h-[48px] flex justify-center items-center bg-[#4be76a]"
+            <a :class="route.name == 'New event' ? 'bottom-[108px] lg:bottom-[18px] lg:shadow-sm': 'bottom-[20px]'" class="w-[48px] lg:w-auto z-[999]  lg:px-4 gap-1.5 rounded-full lg:rounded-[40px] hover:shadow-[0_0_6px_1px_#4be76a,0_20px_24px_-4px_rgba(0,0,0,0.12)] shadow-[0_0_6px_0_rgba(75,231,106,0),0_20px_24px_-4px_rgba(0,0,0,0.12)] text-black fixed right-[20px]  h-[48px] flex justify-center items-center bg-[#4be76a]"
                 href="https://wa.me/948360831" target="_blank">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" class="w-6 h-6" viewBox="0 0 31.925 31.925">
 
