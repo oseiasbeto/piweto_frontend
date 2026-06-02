@@ -7,3 +7,6 @@ export const event = (state) => {
 export const myEvents = (state) => {
     return state.myEvents
 }
+export const isUpdatedEvent = (state) => {
+    return state.isUpdatedEvent
+}

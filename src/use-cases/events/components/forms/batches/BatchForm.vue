@@ -295,22 +295,6 @@ const disabledStarts_atDate = (date) => {
     return compareDate < today;
 }
 
-// Função para desabilitar horas passadas no dia atual
-const disabledStarts_atTime = (date) => {
-    if (!date) return false;
-
-    const now = new Date();
-    const selectedDate = new Date(date);
-
-    // Se for hoje, desabilita horários já passados (com margem de 5 minutos)
-    if (selectedDate.toDateString() === now.toDateString()) {
-        const nowPlus5Min = new Date(now.getTime() + 5 * 60000);
-        return selectedDate < nowPlus5Min;
-    }
-
-    return false;
-}
-
 // Função para desabilitar datas anteriores à data de início
 const disabledEnds_atDate = (date) => {
     if (!form.value.starts_at?.date) return false;
@@ -855,7 +839,7 @@ onMounted(() => {
                             <span class="flex items-center text-sm font-medium mt-1 text-[#ff4f4f]">*</span>
                         </label>
                         <date-picker type="time" :clearable="false" :append-to-body="true"
-                            :disabled-time="disabledStarts_atTime" format="HH:mm" v-model:value="form.starts_at.hm"
+                             format="HH:mm" v-model:value="form.starts_at.hm"
                             :popup-style="{ zIndex: 10000 }" @update:model-value="(val) => {
                                 validateStarts_atHm(val);
                                 handleStartsTimeChange();

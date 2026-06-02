@@ -75,5 +75,8 @@ export default {
     },
     [types.EDIT_BATCH_FROM_BATCHES](state, { data, index }) {
         state.eventForm.batches[index] = data
+    },
+    [types.SET_UPDATED_EVENT](state, payload) {
+        state.isUpdatedEvent = payload
     }
 }

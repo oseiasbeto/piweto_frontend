@@ -703,6 +703,10 @@ const user = computed(() => {
     return store.getters.currentUser
 })
 
+const isUpdatedEvent = computed(() => {
+    return store.getters.isUpdatedEvent
+})
+
 const page = ref(1);
 const limit = ref(10); // Valor inicial do limite
 const status = ref(null);
@@ -886,6 +890,23 @@ onMounted(async () => {
     if (events?.value?.hasViewed) {
         loadingEvents.value = false
     } else {
+        await fetchStaffs();
+    }
+
+    if (isUpdatedEvent.value) {
+        toast('Evento atualizado com sucesso!', {
+            theme: "colored",
+            position: "top-right",
+            autoClose: 2500,
+            type: 'success'
+        })
+        // IMPORTANTE: reseta o estado para não disparar novamente
+        store.dispatch('setUpdatedEvent', false)
+        
+        // Opcional: recarregar a lista para mostrar os dados atualizados
+        page.value = events?.value?.metadata?.page
+        limit.value = events?.value?.metadata?.limit
+
         await fetchStaffs();
     }
 })

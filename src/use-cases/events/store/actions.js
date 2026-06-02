@@ -33,3 +33,6 @@ export const setMyEvents = ({ commit }, payload) => {
 export const resetMyEvents = ({ commit }) => {
     commit(types.RESET_MYEVENTS)
 }
+export const setUpdatedEvent = ({ commit }, payload) => {
+    commit(types.SET_UPDATED_EVENT, payload)
+}

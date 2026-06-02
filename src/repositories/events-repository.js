@@ -121,11 +121,8 @@ export function useEvents() {
     const editEvent = async (data) => {
         try {
             loading.value = true
-            const response = await api.put('/events', data, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                }
-            });
+            const response = await api.put('/events', data);
+            return response?.data?.event
         } catch (err) {
             error.value = true
             console.log(err.message)

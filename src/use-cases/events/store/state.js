@@ -35,6 +35,7 @@ export default {
         nameclature: "ticket"
     },
     event: {},
+    isUpdatedEvent: false,
     myEvents: {
         data: [],
         metadata: {},
