@@ -76,10 +76,10 @@ const isCreatedEvent = ref(false)
 const isEditedEvent = ref(false)
 
 // Constantes do Cloudinary
-const CLOUD_NAME = 'daujoblcc';
-const UPLOAD_PRESET = 'social_media_upload';
-const API_KEY = '686559434489718';
-const API_SECRET = 'oAYl12OIZf2HkieFNDQQk2romHM';
+const CLOUD_NAME = 'dxgfptejc';
+const UPLOAD_PRESET = 'ml_default';
+const API_KEY = '736678696747168';
+const API_SECRET = 'd6rxoETQoDQvcZMM8hl_U9CKl4g';
 
 // Refs para upload
 const mediaPreviews = ref([]);
@@ -549,7 +549,7 @@ const deleteMediaFromCloudinary = async (publicId, resourceType = 'image') => {
 const uploadMedia = async (media) => {
     const source = axios.CancelToken.source();
     cancelTokens.value[media.id] = source;
-
+    
     try {
         const formData = new FormData();
         formData.append('file', media.file);
@@ -919,8 +919,8 @@ const createEvent = async (status) => {
         await editEvent(payload)
             .then(() => {
                 loadingEditEvent.value = false
-                isEditedEvent.value = 
-                store.dispatch("setUpdatedEvent", true)
+                isEditedEvent.value =
+                    store.dispatch("setUpdatedEvent", true)
                 router.replace(`/eventos/meus-eventos`)
             })
             .catch((error) => {
@@ -1514,7 +1514,7 @@ onBeforeRouteLeave((to, from, next) => {
                                                 :class="{ 'border-red-500': errors.address.city.show }">
                                             <small class="text-xs text-red-500">
                                                 <span v-if="errors.address.city.show">{{ errors.address.city.message
-                                                    }}</span>
+                                                }}</span>
                                             </small>
                                         </div>
                                     </div>
@@ -1600,7 +1600,7 @@ onBeforeRouteLeave((to, from, next) => {
                                             </div>
                                             <small class="text-xs text-red-500">
                                                 <span v-if="errors.starts_time_At.show">{{ errors.starts_time_At.message
-                                                    }}</span>
+                                                }}</span>
                                             </small>
                                         </div>
                                     </div>
@@ -1638,7 +1638,7 @@ onBeforeRouteLeave((to, from, next) => {
                                             </div>
                                             <small class="text-xs text-red-500">
                                                 <span v-if="errors.ends_time_at.show">{{ errors.ends_time_at.message
-                                                    }}</span>
+                                                }}</span>
                                             </small>
                                         </div>
                                     </div>
@@ -1688,49 +1688,50 @@ onBeforeRouteLeave((to, from, next) => {
                                             + INGRESSO PAGO
                                         </button>
                                     </div>
-                                    <div class="overflow-x-auto">
+                                    <div class="overflow-x-auto rounded-[12px] border border-[#e9eaeb]">
                                         <table v-if="form.batches && form.batches.length"
-                                            class="w-full border-collapse rounded-lg shadow-md overflow-hidden">
-                                            <thead class="bg-gray-50 text-gray-700">
+                                            class="w-full overflow-hidden">
+                                            <thead class="bg-[#fafafa] border-b border-[#eaeaec]">
                                                 <tr>
-                                                    <th class="px-4 py-3 text-left whitespace-nowrap">Tipo</th>
+                                                    <th class="px-6 py-4 text-left whitespace-nowrap text-xs font-semibold text-[#535862]">Tipo</th>
                                                     <th
-                                                        class="px-4 py-3 text-center text-sm whitespace-nowrap hidden sm:table-cell">
+                                                        class="px-6 py-4 text-[#535862] text-xs text-center font-semibold whitespace-nowrap hidden sm:table-cell">
                                                         Quantidade</th>
-                                                    <th class="px-4 py-3 text-center text-sm whitespace-nowrap">Valor
+                                                    <th class="px-6 py-4 text-[#535862] text-xs text-center font-semibold whitespace-nowrap">
+                                                        Preço
                                                     </th>
                                                     <th
-                                                        class="px-4 py-3 text-center text-sm whitespace-nowrap hidden md:table-cell">
+                                                        class="px-6 py-4 text-[#535862] text-xs text-center font-semibold whitespace-nowrap hidden md:table-cell">
                                                         Taxa</th>
                                                     <th
-                                                        class="px-4 py-3 text-center text-sm whitespace-nowrap hidden md:table-cell">
-                                                        Repasse</th>
+                                                        class="px-6 py-4 text-[#535862] text-xs text-center font-semibold whitespace-nowrap hidden md:table-cell">
+                                                        Valor a receber</th>
                                                     <th
-                                                        class="px-4 py-3 text-center text-sm whitespace-nowrap hidden lg:table-cell">
+                                                        class="px-6 py-4 text-[#535862] text-xs text-center font-semibold whitespace-nowrap hidden lg:table-cell">
                                                         Visibilidade</th>
-                                                    <th class="px-4 py-3 text-center text-sm whitespace-nowrap">Ações
+                                                    <th class="px-6 py-4 text-[#535862] text-xs text-center font-semibold whitespace-nowrap">Ações
                                                     </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <tr v-for="(batch, index) in form.batches" :key="batch._id || index"
                                                     class="border-b hover:bg-gray-100 transition">
-                                                    <td class="px-4 text-sm py-3">{{ batch.name }}</td>
-                                                    <td class="px-4 py-3 text-center text-sm hidden sm:table-cell">{{
+                                                    <td class="px-4 text-xs py-2.5">{{ batch.name }}</td>
+                                                    <td class="px-4 py-2.5 text-center text-xs hidden sm:table-cell">{{
                                                         batch.quantity }}</td>
-                                                    <td class="px-4 py-3 text-center text-sm">{{
+                                                    <td class="px-4 py-2.5 text-center text-xs">{{
                                                         formatAmount(batch.price) }}</td>
-                                                    <td class="px-4 py-3 text-center text-sm hidden md:table-cell">4%
+                                                    <td class="px-4 py-2.5 text-center text-xs hidden md:table-cell">4%
                                                     </td>
-                                                    <td class="px-4 py-3 text-center text-sm hidden md:table-cell">{{
+                                                    <td class="px-4 py-2.5 text-center text-xs hidden md:table-cell">{{
                                                         formatAmount(calcularValorComTaxa(batch.price)) }}</td>
-                                                    <td class="px-4 py-3 text-center text-sm hidden lg:table-cell">{{
+                                                    <td class="px-4 py-2.5 text-center text-xs hidden lg:table-cell">{{
                                                         batch.visibility == 'public' ? 'Público' : 'Privado' }}</td>
-                                                    <td class="px-4 py-3 flex justify-center gap-2">
+                                                    <td class="px-4 py-2.5 flex justify-center gap-2">
                                                         <button @click="openModalEditTicket(batch, index)"
-                                                            class="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">Editar</button>
+                                                            class="px-3 py-1 text-xs bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">Editar</button>
                                                         <button @click="deleteTicket(index, batch._id)"
-                                                            class="px-3 py-1 text-sm bg-red-500 text-white rounded-md hover:bg-red-600 transition">Excluir</button>
+                                                            class="px-3 py-1 text-xs bg-red-500 text-white rounded-md hover:bg-red-600 transition">Excluir</button>
                                                     </td>
                                                 </tr>
                                             </tbody>

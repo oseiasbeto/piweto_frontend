@@ -691,8 +691,8 @@ onMounted(() => {
 <template>
     <div
         class="w-full md:w-[700px] text-[#50525f] lg:w-[1000px] h-[calc(100vh-50px)] lg:h-[600px] bg-white shadow-[0_3px_9px_rgba(0,0,0,.5)] rounded-[8px] overflow-y-auto scrollbar-hide">
-        <div class="p-[20px_30px] relative text-center">
-            <div class="text-[28px] font-light">
+        <div class="p-[20px_30px] relative">
+            <div class="text-[24px] lg:text-[28px] font-light text-left leading-5 lg:text-center">
                 {{ modal?.data?.action == 'edit' ? 'Editar ingresso' : 'Criar Ingresso' }}
                 <strong class="font-bold">{{ 'pago' }}</strong>
             </div>
@@ -977,10 +977,10 @@ onMounted(() => {
 
                 <div class="flex w-full justify-center lg:justify-start lg:w-auto gap-2">
                     <button
-                        class="bg-white text-sm font-semibold uppercase hover:opacity-80 text-brand-info py-2 px-6 rounded-full hover:bg-[#f1f1f1]"
+                        class="bg-white text-xs lg:text-sm font-semibold uppercase hover:opacity-80 text-brand-info py-2 px-4 rounded-full hover:bg-[#f1f1f1]"
                         @click="close">Cancelar</button>
                     <button
-                        class="bg-[#ff9023] text-sm font-semibold uppercase hover:opacity-80 text-white py-2 px-6 rounded-full"
+                        class="bg-[#ff9023] whitespace-nowrap text-xs lg:text-sm font-semibold uppercase hover:opacity-80 text-white py-2 px-4 rounded-full"
                         @click="submit" :disabled="loadingBatch || loadingEditBatch">
                         <span v-if="loadingBatch || loadingEditBatch">Processando...</span>
                         <span v-else>
